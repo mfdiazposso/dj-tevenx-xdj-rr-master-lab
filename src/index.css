@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-base: #0a0a0a;
+  --color-panel: #141414;
+  --color-line: #262626;
+  --color-accent: #ff6b00;
+  --color-cyanx: #00d4ff;
+  --color-action: #e10600;
+}
+
+html, body, #root { height: 100%; }
+* { -webkit-tap-highlight-color: transparent; }
+button { touch-action: manipulation; }
+.tab-enter { animation: tabIn .18s ease-out; }
+@keyframes tabIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+body { background: #0a0a0a; color: #f5f5f5; font-family: Inter, system-ui, sans-serif; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #262626; border-radius: 8px; }
