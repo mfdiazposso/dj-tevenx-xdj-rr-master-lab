@@ -1,12 +1,25 @@
 @import "tailwindcss";
 
+/* ===== DJ TEVENX DESIGN SYSTEM =====
+   bg #0a0a0a · card #111111 · border #1e1e1e
+   naranja #ff6b00 · cian #00d4ff
+   verde OK #00E676/#00FF88 · rojo FAIL #FF1744/#e10600
+   texto #f5f5f5 / #8a8a8a · Inter Bold títulos · JetBrains Mono datos */
+
 @theme {
   --color-base: #0a0a0a;
   --color-panel: #141414;
+  --color-card: #111111;
   --color-line: #262626;
+  --color-line2: #1e1e1e;
   --color-accent: #ff6b00;
   --color-cyanx: #00d4ff;
   --color-action: #e10600;
+  --color-ok: #00e676;
+  --color-fail: #ff1744;
+  --color-muted: #8a8a8a;
+  --font-display: Inter, system-ui, sans-serif;
+  --font-mono2: "JetBrains Mono", ui-monospace, monospace;
 }
 
 html, body, #root { height: 100%; }
@@ -14,6 +27,17 @@ html, body, #root { height: 100%; }
 button { touch-action: manipulation; }
 .tab-enter { animation: tabIn .18s ease-out; }
 @keyframes tabIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-body { background: #0a0a0a; color: #f5f5f5; font-family: Inter, system-ui, sans-serif; }
+body {
+  background: #0a0a0a; color: #f5f5f5;
+  font-family: Inter, system-ui, sans-serif;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; }
+.card { background: #111111; border: 1px solid #1e1e1e; border-radius: 16px; }
+.btn-pill { border-radius: 999px; }
+.glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.15); }
+.confetti-piece { position: fixed; top: -12px; width: 8px; height: 14px; z-index: 200; animation: confetti-fall 2.6s ease-in forwards; pointer-events: none; }
+@keyframes confetti-fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #262626; border-radius: 8px; }

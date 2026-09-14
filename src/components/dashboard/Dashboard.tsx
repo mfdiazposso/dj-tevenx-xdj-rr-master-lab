@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { controls } from '../../data/controls';
 import { lessons } from '../../data/lessons';
 import { missions } from '../../data/missions';
 import { quizzes } from '../../data/quizzes';
@@ -7,23 +8,50 @@ import { fmtMB, MAX_TRACK_COUNT, useTracks } from '../../store/tracks';
 import { DashboardStats } from './WhatToPracticeToday';
 import DailyHabit from './DailyHabit';
 
+const TrackUploader = lazy(() => import('../uploader/TrackUploader'));
+
 function TracksCard({ onSim }: { onSim: () => void }) {
   const { tracks, usedBytes } = useTracks();
+  const [open, setOpen] = useState(false);
   const pct = Math.round((tracks.length / MAX_TRACK_COUNT) * 100);
   return (
     <div className="rounded-xl border border-[#00B0FF]/40 bg-[#00B0FF]/5 p-4">
       <div className="flex items-center gap-2">
         <p className="text-[11px] font-black tracking-widest text-[#00B0FF]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
         <span className="text-[11px] text-neutral-500">{fmtMB(usedBytes())}</span>
-        <button type="button" onClick={onSim} className="ml-auto text-xs font-black border border-[#00B0FF] text-[#00B0FF] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">Ir a Simulador</button>
+        <button type="button" onClick={() => setOpen((o) => !o)} className="ml-auto px-3 py-1.5 rounded-lg bg-[#ff6b00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR</button>
+        <button type="button" onClick={onSim} className="text-xs font-black border border-[#00B0FF] text-[#00B0FF] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">Ir a Simulador</button>
       </div>
       <div className="h-2 rounded bg-black border border-[#262626] mt-2 overflow-hidden"><div className="h-full bg-[#00B0FF] transition-all" style={{ width: `${pct}%` }} /></div>
       {tracks.length > 0 && <p className="text-xs text-neutral-400 mt-1 truncate">Último: {tracks[tracks.length - 1].name}</p>}
+      {open && (
+        <Suspense fallback={<p className="text-xs text-neutral-500 mt-2">Cargando uploader...</p>}>
+          <div className="mt-2"><TrackUploader /></div>
+        </Suspense>
+      )}
     </div>
   );
 }
 
 const CLUB_CHECK = ['USB analizado FAT32', 'TRIM a 0dB (verdes + 1 ámbar)', 'BOOTH calibrado', 'QUANTIZE ON', 'MASTER en 0dB', 'ECHO 1/2 listo'];
+
+function Confetti() {
+  const [pieces] = useState(() =>
+    Array.from({ length: 60 }, (_, i) => ({
+      left: (i * 37) % 100,
+      color: ['#ff6b00', '#00d4ff', '#00E676', '#FF1744', '#FFEA00'][i % 5],
+      delay: (i % 10) * 0.15,
+    }))
+  );
+  useEffect(() => { if (navigator.vibrate) navigator.vibrate([30, 50, 30]); }, []);
+  return (
+    <div aria-hidden>
+      {pieces.map((p, i) => (
+        <span key={i} className="confetti-piece" style={{ left: `${p.left}%`, background: p.color, animationDelay: `${p.delay}s` }} />
+      ))}
+    </div>
+  );
+}
 
 function ClubCard() {
   const [check, setCheck] = useState<string[]>(() => JSON.parse(localStorage.getItem('rr-club-check') || '[]'));
@@ -51,7 +79,7 @@ function ClubCard() {
 }
 
 export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) => void; onSim: (controlId?: string) => void }) {
-  const { completedLessons, completedMissions, completedExercises, completeLesson, completeMission, lastLessonId, examScore, saveExam } = useProgress();
+  const { done, completedLessons, completedMissions, completedExercises, completeLesson, completeMission, lastLessonId, examScore, saveExam } = useProgress();
   const next = lessons.find((l) => !completedLessons.includes(l.id));
   const unlocked = examFinalUnlocked(completedLessons, completedExercises);
   const examQs = useMemo(() => [...quizzes].sort(() => Math.random() - 0.5).slice(0, 30), []);
@@ -62,6 +90,12 @@ export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) =
   return (
     <section className="space-y-3">
       <DashboardStats />
+      {done.length >= controls.length && controls.length > 0 && <Confetti />}
+      {done.length >= controls.length && controls.length > 0 && (
+        <div className="rounded-2xl border border-[#00E676]/50 bg-[#00E676]/10 p-4 text-center">
+          <p className="font-black text-[#00E676]">🎉 100% RR MASTER — 48/48 controles dominados</p>
+        </div>
+      )}
       <DailyHabit onGo={onGo} onSim={(id) => onSim(id)} />
       <TracksCard onSim={() => onSim()} />
       <ClubCard />

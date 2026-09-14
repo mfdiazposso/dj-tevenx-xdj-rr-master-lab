@@ -16,7 +16,7 @@ function useCountdown(min: number) {
 }
 
 export default function DailyHabit({ onGo, onSim }: { onGo: (id: string) => void; onSim: (id: string) => void }) {
-  const { streak, xp, learnedTricks, routineDone, toggleRoutine, touchToday } = useDaily();
+  const { streak, xp, learnedTricks, routineDone, toggleRoutine, touchToday, mixes } = useDaily();
   const trick = proTricks[dayIndex() % proTricks.length];
   const challenge = CHALLENGES[dayIndex() % CHALLENGES.length];
   const timer = useCountdown(10);
@@ -39,7 +39,9 @@ export default function DailyHabit({ onGo, onSim }: { onGo: (id: string) => void
         <p className="text-[11px] font-black tracking-widest text-[#ff6b00]">HÁBITO DIARIO</p>
         <span className="text-xs font-black">🔥 {streak} días</span>
         <span className="text-xs text-[#00d4ff] font-bold">{xp} XP</span>
-        {hacker && <span className="text-xs font-black bg-[#ff6b00] text-black px-2 py-0.5 rounded">🏆 RR HACKER</span>}
+        <span className="text-xs text-neutral-400" title="Mezclas con track real">🎚 {mixes}</span>
+        {hacker && <span className="text-xs font-black bg-[#ff6b00] text-black px-2 py-0.5 rounded-full">🏆 RR HACKER</span>}
+        {mixes >= 20 && <span className="text-xs font-black bg-[#00E676] text-black px-2 py-0.5 rounded-full">🎚 TRIM MASTER</span>}
         <button type="button" onClick={surprise} className="ml-auto text-xs font-black border border-[#262626] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">🎲 Sorpréndeme</button>
       </div>
 

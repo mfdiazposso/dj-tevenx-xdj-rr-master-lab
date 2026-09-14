@@ -7,6 +7,13 @@ import FichaControl from './components/FichaControl';
 import Dashboard from './components/dashboard/Dashboard';
 import WhatToPracticeToday from './components/dashboard/WhatToPracticeToday';
 import type { Control } from './types';
+import { useDaily } from './store/daily';
+
+function StreakPill() {
+  const streak = useDaily((s) => s.streak);
+  if (!streak) return null;
+  return <span className="px-3 py-1.5 rounded-full bg-[#141414] border border-[#262626] text-xs font-black" title="Racha diaria">🔥 {streak}</span>;
+}
 
 const LessonsView = lazy(() => import('./components/lessons/LessonsView'));
 const Simulator = lazy(() => import('./components/simulator/Simulator'));
@@ -45,6 +52,7 @@ export default function App() {
   const go = (id: string) => {
     setSelected(id);
     setTab('mapa');
+    try { useDaily.getState().visit(id); } catch { /* noop */ }
     requestAnimationFrame(() => mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
 
@@ -74,6 +82,9 @@ export default function App() {
               )}
             </div>
             <button aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#00d4ff] ${rrMode ? 'border-[#00d4ff] text-[#00d4ff]' : 'border-[#262626] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
+            <button type="button" onClick={() => setTab('simulador')} aria-label="Subir tracks"
+              className="px-3 py-1.5 rounded-full bg-[#ff6b00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
+            <StreakPill />
             <span className="px-3 py-1.5 rounded-lg bg-[#141414] border border-[#262626] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
           </div>
         </div>

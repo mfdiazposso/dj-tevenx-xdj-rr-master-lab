@@ -6,9 +6,13 @@ interface DailyState {
   xp: number;
   learnedTricks: string[];
   routineDone: string[]; // `${date}:${step}`
+  mixes: number; // mezclas con track real (PLAY con buffer)
+  visited: string[]; // controles visitados (+20 XP c/u)
   touchToday: () => void;
   learnTrick: (id: string) => void;
   toggleRoutine: (step: string) => void;
+  visit: (id: string) => void;
+  bumpMixes: () => void;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -20,6 +24,8 @@ export const useDaily = create<DailyState>()((set, get) => ({
   xp: Number(localStorage.getItem('rr-xp') || 0),
   learnedTricks: JSON.parse(localStorage.getItem('rr-tricks') || '[]'),
   routineDone: JSON.parse(localStorage.getItem('rr-routine') || '[]'),
+  mixes: Number(localStorage.getItem('rr-mixes') || 0),
+  visited: JSON.parse(localStorage.getItem('rr-visited') || '[]'),
   touchToday: () => {
     const t = today();
     const { lastDay, streak } = get();
@@ -45,6 +51,21 @@ export const useDaily = create<DailyState>()((set, get) => ({
     localStorage.setItem('rr-routine', JSON.stringify(next));
     set({ routineDone: next });
     if (!has) get().touchToday();
+  },
+  visit: (id: string) => {
+    if (get().visited.includes(id)) return;
+    const visited = [...get().visited, id];
+    const xp = get().xp + 20;
+    localStorage.setItem('rr-visited', JSON.stringify(visited));
+    localStorage.setItem('rr-xp', String(xp));
+    set({ visited, xp });
+    get().touchToday();
+  },
+  bumpMixes: () => {
+    const mixes = get().mixes + 1;
+    localStorage.setItem('rr-mixes', String(mixes));
+    set({ mixes });
+    get().touchToday();
   },
 }));
 

@@ -26,9 +26,9 @@ function Hotspot({ c, selected, fail, onSelect, onHover }: { c: Control; selecte
       className={`relative box-border border border-[#262626] text-left text-[11px] leading-tight px-2 py-1.5 min-h-[44px] rounded-md select-none touch-manipulation cursor-pointer transition-colors duration-150 transform-gpu hover:outline hover:outline-2 hover:outline-[#00d4ff] hover:bg-[#1a1a1a] hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00d4ff]
         ${fail ? 'bg-[#e10600]/10 text-white' : selected ? 'bg-[#00d4ff]/10 text-white outline outline-2 outline-[#00d4ff]' : 'bg-[#1a1a1a] text-neutral-300'}`}
     >
-      <span className="font-semibold">{isDone ? '✓ ' : ''}{c.name}</span>
+      <span className="font-semibold pointer-events-none">{isDone ? '✓ ' : ''}{c.name}</span>
       {fail && (
-        <span aria-hidden className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#e10600] text-[11px] font-black text-white shadow-[0_0_8px_#e10600]">✕</span>
+        <span aria-hidden className="pointer-events-none absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#e10600] text-[11px] font-black text-white shadow-[0_0_8px_#e10600]">✕</span>
       )}
     </button>
   );
@@ -69,7 +69,7 @@ export default function MapaRR({ selected, onSelect, onHover }: { selected: stri
                 <p className="text-[11px] text-neutral-400">Diagrama esquemático educativo. No oficial Pioneer.</p>
               </div>
             )}
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-1.5">
               {(i === 1 ? center : list.slice(0, 24)).map((ctl) => (
                 <Hotspot key={`${i}-${ctl.id}`} c={ctl} selected={selected === ctl.id} fail={qa && fails.has(ctl.id)} onSelect={() => onSelect(ctl.id)} onHover={onHover} />
               ))}

@@ -10,7 +10,7 @@ const buzz = (ms = 10) => { if (navigator.vibrate) navigator.vibrate(ms); };
 const FXS = ['DELAY', 'ECHO', 'SPIRAL', 'REVERB', 'TRANS', 'FLANGER', 'PITCH', 'ROLL'] as const;
 const COLORS = ['DUB ECHO', 'SWEEP', 'FILTER', 'NOISE'] as const;
 const HOTPADS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] as const;
-const HOTCOLORS = ['#00E676', '#00B0FF', '#FF9100', '#FFEA00', '#FF1744', '#D500F9', '#651FFF', '#00E5FF'] as const;
+const HOTCOLORS = ['#00B0FF', '#FF8F00', '#00E676', '#E040FB', '#FFEA00', '#D500F9', '#651FFF', '#00E5FF'] as const;
 const LOOPS = [1, 2, 4, 8] as const;
 const RANGES = [{ l: '±8', v: 8 }, { l: '±16', v: 16 }, { l: 'WIDE', v: 100 }] as const;
 
@@ -88,9 +88,9 @@ function DeckZone({ n, eng, tick }: { n: 0 | 1; eng: Eng; tick: number }) {
 
       <div className="grid grid-cols-3 gap-1.5">
         <button type="button" aria-label={`Play ${n + 1}`} onPointerDown={() => buzz()} onClick={() => { const now = Date.now(); (E._lt ??= {})[n] = (E._lt ?? {})[n] || 0; if (now - E._lt[n] < 300) E.cue(n); else E.play(n); E._lt[n] = now; }}
-          className={`${BTN} min-h-[56px] rounded-xl bg-emerald-600 font-black text-base ${eng.playing[n] ? 'shadow-[0_0_12px_#00d4ff]' : ''}`}>▶ PLAY</button>
-        <button type="button" aria-label={`Cue ${n + 1}`} onPointerDown={() => { buzz(); E.cue(n); }} onPointerUp={() => E.pause(n)}
-          className={`${BTN} min-h-[56px] rounded-xl bg-[#e10600] font-black text-base`}>CUE</button>
+          className={`${BTN} min-h-[56px] rounded-xl bg-[#00E676] text-black font-black text-base ${eng.playing[n] ? 'shadow-[0_0_12px_#00E676]' : ''}`}>▶ PLAY</button>
+        <button type="button" aria-label={`Cue ${n + 1}`} onPointerDown={() => { if (navigator.vibrate) navigator.vibrate(50); E.cue(n); }} onPointerUp={() => E.pause(n)}
+          className={`${BTN} min-h-[56px] rounded-xl bg-[#FF1744] text-white font-black text-base`}>CUE</button>
         <button type="button" onClick={() => { setSync((s) => !s); E.play(n); buzz(); }} className={`${BTN} min-h-[56px] rounded-xl border font-black text-xs ${sync ? 'bg-[#00E676] text-black shadow-[0_0_12px_#00E676]' : 'border-[#262626] text-neutral-300'}`}>SYNC</button>
       </div>
       <div className="grid grid-cols-4 gap-1.5">
