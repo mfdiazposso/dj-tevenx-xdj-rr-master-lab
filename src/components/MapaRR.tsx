@@ -26,9 +26,9 @@ function Hotspot({ c, selected, fail, onSelect, onHover }: { c: Control; selecte
       className={`relative box-border border border-[#262626] text-left text-[11px] leading-tight px-2 py-1.5 min-h-[44px] rounded-md select-none touch-manipulation cursor-pointer transition-colors duration-150 transform-gpu hover:outline hover:outline-2 hover:outline-[#00d4ff] hover:bg-[#1a1a1a] hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00d4ff]
         ${fail ? 'bg-[#e10600]/10 text-white' : selected ? 'bg-[#00d4ff]/10 text-white outline outline-2 outline-[#00d4ff]' : 'bg-[#1a1a1a] text-neutral-300'}`}
     >
-      <span className="font-semibold pointer-events-none">{isDone ? '✓ ' : ''}{c.name}</span>
+      <span className="map-label font-semibold pointer-events-none">{isDone ? '✓ ' : ''}{c.name}</span>
       {fail && (
-        <span aria-hidden className="pointer-events-none absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#e10600] text-[11px] font-black text-white shadow-[0_0_8px_#e10600]">✕</span>
+        <span aria-hidden className="pointer-events-none ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#e10600] text-[11px] font-black text-white">✕</span>
       )}
     </button>
   );

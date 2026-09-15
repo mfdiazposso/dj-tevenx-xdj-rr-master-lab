@@ -59,7 +59,7 @@ function Jog({ onNudge }: { onNudge: (dx: number) => void }) {
   return (
     <div
       role="slider" aria-label="Jog wheel" tabIndex={0}
-      className="mx-auto h-28 w-28 lg:h-[180px] lg:w-[180px] rounded-full border-4 border-[#262626] hover:border-[#ff6b00]/50 bg-[radial-gradient(circle,#222_30%,#0a0a0a_70%)] cursor-grab active:cursor-grabbing flex items-center justify-center text-xs text-neutral-500 select-none focus:ring-1 focus:ring-[#00d4ff] touch-none"
+      className="jog mx-auto h-28 w-28 lg:h-[180px] lg:w-[180px] rounded-full border-4 border-[#262626] hover:border-[#ff6b00]/50 bg-[radial-gradient(circle,#222_30%,#0a0a0a_70%)] cursor-grab active:cursor-grabbing flex items-center justify-center text-xs text-neutral-500 select-none focus:ring-1 focus:ring-[#00d4ff] touch-none"
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}
       onPointerMove={(e) => { if (e.buttons === 1) { onNudge(e.clientX - lastX.current); lastX.current = e.clientX; } }}
       onPointerUp={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ } }}
@@ -160,7 +160,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     <div className="rounded-xl border border-[#262626] bg-[#0a0a0a] p-3 space-y-2 text-center">
       <p className="text-xs font-black tracking-widest text-[#ff6b00]">MIXER</p>
       <div className="flex justify-center gap-3"><div><p className="text-[10px] text-neutral-500">CH1</p><Meter value={lv.deck[0]} /></div><div><p className="text-[10px] text-neutral-500">MST</p><Meter value={lv.master} /></div><div><p className="text-[10px] text-neutral-500">CH2</p><Meter value={lv.deck[1]} /></div></div>
-      <div className="max-w-[200px] mx-auto w-full"><Slider label="CROSSFADER" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} /></div>
+      <div className="mx-auto w-full" style={{ width: 'clamp(140px, 60vw, 200px)', maxWidth: '100%' }}><Slider label="CROSSFADER" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} /></div>
       <Slider label="MASTER" min={0} max={1.2} step={0.01} value={master} onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} />
     </div>
   );
@@ -168,22 +168,22 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   if (practice) return <MobilePracticeMode eng={eng} onExit={() => setPractice(false)} />;
 
   return (
-    <div className="pb-24">
-      {rrMode && <div className="mb-2 rounded-xl border border-[#00d4ff]/50 bg-[#00d4ff]/10 p-3 text-sm"><b className="text-[#00d4ff]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
-      {focusName && <div className="mb-2 rounded-xl border border-[#00d4ff]/50 bg-[#00d4ff]/5 p-3 text-sm">🎯 <b className="text-[#00d4ff]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
-      {!rrMode && <div className="mb-2 rounded-xl border border-[#262626] bg-[#141414] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + TEMPO Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}
-      <Suspense fallback={<p className="text-xs text-neutral-500">Cargando uploader...</p>}>
-        <TrackUploader eng={eng} />
+    <div className="simulator-wrapper pb-24">
+      {rrMode && <div className="sim-chrome mb-2 rounded-xl border border-[#00d4ff]/50 bg-[#00d4ff]/10 p-3 text-sm"><b className="text-[#00d4ff]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
+      {focusName && <div className="sim-chrome mb-2 rounded-xl border border-[#00d4ff]/50 bg-[#00d4ff]/5 p-3 text-sm">🎯 <b className="text-[#00d4ff]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
+      {!rrMode && <div className="sim-chrome mb-2 rounded-xl border border-[#262626] bg-[#141414] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + TEMPO Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}
+      <Suspense fallback={<p className="sim-chrome text-xs text-neutral-500">Cargando uploader...</p>}>
+        <div className="sim-chrome"><TrackUploader eng={eng} /></div>
       </Suspense>
-      <div className="flex gap-2 mb-2">
+      <div className="sim-chrome flex gap-2 mb-2">
         <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-lg bg-[#ff6b00] text-black text-sm font-black`}>📱 MODO PRÁCTICA CELULAR</button>
       </div>
-      <div className="lg:hidden sticky top-0 z-20 bg-[#0a0a0a]/90 backdrop-blur border border-[#262626] rounded-xl flex gap-1.5 mb-2 py-2 px-2">
+      <div className="sim-tabs md:hidden sticky top-0 z-20 bg-[#0a0a0a]/90 backdrop-blur border border-[#262626] rounded-xl flex gap-1.5 mb-2 py-2 px-2">
         {(['d1', 'mix', 'd2'] as const).map((t) => (
           <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-lg text-xs font-black ${mobileTab === t ? 'bg-[#ff6b00] text-black' : 'border border-[#262626] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
         ))}
       </div>
-      <div className="lg:hidden"
+      <div className="sim-mobile md:hidden overflow-hidden"
         onTouchStart={(e) => { swipeX.current = e.touches[0].clientX; }}
         onTouchEnd={(e) => { if (swipeX.current != null) onSwipeEnd(e.changedTouches[0].clientX - swipeX.current); swipeX.current = null; }}
       >
@@ -191,10 +191,10 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
         {mobileTab === 'mix' && mixerUI}
         {mobileTab === 'd2' && deckUI(1)}
       </div>
-      <div className="hidden lg:grid gap-3 lg:grid-cols-[1fr_280px_1fr]">
+      <div className="sim-desktop hidden md:grid gap-3 md:grid-cols-2 lg:grid-cols-[1fr_320px_1fr] overflow-hidden">
         {deckUI(0)}
-        {mixerUI}
         {deckUI(1)}
+        <div className="md:col-span-2 lg:col-span-1">{mixerUI}</div>
       </div>
     </div>
   );

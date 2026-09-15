@@ -68,8 +68,8 @@ export default function App() {
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-100">
       <header className="sticky top-0 z-20 border-b border-[#262626] bg-[#0a0a0a]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
-          <h1 className="font-black tracking-tight text-lg">DJ TEVENX <span className="text-[#ff6b00]">· XDJ-RR MASTER LAB</span></h1>
-          <div className="ml-auto flex items-center gap-2">
+          <h1 className="app-title font-black tracking-tight w-full sm:w-auto">DJ TEVENX <span className="text-[#ff6b00]">· XDJ-RR MASTER LAB</span></h1>
+          <div className="ml-auto flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <div className="relative">
               <input aria-label="Búsqueda global" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar: trim, echo, jog..." className="w-56 rounded-lg bg-[#141414] border border-[#262626] px-3 py-1.5 text-sm outline-none focus:border-[#00d4ff] focus:ring-1 focus:ring-[#00d4ff]" />
               {q && (
@@ -81,11 +81,11 @@ export default function App() {
                 </div>
               )}
             </div>
-            <button aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#00d4ff] ${rrMode ? 'border-[#00d4ff] text-[#00d4ff]' : 'border-[#262626] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
+            <button type="button" aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 min-h-[44px] rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#00d4ff] ${rrMode ? 'border-[#00d4ff] text-[#00d4ff]' : 'border-[#262626] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
             <button type="button" onClick={() => setTab('simulador')} aria-label="Subir tracks"
-              className="px-3 py-1.5 rounded-full bg-[#ff6b00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
+              className="px-3 min-h-[44px] w-full sm:w-auto rounded-full bg-[#ff6b00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
             <StreakPill />
-            <span className="px-3 py-1.5 rounded-lg bg-[#141414] border border-[#262626] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
+            <span className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-lg bg-[#141414] border border-[#262626] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 pb-2 flex gap-1.5 flex-wrap">

@@ -48,7 +48,7 @@ export default function FichaControl({ id, onSimulate }: { id: string | null; on
       </div>
 
       {tab === 'basico' && (
-        <div className="grid md:grid-cols-2 gap-3 text-sm">
+        <div className="ficha-grid text-sm">
           {[['[BÁSICO] 1 línea', c.shortTip], ['¿Qué es?', c.what], ['¿Qué hace?', c.does], ['[VS FLX4]', c.vsFLX4]].map(([t, v]) => (
             <div key={t} className="rounded-2xl bg-black/40 border border-[#1e1e1e] p-3"><p className="text-xs font-bold text-neutral-400 mb-1">{t}</p><p>{v}</p></div>
           ))}
@@ -57,7 +57,7 @@ export default function FichaControl({ id, onSimulate }: { id: string | null; on
       )}
 
       {tab === 'pro' && (
-        <div className="grid md:grid-cols-2 gap-3 text-sm">
+        <div className="ficha-grid text-sm">
           {[['[PRO] Residente de club', c.does], ['Audio (técnico)', c.audioTech], ['¿Cuándo usarlo?', c.whenUse], ['¿Cuándo NO?', c.whenNot], ['[ERROR CARO]', '⚠ ' + c.mistake], ['Ejercicio', '🎧 ' + c.exercise]].map(([t, v]) => (
             <div key={t} className="rounded-2xl bg-black/40 border border-[#1e1e1e] p-3"><p className="text-xs font-bold text-neutral-400 mb-1">{t}</p><p>{v}</p></div>
           ))}

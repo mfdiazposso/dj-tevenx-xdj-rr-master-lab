@@ -23,6 +23,7 @@
 }
 
 html, body, #root { height: 100%; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 * { -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; }
 .tab-enter { animation: tabIn .18s ease-out; }
@@ -30,14 +31,36 @@ button { touch-action: manipulation; }
 body {
   background: #0a0a0a; color: #f5f5f5;
   font-family: Inter, system-ui, sans-serif;
+  font-size: clamp(13px, 1.8vw, 15px);
+  min-height: 100dvh;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
+h1.app-title { font-size: clamp(20px, 4vw, 32px); }
 .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; }
+.bpm { font-size: clamp(14px, 2vw, 18px); }
+.ficha-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.ficha-grid > * { width: 100%; max-width: 100%; box-sizing: border-box; }
+.map-label { font-size: clamp(10px, 1.5vw, 12px); }
 .card { background: #111111; border: 1px solid #1e1e1e; border-radius: 16px; }
 .btn-pill { border-radius: 999px; }
 .glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.15); }
 .confetti-piece { position: fixed; top: -12px; width: 8px; height: 14px; z-index: 200; animation: confetti-fall 2.6s ease-in forwards; pointer-events: none; }
 @keyframes confetti-fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
+
+/* ===== v5.3 LANDSCAPE SIN SCROLL (celular de lado, alto <= 600px) ===== */
+@media (orientation: landscape) and (max-height: 600px) {
+  body, #root { overflow: hidden; height: 100dvh; width: 100dvw; max-height: 100dvh; }
+  .simulator-wrapper .sim-tabs,
+  .simulator-wrapper .sim-mobile,
+  .simulator-wrapper .sim-chrome { display: none !important; }
+  .simulator-wrapper .sim-desktop { display: grid !important; grid-template-columns: 1.15fr 0.9fr 1.15fr; height: 100dvh; gap: 6px; padding: 4px; overflow: hidden; }
+  .simulator-wrapper .jog { width: 82px !important; height: 82px !important; }
+  .simulator-header { display: none; }
+  .portrait-only { display: none !important; }
+}
+@media (orientation: portrait) {
+  .landscape-only { display: none !important; }
+}
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #262626; border-radius: 8px; }

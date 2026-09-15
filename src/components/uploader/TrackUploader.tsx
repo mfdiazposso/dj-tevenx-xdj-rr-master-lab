@@ -33,7 +33,7 @@ export default function TrackUploader({ eng }: { eng?: Eng }) {
         <p className="text-xs font-black tracking-widest text-[#ff6b00]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
         <span className="text-[10px] text-neutral-500">{fmtMB(usedBytes())} · {pct}%</span>
         <button type="button" onClick={() => inputRef.current?.click()}
-          className="ml-auto px-4 py-2 rounded-lg bg-[#ff6b00] text-black text-sm font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS - WEB + APP</button>
+          className="ml-auto px-4 py-3 min-h-[44px] rounded-full bg-[#ff6b00] text-black text-sm font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS - WEB + APP</button>
         <input ref={inputRef} type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a" multiple className="hidden"
           onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ''; }} />
       </div>

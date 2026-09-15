@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const HOOKS = [
   'El botón TRIM que 90% de DJs de FLX4 no usan',
@@ -36,6 +36,12 @@ export const HOOKS = [
 export function ClipModal({ controlName, hook, body, onClose }: { controlName: string; hook: string; body: string; onClose: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hi, setHi] = useState(hook);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
 
   const draw = () => {
     const c = canvasRef.current!;
@@ -82,7 +88,7 @@ export function ClipModal({ controlName, hook, body, onClose }: { controlName: s
 
   return (
     <div className="fixed inset-0 z-[120] bg-black/85 p-4 overflow-y-auto" onClick={onClose}>
-      <div className="max-w-lg mx-auto rounded-xl border border-[#262626] bg-[#0a0a0a] p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[480px] max-h-[90dvh] overflow-y-auto mx-auto my-auto rounded-2xl border border-[#1e1e1e] bg-[#111111] p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
         <p className="text-xs font-black tracking-widest text-[#ff6b00]">📱 CLIP 9:16 PARA REELS</p>
         <label className="block text-xs text-neutral-400">Hook editable
           <input value={hi} onChange={(e) => setHi(e.target.value)} className="mt-1 w-full rounded-lg bg-black border border-[#262626] px-3 py-2 text-sm text-white outline-none focus:border-[#ff6b00]" />

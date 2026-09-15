@@ -18,7 +18,7 @@ function Jog({ label, vinyl, onNudge }: { label: string; vinyl: boolean; onNudge
   const lastX = useRef(0);
   return (
     <div role="slider" aria-label={`Jog ${label}`} tabIndex={0}
-      className={`rounded-full border-4 flex items-center justify-center select-none focus:ring-1 focus:ring-[#00d4ff] touch-none ${vinyl ? 'border-[#00d4ff]/70' : 'border-[#262626]'}`}
+      className={`jog rounded-full border-4 flex items-center justify-center select-none focus:ring-1 focus:ring-[#00d4ff] touch-none ${vinyl ? 'border-[#00d4ff]/70' : 'border-[#262626]'}`}
       style={{ width: 140, height: 140, background: 'radial-gradient(circle,#262626 18%,#141414 45%,#0a0a0a 75%)' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}
       onPointerMove={(e) => { if (e.buttons === 1) { onNudge(e.clientX - lastX.current); lastX.current = e.clientX; } }}
@@ -293,8 +293,19 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
           <button type="button" aria-label="Abrir uploader (long-press LOAD)"
             onPointerDown={lpOpen} onPointerUp={() => lpCancel(true)} onPointerLeave={() => lpCancel()}
             className={`${BTN} text-xs border border-[#00B0FF] text-[#00B0FF] rounded-lg px-3 py-2`}>📁 LOAD</button>
+          <button type="button" aria-label="Pantalla completa" onClick={() => {
+            try {
+              if (document.fullscreenElement) document.exitFullscreen();
+              else document.documentElement.requestFullscreen?.();
+              const o = screen.orientation as any;
+              if (!document.fullscreenElement && o?.lock) o.lock('landscape').catch(() => {});
+              else if (o?.unlock) o.unlock();
+            } catch { /* noop */ }
+            buzz();
+          }} className={`${BTN} text-xs border border-[#262626] text-neutral-300 rounded-lg px-3 py-2`}>⛶ FULL</button>
           <button type="button" onClick={onExit} aria-label="Salir" className={`${BTN} ml-auto text-sm border border-[#262626] rounded-lg px-3 py-2`}>✕</button>
         </header>
+        <p className="portrait-only text-center text-[11px] text-[#ff6b00] font-bold">📱 Gira tu celular para ver la RR completa sin scroll + ⛶ FULL</p>
         <div className="grid grid-cols-[1fr_auto_1fr] gap-2 flex-1 min-h-0 overflow-y-auto">
           <DeckZone n={0} eng={eng} tick={0} />
           <MixerZone eng={eng} />
