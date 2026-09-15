@@ -75,7 +75,7 @@ function Wave({ seed }: { seed: number }) {
     g.clearRect(0, 0, c.width, c.height); g.fillStyle = seed === 0 ? '#00d4ff' : '#ff6b00';
     for (let x = 0; x < c.width; x += 3) { const h = 8 + Math.abs(Math.sin(x * 0.2 + seed * 5)) * 24; g.fillRect(x, 32 - h / 2, 2, h); }
   }, [seed]);
-  return <canvas ref={ref} width={220} height={64} className="w-full h-[60px] lg:h-[80px] rounded bg-black border border-[#262626] pointer-events-none" />;
+  return <canvas ref={ref} width={220} height={64} className="waveform w-full h-[60px] lg:h-[80px] rounded bg-black border border-[#262626] pointer-events-none" />;
 }
 
 export default function Simulator({ focusId }: { focusId?: string | null }) {
@@ -178,7 +178,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       <div className="sim-chrome flex gap-2 mb-2">
         <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-lg bg-[#ff6b00] text-black text-sm font-black`}>📱 MODO PRÁCTICA CELULAR</button>
       </div>
-      <div className="sim-tabs md:hidden sticky top-0 z-20 bg-[#0a0a0a]/90 backdrop-blur border border-[#262626] rounded-xl flex gap-1.5 mb-2 py-2 px-2">
+      <div className="sim-tabs tabs-mobile md:hidden sticky top-0 z-20 bg-[#0a0a0a]/90 backdrop-blur border border-[#262626] rounded-xl flex gap-1.5 mb-2 py-2 px-2">
         {(['d1', 'mix', 'd2'] as const).map((t) => (
           <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-lg text-xs font-black ${mobileTab === t ? 'bg-[#ff6b00] text-black' : 'border border-[#262626] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
         ))}

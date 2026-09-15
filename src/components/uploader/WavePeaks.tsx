@@ -13,5 +13,5 @@ export default function WavePeaks({ peaks, color = '#ff6b00', height = 80 }: { p
       g.fillRect(i * w, (c.height - h) / 2, Math.max(1, w - 1), h);
     });
   }, [peaks, color]);
-  return <canvas ref={ref} width={260} height={height} className="w-full rounded bg-black border border-[#262626] pointer-events-none" style={{ height }} />;
+  return <canvas ref={ref} width={260} height={height} className="waveform w-full rounded bg-black border border-[#262626] pointer-events-none" style={{ height }} />;
 }

@@ -259,7 +259,18 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
   const [lv, setLv] = useState({ deck: [0, 0] as [number, number], master: 0 });
   const [, setTick] = useState(0);
   const [showUp, setShowUp] = useState(false);
+  const [showRotate, setShowRotate] = useState(true);
   const lpTimer = useRef<any>(null);
+
+  const goLandscape = async () => {
+    buzz(15);
+    try {
+      await document.documentElement.requestFullscreen?.();
+      const o = screen.orientation as any;
+      await o?.lock?.('landscape');
+    } catch { /* noop: iOS usa el hint manual */ }
+    setShowRotate(false);
+  };
 
   const lpOpen = () => { lpTimer.current = setTimeout(() => { buzz(15); setShowUp(true); }, 450); };
   const lpCancel = (open = false) => { clearTimeout(lpTimer.current); if (open) setShowUp(true); };
@@ -312,6 +323,17 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
           <DeckZone n={1} eng={eng} tick={0} />
         </div>
         <button type="button" onClick={onExit} className={`${BTN} w-full min-h-[52px] rounded-xl border border-[#ff6b00] text-[#ff6b00] font-black text-sm`}>SALIR DE MODO PRÁCTICA</button>
+        {showRotate && (
+          <div className={`rotate-hint show fixed inset-0 z-[130] items-center justify-center bg-black/85 p-6`} role="dialog" aria-label="Gira tu celular">
+            <div className="w-full max-w-[420px] rounded-2xl border border-[#ff6b00]/50 bg-[#111111] p-6 text-center space-y-3">
+              <p className="text-4xl">📱↻</p>
+              <p className="font-black">GIRA TU CELULAR</p>
+              <p className="text-sm text-neutral-400">Modo horizontal para usar todo el XDJ-RR sin scroll.</p>
+              <button type="button" onClick={goLandscape} className="w-full min-h-[52px] rounded-full bg-[#ff6b00] text-black font-black touch-manipulation active:scale-95">⛶ FULLSCREEN + HORIZONTAL</button>
+              <button type="button" onClick={() => setShowRotate(false)} className="text-xs text-neutral-500">Seguir en vertical</button>
+            </div>
+          </div>
+        )}
         {showUp && (
           <div className="absolute inset-0 z-[110] bg-black/80 p-3 overflow-y-auto">
             <div className="flex items-center gap-2 mb-2">

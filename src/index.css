@@ -23,7 +23,8 @@
 }
 
 html, body, #root { height: 100%; }
-html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; overscroll-behavior: none; }
+body { overscroll-behavior-y: none; }
 * { -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; }
 .tab-enter { animation: tabIn .18s ease-out; }
@@ -48,16 +49,40 @@ h1.app-title { font-size: clamp(20px, 4vw, 32px); }
 .confetti-piece { position: fixed; top: -12px; width: 8px; height: 14px; z-index: 200; animation: confetti-fall 2.6s ease-in forwards; pointer-events: none; }
 @keyframes confetti-fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
 
-/* ===== v5.3 LANDSCAPE SIN SCROLL (celular de lado, alto <= 600px) ===== */
+/* ===== v6.0 PORTRAIT: columna con scroll suave ===== */
+.simulator-wrapper {
+  display: flex; flex-direction: column;
+  gap: clamp(6px, 1.5vw, 12px);
+  overflow-y: auto; overscroll-behavior: contain;
+  -webkit-user-select: none; user-select: none;
+  width: 100%; max-width: 100dvw;
+}
+
+/* ===== v6.0 LANDSCAPE SIN SCROLL (CORE) ===== */
 @media (orientation: landscape) and (max-height: 600px) {
-  body, #root { overflow: hidden; height: 100dvh; width: 100dvw; max-height: 100dvh; }
+  body, #root { height: 100dvh !important; width: 100dvw !important; overflow: hidden !important; max-height: 100dvh; }
+  .simulator-wrapper { height: 100dvh !important; width: 100dvw !important; display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr; gap: 8px; padding: 6px; overflow: hidden !important; }
   .simulator-wrapper .sim-tabs,
   .simulator-wrapper .sim-mobile,
   .simulator-wrapper .sim-chrome { display: none !important; }
-  .simulator-wrapper .sim-desktop { display: grid !important; grid-template-columns: 1.15fr 0.9fr 1.15fr; height: 100dvh; gap: 6px; padding: 4px; overflow: hidden; }
-  .simulator-wrapper .jog { width: 82px !important; height: 82px !important; }
+  .simulator-wrapper .sim-desktop { display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr; height: 100dvh; gap: 8px; padding: 6px; overflow: hidden !important; }
+  .simulator-wrapper .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
+  .simulator-wrapper .waveform { height: clamp(40px, 12vh, 68px) !important; }
   .simulator-header { display: none; }
+  .app-header, .lab-title, .footer, .tabs-mobile { display: none !important; }
   .portrait-only { display: none !important; }
+}
+@media (orientation: portrait) {
+  .landscape-only { display: none !important; }
+}
+
+/* ===== v6.0 ROTATE HINT: solo portrait <900px ===== */
+.rotate-hint { display: none; }
+@media (orientation: portrait) and (max-width: 899px) {
+  .rotate-hint.show { display: flex; }
+}
+@media (max-width: 360px) {
+  main { zoom: 0.88; }
 }
 @media (orientation: portrait) {
   .landscape-only { display: none !important; }
