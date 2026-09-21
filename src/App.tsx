@@ -6,6 +6,7 @@ import MapaRR from './components/MapaRR';
 import FichaControl from './components/FichaControl';
 import Dashboard from './components/dashboard/Dashboard';
 import WhatToPracticeToday from './components/dashboard/WhatToPracticeToday';
+import Simulator from './components/simulator/Simulator'; // EAGER: núcleo mobile-first, sin Suspense en PWA
 import type { Control } from './types';
 import { useDaily } from './store/daily';
 
@@ -15,8 +16,17 @@ function StreakPill() {
   return <span className="px-3 py-1.5 rounded-full bg-[#141414] border border-[#262626] text-xs font-black" title="Racha diaria">🔥 {streak}</span>;
 }
 
+// Fallback que solo aparece si la carga tarda >1s (nunca pantalla negra)
+function SlowFallback() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setSlow(true), 1000);
+    return () => clearTimeout(id);
+  }, []);
+  return slow ? <p className="text-sm text-[#ff6b00] font-bold animate-pulse">CARGANDO XDJ-RR...</p> : null;
+}
+
 const LessonsView = lazy(() => import('./components/lessons/LessonsView'));
-const Simulator = lazy(() => import('./components/simulator/Simulator'));
 const ExercisesView = lazy(() => import('./components/study/StudyViews').then((m) => ({ default: m.ExercisesView })));
 const QuizzesView = lazy(() => import('./components/study/StudyViews').then((m) => ({ default: m.QuizzesView })));
 const GlossaryView = lazy(() => import('./components/study/StudyViews').then((m) => ({ default: m.GlossaryView })));
@@ -108,9 +118,9 @@ export default function App() {
                 <FichaControl id={selected} onSimulate={simulate} />
               </>
             )}
-            <Suspense fallback={<p className="text-sm text-neutral-500">Cargando...</p>}>
+            {tab === 'simulador' && <Simulator focusId={simFocus} />}
+            <Suspense fallback={<SlowFallback />}>
               {tab === 'lecciones' && <LessonsView onGo={go} />}
-              {tab === 'simulador' && <Simulator focusId={simFocus} />}
               {tab === 'ejercicios' && <ExercisesView onGo={go} />}
               {tab === 'tests' && <QuizzesView />}
               {tab === 'glosario' && <GlossaryView />}

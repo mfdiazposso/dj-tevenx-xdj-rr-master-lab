@@ -13,13 +13,15 @@ export default function TrackUploader({ eng }: { eng?: Eng }) {
 
   const loadTo = async (trackId: string, name: string, d: 0 | 1) => {
     if (!eng) return;
-    const blob = await getBlob(trackId);
-    if (!blob) return;
     setBusy(`${trackId}-${d}`);
     try {
+      const blob = await getBlob(trackId); // IndexedDB con try/catch: si falla no rompe el render
+      if (!blob) return;
       await (eng as any).resume?.(); // gesto = unlock iOS
       await (eng as any).loadBlob(d, blob, name);
       if (navigator.vibrate) navigator.vibrate(10);
+    } catch {
+      /* IndexedDB bloqueado/privado: el resto de la app sigue funcionando */
     } finally {
       setBusy(null);
     }
