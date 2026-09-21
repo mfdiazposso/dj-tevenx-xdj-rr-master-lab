@@ -96,6 +96,17 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // v7.0: horizontal por defecto en móvil (fullscreen + lock; iOS lo ignora y usa rotación CSS)
+  useEffect(() => {
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 900;
+    if (!isMobile) return;
+    try { document.documentElement.requestFullscreen?.(); } catch { /* noop */ }
+    try {
+      const o = screen.orientation as any;
+      o?.lock?.('landscape')?.catch?.(() => {});
+    } catch { /* noop */ }
+  }, []);
+
   const K = (d: 0 | 1, k: string, def: number) => knobs[`${d}${k}`] ?? def;
   const SK = (d: 0 | 1, k: string, v: number, fn: (v: number) => void) => { setKnobs((s) => ({ ...s, [`${d}${k}`]: v })); fn(v); };
   const buzz = () => { if (navigator.vibrate) navigator.vibrate(10); };
@@ -178,7 +189,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       <div className="sim-chrome flex gap-2 mb-2">
         <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-lg bg-[#ff6b00] text-black text-sm font-black`}>📱 MODO PRÁCTICA CELULAR</button>
       </div>
-      <div className="sim-tabs tabs-mobile md:hidden sticky top-0 z-20 bg-[#0a0a0a]/90 backdrop-blur border border-[#262626] rounded-xl flex gap-1.5 mb-2 py-2 px-2">
+      <div className="sim-tabs tabs-mobile md:hidden border border-[#262626] rounded-xl flex gap-1.5 mb-2 py-2 px-2 bg-[#0a0a0a]">
         {(['d1', 'mix', 'd2'] as const).map((t) => (
           <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-lg text-xs font-black ${mobileTab === t ? 'bg-[#ff6b00] text-black' : 'border border-[#262626] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
         ))}

@@ -59,6 +59,13 @@ export default function App() {
     return () => { window.removeEventListener('touchstart', unlock); window.removeEventListener('click', unlock); };
   }, []);
 
+  // v7.0: en tab simulador, el body pide horizontal (la CSS rota en portrait <900px)
+  useEffect(() => {
+    if (tab === 'simulador') document.body.classList.add('force-landscape');
+    else document.body.classList.remove('force-landscape');
+    return () => document.body.classList.remove('force-landscape');
+  }, [tab]);
+
   const go = (id: string) => {
     setSelected(id);
     setTab('mapa');
@@ -98,7 +105,7 @@ export default function App() {
             <span className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-lg bg-[#141414] border border-[#262626] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 pb-2 flex gap-1.5 flex-wrap">
+        <div className="tabs max-w-7xl mx-auto px-4 pb-2 flex gap-1.5 flex-wrap">
           {tabs.map((t) => (
             <button key={t} onClick={() => setTab(t)} aria-label={`Ir a ${t}`} className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-widest focus:ring-1 focus:ring-[#00d4ff] ${tab === t ? 'bg-[#ff6b00] text-black' : 'border border-[#262626] text-neutral-400 hover:border-[#00d4ff] hover:text-white'}`}>{t.toUpperCase()}</button>
           ))}
