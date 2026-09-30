@@ -1,21 +1,41 @@
 @import "tailwindcss";
 
-/* ===== DJ TEVENX DESIGN SYSTEM =====
-   bg #0a0a0a · card #111111 · border #1e1e1e
-   naranja #ff6b00 · cian #00d4ff
-   verde OK #00E676/#00FF88 · rojo FAIL #FF1744/#e10600
-   texto #f5f5f5 / #8a8a8a · Inter Bold títulos · JetBrains Mono datos */
+/* ===== DJ TEVENX DESIGN SYSTEM v8.0 PREMIUM =====
+   Obsidian #07080A · Void #1A1D23 · Plasma Violet #8A5CFF
+   Electric Lime #D4FF32 · Signal #F5F5F7 · naranja solo detalle 5% */
 
 @theme {
-  --color-base: #0a0a0a;
-  --color-panel: #141414;
+  --color-base: #07080A;
+  --color-panel: #1A1D23;
+  --color-card: #111111;
+  --color-line: #2A2E37;
+  --color-line2: #1e1e1e;
+  --color-accent: #8A5CFF;
+  --color-cyanx: #8A5CFF;
+  --color-action: #e10600;
+  --color-ok: #D4FF32;
+  --color-fail: #ff1744;
+  --color-muted: #8a8a8a;
+  --tevx-void: #07080A;
+  --tevx-gray: #1A1D23;
+  --tevx-violet: #8A5CFF;
+  --tevx-lime: #D4FF32;
+  --tevx-teal: #00FFD1;
+  --tevx-white: #F5F5F7;
+  --font-display: "Space Grotesk", Inter, system-ui, sans-serif;
+  --font-mono2: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@theme {
+  --color-base: #07080A;
+  --color-panel: #1A1D23;
   --color-card: #111111;
   --color-line: #262626;
   --color-line2: #1e1e1e;
-  --color-accent: #ff6b00;
-  --color-cyanx: #00d4ff;
+  --color-accent: #8A5CFF;
+  --color-cyanx: #8A5CFF;
   --color-action: #e10600;
-  --color-ok: #00e676;
+  --color-ok: #D4FF32;
   --color-fail: #ff1744;
   --color-muted: #8a8a8a;
   --font-display: Inter, system-ui, sans-serif;
@@ -30,7 +50,7 @@ button { touch-action: manipulation; }
 .tab-enter { animation: tabIn .18s ease-out; }
 @keyframes tabIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 body {
-  background: #0a0a0a; color: #f5f5f5;
+  background: #07080A; color: #f5f5f5;
   font-family: Inter, system-ui, sans-serif;
   font-size: clamp(13px, 1.8vw, 15px);
   min-height: 100dvh;
@@ -43,9 +63,54 @@ h1.app-title { font-size: clamp(20px, 4vw, 32px); }
 .ficha-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .ficha-grid > * { width: 100%; max-width: 100%; box-sizing: border-box; }
 .map-label { font-size: clamp(10px, 1.5vw, 12px); }
-.card { background: #111111; border: 1px solid #1e1e1e; border-radius: 16px; }
+.card { background: #111111; border: 1px solid #1e1e1e; border-radius: 24px; }
 .btn-pill { border-radius: 999px; }
-.glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.15); }
+h1, h2 { font-family: "Space Grotesk", Inter, system-ui, sans-serif; letter-spacing: -0.02em; }
+.glass { background: rgba(26, 29, 35, 0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.glow-orange { box-shadow: 0 0 20px rgba(138, 92, 255, 0.25); }
+
+/* Botón pro: inner shadow + glow lime/violet */
+.btn-pro {
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.25), inset 0 -3px 6px rgba(0, 0, 0, 0.35), 0 0 16px rgba(212, 255, 50, 0.25);
+}
+.btn-pro-violet {
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.22), inset 0 -3px 6px rgba(0, 0, 0, 0.4), 0 0 16px rgba(138, 92, 255, 0.4);
+}
+/* Label mono 11px uppercase tracking 15% */
+.lbl { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; }
+
+/* Aurora mesh + grain: identidad ZED */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(600px 400px at 12% 8%, rgba(138, 92, 255, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 88% 20%, rgba(138, 92, 255, 0.08), transparent 60%),
+    radial-gradient(500px 500px at 50% 100%, rgba(212, 255, 50, 0.05), transparent 60%);
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+#root { position: relative; z-index: 1; }
+
+/* Kinetic title: aurora oficial */
+.kinetic {
+  background: linear-gradient(135deg, #8A5CFF 0%, #00FFD1 50%, #D4FF32 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: kinetic-flow 7s linear infinite;
+}
+.kinetic span { -webkit-text-fill-color: #ff6b00; color: #ff6b00; }
+@keyframes kinetic-flow { to { background-position: 220% center; } }
+
+/* Neumorphism real en jogs */
+.jog-pro {
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, 0.65),
+    -4px -4px 12px rgba(255, 255, 255, 0.05),
+    inset 3px 3px 8px rgba(0, 0, 0, 0.6),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.06) !important;
+}
 .confetti-piece { position: fixed; top: -12px; width: 8px; height: 14px; z-index: 200; animation: confetti-fall 2.6s ease-in forwards; pointer-events: none; }
 @keyframes confetti-fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
 

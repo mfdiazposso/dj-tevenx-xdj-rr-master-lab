@@ -30,7 +30,7 @@ export function auditMapControls(root: HTMLElement): QAFail[] {
 
 export function logQAReport(fails: QAFail[], total: number) {
   // eslint-disable-next-line no-console
-  console.group('%cQA MAPA XDJ-RR — diagnóstico', 'color:#ff6b00;font-weight:bold');
+  console.group('%cQA MAPA XDJ-RR — diagnóstico', 'color:#8A5CFF;font-weight:bold');
   // eslint-disable-next-line no-console
   console.log(`Controles: ${total} · OK: ${total - fails.length} · FAIL: ${fails.length} (rojo = sin ✓)`);
   if (fails.length) {

@@ -17,18 +17,18 @@ export default function LessonsView({ onGo }: { onGo: (id: string) => void }) {
         <UsbExportSim />
       </Suspense>
       {groups.map(([title, lv]) => (
-        <div key={lv} className="rounded-xl border border-[#262626] bg-[#141414] p-4">
-          <p className="text-xs font-black tracking-widest text-[#ff6b00]">{title}</p>
+        <div key={lv} className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-4">
+          <p className="text-xs font-black tracking-widest text-[#8A5CFF]">{title}</p>
           <div className="grid md:grid-cols-2 gap-2 mt-2">
             {lessons.filter((l) => l.level === lv).map((l) => {
               const ok = completedLessons.includes(l.id);
               return (
-                <div key={l.id} className="rounded-lg border border-[#262626] bg-black/40 p-3 text-sm">
+                <div key={l.id} className="rounded-lg border border-[#2A2E37] bg-black/40 p-3 text-sm">
                   <p className="font-bold">{ok ? '✓ ' : ''}{l.title}</p>
-                  <p className="text-xs text-[#ff6b00] mt-1">vs FLX4: {l.vsFLX4_note}</p>
+                  <p className="text-xs text-[#8A5CFF] mt-1">vs FLX4: {l.vsFLX4_note}</p>
                   <ul className="text-xs text-neutral-400 mt-1">{l.objectives.map((o) => <li key={o}>· {o}</li>)}</ul>
                   <div className="flex gap-2 mt-2">
-                    <button onClick={() => onGo(l.controls[0])} aria-label={`Ver ${l.title} en mapa`} className="text-xs font-bold text-[#00d4ff] border border-[#00d4ff]/40 rounded-lg px-2 py-1 focus:ring-1 focus:ring-[#00d4ff]">Ver en Mapa</button>
+                    <button onClick={() => onGo(l.controls[0])} aria-label={`Ver ${l.title} en mapa`} className="text-xs font-bold text-[#8A5CFF] border border-[#8A5CFF]/40 rounded-lg px-2 py-1 focus:ring-1 focus:ring-[#8A5CFF]">Ver en Mapa</button>
                     {!ok && <button onClick={() => completeLesson(l.id, l.controls)} className="text-xs font-bold text-emerald-400 border border-emerald-600/40 rounded-lg px-2 py-1">Completar</button>}
                   </div>
                 </div>

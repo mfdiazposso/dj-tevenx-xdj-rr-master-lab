@@ -30,12 +30,12 @@ export default function TrackUploader({ eng }: { eng?: Eng }) {
   const pct = Math.round((usedBytes() / (MAX_TRACK_COUNT * 50 * 1048576)) * 100);
 
   return (
-    <div className="rounded-xl border border-[#262626] bg-[#0a0a0a] p-3 space-y-2">
+    <div className="rounded-xl border border-[#2A2E37] bg-[#07080A] p-3 space-y-2">
       <div className="flex items-center gap-2">
-        <p className="text-xs font-black tracking-widest text-[#ff6b00]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
+        <p className="text-xs font-black tracking-widest text-[#8A5CFF]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
         <span className="text-[10px] text-neutral-500">{fmtMB(usedBytes())} · {pct}%</span>
         <button type="button" onClick={() => inputRef.current?.click()}
-          className="ml-auto px-4 py-3 min-h-[44px] rounded-full bg-[#ff6b00] text-black text-sm font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS - WEB + APP</button>
+          className="ml-auto px-4 py-3 min-h-[44px] rounded-full bg-[#8A5CFF] text-black text-sm font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS - WEB + APP</button>
         <input ref={inputRef} type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a" multiple className="hidden"
           onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ''; }} />
       </div>
@@ -44,24 +44,24 @@ export default function TrackUploader({ eng }: { eng?: Eng }) {
         onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
         onDragLeave={() => setDrag(false)}
         onDrop={(e) => { e.preventDefault(); setDrag(false); if (e.dataTransfer.files) addFiles(e.dataTransfer.files); }}
-        className={`rounded-lg border-2 border-dashed p-4 text-center text-sm transition-colors ${drag ? 'border-[#00d4ff] bg-[#00d4ff]/5 text-white' : 'border-[#262626] text-neutral-500'}`}
+        className={`rounded-lg border-2 border-dashed p-4 text-center text-sm transition-colors ${drag ? 'border-[#8A5CFF] bg-[#8A5CFF]/5 text-white' : 'border-[#2A2E37] text-neutral-500'}`}
       >Arrastra aquí como USB — MP3 / WAV / FLAC (máx 50MB)</div>
 
       {error && <p className="text-xs text-[#e10600] font-bold">{error}</p>}
       {tracks.length === 0 && (
-        <p className="text-sm text-neutral-400 rounded-lg border border-[#ff6b00]/40 bg-[#ff6b00]/5 p-3 animate-pulse">☝ Sube un track para practicar TRIM/GAIN — suena en el deck con EQ + vúmetro vivo.</p>
+        <p className="text-sm text-neutral-400 rounded-lg border border-[#8A5CFF]/40 bg-[#8A5CFF]/5 p-3 animate-pulse">☝ Sube un track para practicar TRIM/GAIN — suena en el deck con EQ + vúmetro vivo.</p>
       )}
 
       <div className="space-y-2 max-h-72 overflow-y-auto">
         {tracks.map((t) => (
-          <div key={t.id} className="rounded-lg border border-[#262626] bg-black/40 p-2">
+          <div key={t.id} className="rounded-lg border border-[#2A2E37] bg-black/40 p-2">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-bold truncate flex-1">{t.name}</span>
               <span className="text-[11px] text-neutral-500 font-mono">{fmtTime(t.duration)} · {fmtMB(t.size)}</span>
               <button type="button" aria-label={`Borrar ${t.name}`} onClick={() => removeTrack(t.id)}
                 className="text-neutral-500 hover:text-[#e10600] px-2 py-1 touch-manipulation">✕</button>
             </div>
-            <WavePeaks peaks={t.peaks} color="#ff6b00" height={80} />
+            <WavePeaks peaks={t.peaks} color="#00FFD1" height={80} />
             {eng ? (
               <div className="flex gap-2 mt-1.5">
                 {([0, 1] as const).map((d) => (
