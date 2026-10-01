@@ -169,7 +169,17 @@ body::after {
   .landscape-only { display: none !important; }
 }
 
-/* ===== v6.0 ROTATE HINT: solo portrait <900px ===== */
+/* ===== v10 CONSOLA 1:1 — fiel a la foto, escala fluida, nunca apiñada ===== */
+.xdj-rr-container {
+  width: min(100vw, 1400px);
+  aspect-ratio: 2.4 / 1;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.6fr 1.15fr;
+  grid-template-rows: auto 1fr;
+  gap: clamp(4px, 0.8vw, 12px);
+  transform-origin: top left;
+}
 .rotate-hint { display: none; }
 @media (orientation: portrait) and (max-width: 899px) {
   .rotate-hint.show { display: flex; }

@@ -155,6 +155,37 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   const [xf, setXf] = useState(0.5); const [master, setMaster] = useState(0.9);
   const [mobileTab, setMobileTab] = useState<'d1' | 'mix' | 'd2'>('mix');
   const [practice, setPractice] = useState(false);
+  const [browseIdx, setBrowseIdx] = useState(0);
+  const [mode, setMode] = useState<'tactil' | 'consola'>(() =>
+    typeof window !== 'undefined' && (/Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 900) ? 'consola' : 'tactil');
+  const [cs, setCs] = useState(0.5);
+  const fitRef = useRef<HTMLDivElement>(null);
+  const { tracks: upTracks } = useTracks();
+  const trackNames = upTracks.length ? upTracks.map((t) => t.name) : ['(sube tracks en MIS TRACKS)'];
+  const browseName = trackNames[browseIdx % trackNames.length];
+  const browseLoad = async (d: 0 | 1) => {
+    const t = upTracks[browseIdx % upTracks.length];
+    if (!t) return;
+    try {
+      const blob = await useTracks.getState().getBlob(t.id);
+      if (!blob) return;
+      await (eng as any).resume?.();
+      await (eng as any).loadBlob(d, blob, t.name);
+      buzz();
+    } catch { /* noop */ }
+  };
+
+  useEffect(() => {
+    if (mode !== 'consola') return;
+    const el = fitRef.current;
+    if (!el || !el.parentElement) return;
+    const ro = new ResizeObserver(() => {
+      const r = el.parentElement!.getBoundingClientRect();
+      setCs(Math.min(r.width / 1280, (r.height || 620) / 533));
+    });
+    ro.observe(el.parentElement);
+    return () => ro.disconnect();
+  }, [mode]);
   const [knobs, setKnobs] = useState<Record<string, number>>({});
   const [leds, setLeds] = useState<Record<string, boolean>>({ v0: true, v1: true, q0: true, q1: true });
   const [fxSel, setFxSel] = useState('ECHO');
@@ -343,6 +374,90 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     </div>
   );
 
+  /* ===== CONSOLA 1:1 — réplica fiel escalada (nunca apiñada) ===== */
+  const deckC = (n: 0 | 1) => {
+    const hot8: (number | null)[] = (eng as any).deckHot ? (eng as any).deckHot(n) : [];
+    const stc: any = (eng as any).deckState ? (eng as any).deckState(n) : { loop: 0 };
+    return (
+      <div className="rounded-2xl border border-[#2A2E37] p-2 space-y-1.5 min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#1A1D23,#111111)' }}>
+        <div className="flex items-center justify-center gap-2">
+          <Jog onNudge={(dx) => (eng as any).nudge?.(n, dx)} />
+        </div>
+        <div className="flex gap-1">
+          <button type="button" onClick={() => { buzz(); click(); eng.play(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#D4FF32] text-black font-black text-sm touch-manipulation active:scale-95">▶</button>
+          <button type="button" onClick={() => { cueBuzz(); click(); eng.cue(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#FF1744] text-white font-black text-sm touch-manipulation active:scale-95">CUE</button>
+          <button type="button" onClick={() => { buzz(); eng.pause(n); }} className="flex-1 min-h-[44px] rounded-xl border border-[#2A2E37] font-black text-sm text-neutral-300 touch-manipulation">❚❚</button>
+        </div>
+        <div className="grid grid-cols-8 gap-1">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+            <button key={i} type="button" aria-label={`Hot ${i + 1} deck ${n + 1}`}
+              onClick={() => { buzz(); if (hot8[i] != null) (eng as any).triggerHotCue(n, i); else (eng as any).setHotCue(n, i); }}
+              onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
+              style={hot8[i] != null ? { borderColor: '#00B0FF', color: '#00B0FF', background: '#00B0FF22', boxShadow: '0 0 10px #00B0FF' } : undefined}
+              className="min-h-[36px] rounded-lg border border-[#2A2E37] text-neutral-600 font-black text-xs touch-manipulation active:scale-95">{i + 1}</button>
+          ))}
+        </div>
+        <Slider label="Tempo" min={-8} max={8} step={0.1} value={K(n, 'p', 0)} onChange={(v: number) => SK(n, 'p', v, (x) => eng.setTempo(n, x))} />
+        <div className="grid grid-cols-5 gap-1">
+          {[1, 2, 4, 8].map((b) => (
+            <button key={b} type="button" onClick={() => { (eng as any).setBeatLoop(n, b); buzz(); }}
+              className={`min-h-[36px] rounded-lg text-xs font-black border touch-manipulation ${stc.loop === b ? 'bg-[#00FFD1] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>{b}</button>
+          ))}
+          <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }} className="min-h-[36px] rounded-lg text-[10px] font-black border border-[#2A2E37] text-neutral-300 touch-manipulation">EXIT</button>
+        </div>
+        <div className="flex justify-center gap-2">
+          <Knob label="Trim" min={0} max={1.2} value={K(n, 't', 0.8)} reset={0.8} onChange={(v: number) => SK(n, 't', v, (x) => eng.setTrim(n, x))} />
+          <Knob label="Hi" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
+          <Knob label="Mid" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
+          <Knob label="Low" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
+        </div>
+      </div>
+    );
+  };
+
+  const mixerC = (
+    <div className="rounded-2xl border border-[#2A2E37] p-2 space-y-1.5 text-center min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#1A1D23,#111111)' }}>
+      <p className="lbl font-black text-[#8A5CFF]">Mixer</p>
+      <div className="flex justify-center gap-2">
+        <div><p className="lbl text-neutral-500">1</p><Meter value={lv.deck[0]} /></div>
+        <div><p className="lbl text-neutral-500">M</p><Meter value={lv.master} /></div>
+        <div><p className="lbl text-neutral-500">2</p><Meter value={lv.deck[1]} /></div>
+      </div>
+      <Slider label="CH1" min={0} max={1} step={0.01} value={K(0, 'f', 0.9)} onChange={(v: number) => SK(0, 'f', v, (x) => eng.setFader(0, x))} />
+      <Slider label="CH2" min={0} max={1} step={0.01} value={K(1, 'f', 0.9)} onChange={(v: number) => SK(1, 'f', v, (x) => eng.setFader(1, x))} />
+      <Slider label="Xfade" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} />
+      <div className="flex justify-center"><Knob label="Master" min={0} max={1.2} value={master} reset={0.9} color="#D4FF32" onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} /></div>
+      <div className="flex gap-1 items-center justify-center">
+        <button type="button" onClick={() => { const i = (FXS.indexOf(fxSel) + 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="text-[10px] font-black text-[#8A5CFF] truncate">FX:{fxSel}</button>
+        <button type="button" onClick={() => { const v = !fxOn; setFxOn(v); if (v) (eng as any).setBeatFX(fxSel, fxLvl, 0.375); (eng as any).fxOnOff(v); buzz(); }}
+          className={`min-h-[44px] px-3 rounded-xl font-black text-xs touch-manipulation ${fxOn ? 'bg-[#8A5CFF] text-black' : 'border border-[#8A5CFF] text-[#8A5CFF]'}`}>{fxOn ? '●' : '○'}</button>
+      </div>
+    </div>
+  );
+
+  const consoleView = (
+    <div ref={fitRef} className="w-full overflow-hidden" style={{ height: Math.max(200, 533 * cs) }}>
+      <div className="xdj-rr-container" style={{ width: 1280, height: 533, transform: `scale(${cs})`, transformOrigin: 'top left' }}>
+        <div style={{ gridColumn: '1 / -1' }} className="flex gap-2 items-stretch">
+          <div className="flex-1 min-w-0"><ScreenStrip eng={eng} /></div>
+          <div className="rounded-2xl border border-[#2A2E37] bg-black/60 px-3 py-1 flex items-center gap-2 shrink-0">
+            <button type="button" aria-label="Browser anterior" onClick={() => { setBrowseIdx((i) => (i + trackNames.length - 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#2A2E37] font-black touch-manipulation">◀</button>
+            <div className="w-40">
+              <p className="lbl text-neutral-500">Browse</p>
+              <p className="mono text-[11px] text-[#00FFD1] truncate">{browseName}</p>
+            </div>
+            <button type="button" aria-label="Browser siguiente" onClick={() => { setBrowseIdx((i) => (i + 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#2A2E37] font-black touch-manipulation">▶</button>
+            <button type="button" onClick={() => browseLoad(0)} className="min-h-[44px] px-2 rounded-xl border border-[#00B0FF] text-[#00B0FF] text-xs font-black touch-manipulation">LOAD1</button>
+            <button type="button" onClick={() => browseLoad(1)} className="min-h-[44px] px-2 rounded-xl border border-[#00B0FF] text-[#00B0FF] text-xs font-black touch-manipulation">LOAD2</button>
+          </div>
+        </div>
+        {deckC(0)}
+        {mixerC}
+        {deckC(1)}
+      </div>
+    </div>
+  );
+
   if (practice) return <MobilePracticeMode eng={eng} onExit={() => setPractice(false)} />;
 
   return (
@@ -356,7 +471,14 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       </Suspense>
       <div className="sim-chrome flex gap-2 mb-2">
         <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-full bg-[#8A5CFF] text-black text-sm font-black btn-pro-violet`}>📱 MODO PRÁCTICA CELULAR</button>
+        <button type="button" onClick={() => setMode((m) => (m === 'consola' ? 'tactil' : 'consola'))}
+          className="px-4 py-2 rounded-full border border-[#00FFD1] text-[#00FFD1] text-sm font-black touch-manipulation active:scale-95 min-h-[56px] lg:min-h-[44px]">
+          {mode === 'consola' ? '◧ TÁCTIL' : '🎛 CONSOLA 1:1'}
+        </button>
       </div>
+      {mode === 'consola' ? consoleView : (<></>)}
+      {mode === 'tactil' && (
+      <>
       <div className="sim-tabs tabs-mobile md:hidden border border-[#2A2E37] rounded-2xl flex gap-1.5 mb-2 py-2 px-2 bg-[#07080A]">
         {(['d1', 'mix', 'd2'] as const).map((t) => (
           <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-2xl text-xs font-black ${mobileTab === t ? 'bg-[#8A5CFF] text-black' : 'border border-[#2A2E37] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
@@ -375,6 +497,8 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
         {deckUI(1)}
         <div className="md:col-span-2 lg:col-span-1">{mixerUI}</div>
       </div>
+      </>
+      )}
     </div>
   );
 }

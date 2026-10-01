@@ -6,7 +6,7 @@ import MapaRR from './components/MapaRR';
 import FichaControl from './components/FichaControl';
 import Dashboard from './components/dashboard/Dashboard';
 import WhatToPracticeToday from './components/dashboard/WhatToPracticeToday';
-import Simulator from './components/simulator/Simulator'; // EAGER: núcleo mobile-first, sin Suspense en PWA
+import Simulator from './components/simulator/XDJRRSimulator'; // EAGER: único simulador, sin Suspense en PWA
 import type { Control } from './types';
 import { useDaily } from './store/daily';
 
