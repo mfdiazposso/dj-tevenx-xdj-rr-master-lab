@@ -100,7 +100,7 @@ export default function App() {
             </div>
             <button type="button" aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 min-h-[44px] rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#FF5C00] ${rrMode ? 'border-[#FF5C00] text-[#FF5C00]' : 'border-[#22222a] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
             <button type="button" onClick={() => setTab('simulador')} aria-label="Subir tracks"
-              className="px-3 min-h-[44px] w-full sm:w-auto rounded-full bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
+              className="btn-neon px-3 min-h-[44px] w-full sm:w-auto rounded-full bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
             <StreakPill />
             <span className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-lg bg-[#0d0e12] border border-[#22222a] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
           </div>

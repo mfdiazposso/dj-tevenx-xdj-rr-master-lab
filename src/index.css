@@ -181,7 +181,7 @@ body::after {
 
 /* ===== v10 CONSOLA 1:1 — fiel a la foto, escala fluida, nunca apiñada ===== */
 .xdj-rr-container {
-  width: min(100vw, 1400px);
+  width: min(100vw, 1200px);
   aspect-ratio: 2.4 / 1;
   margin: 0 auto;
   display: grid;
