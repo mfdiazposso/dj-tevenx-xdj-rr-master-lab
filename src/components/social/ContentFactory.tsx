@@ -46,9 +46,9 @@ export function ClipModal({ controlName, hook, body, onClose }: { controlName: s
   const draw = () => {
     const c = canvasRef.current!;
     const g = c.getContext('2d')!;
-    g.fillStyle = '#07080A'; g.fillRect(0, 0, 1080, 1920);
-    g.fillStyle = '#8A5CFF'; g.fillRect(0, 0, 1080, 14);
-    g.fillStyle = '#8A5CFF'; g.font = '900 44px sans-serif';
+    g.fillStyle = '#070707'; g.fillRect(0, 0, 1080, 1920);
+    g.fillStyle = '#FF5C00'; g.fillRect(0, 0, 1080, 14);
+    g.fillStyle = '#FF5C00'; g.font = '900 44px sans-serif';
     g.fillText('DJ TEVENX · XDJ-RR MASTER LAB', 60, 120);
     g.fillStyle = '#fff'; g.font = '900 84px sans-serif';
     const words = hi.split(' ');
@@ -58,9 +58,9 @@ export function ClipModal({ controlName, hook, body, onClose }: { controlName: s
       else line = line ? line + ' ' + w : w;
     }
     g.fillText(line, 60, y);
-    g.strokeStyle = '#8A5CFF'; g.lineWidth = 4;
+    g.strokeStyle = '#FF5C00'; g.lineWidth = 4;
     g.strokeRect(60, y + 60, 960, 700);
-    g.fillStyle = '#8A5CFF'; g.font = '700 40px sans-serif';
+    g.fillStyle = '#FF5C00'; g.font = '700 40px sans-serif';
     g.fillText('▶ ' + controlName, 90, y + 140);
     g.fillStyle = '#ccc'; g.font = '400 38px sans-serif';
     const bw = body.split(' ');
@@ -70,7 +70,7 @@ export function ClipModal({ controlName, hook, body, onClose }: { controlName: s
       else bl = bl ? bl + ' ' + w : w;
     }
     g.fillText(bl, 90, by);
-    g.fillStyle = '#8A5CFF'; g.fillRect(0, 1780, 1080, 140);
+    g.fillStyle = '#FF5C00'; g.fillRect(0, 1780, 1080, 140);
     g.fillStyle = '#000'; g.font = '900 52px sans-serif';
     g.fillText('@djtevenx · link en bio', 60, 1865);
   };
@@ -88,15 +88,15 @@ export function ClipModal({ controlName, hook, body, onClose }: { controlName: s
 
   return (
     <div className="fixed inset-0 z-[120] bg-black/85 p-4 overflow-y-auto" onClick={onClose}>
-      <div className="w-full max-w-[480px] max-h-[90dvh] overflow-y-auto mx-auto my-auto rounded-2xl border border-[#1e1e1e] bg-[#111111] p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
-        <p className="text-xs font-black tracking-widest text-[#8A5CFF]">📱 CLIP 9:16 PARA REELS</p>
+      <div className="w-full max-w-[480px] max-h-[90dvh] overflow-y-auto mx-auto my-auto rounded-2xl border border-[#22222a] bg-[#141418] p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+        <p className="text-xs font-black tracking-widest text-[#FF5C00]">📱 CLIP 9:16 PARA REELS</p>
         <label className="block text-xs text-neutral-400">Hook editable
-          <input value={hi} onChange={(e) => setHi(e.target.value)} className="mt-1 w-full rounded-lg bg-black border border-[#2A2E37] px-3 py-2 text-sm text-white outline-none focus:border-[#8A5CFF]" />
+          <input value={hi} onChange={(e) => setHi(e.target.value)} className="mt-1 w-full rounded-lg bg-black border border-[#22222a] px-3 py-2 text-sm text-white outline-none focus:border-[#FF5C00]" />
         </label>
-        <canvas ref={canvasRef} width={1080} height={1920} className="w-full rounded-lg border border-[#2A2E37]" />
+        <canvas ref={canvasRef} width={1080} height={1920} className="w-full rounded-lg border border-[#22222a]" />
         <div className="flex gap-2">
-          <button type="button" onClick={draw} className="flex-1 px-3 py-2 rounded-lg border border-[#2A2E37] text-sm font-bold touch-manipulation">Vista previa</button>
-          <button type="button" onClick={exportPNG} className="flex-1 px-3 py-2 rounded-lg bg-[#8A5CFF] text-black text-sm font-black touch-manipulation active:scale-95">⬇ Exportar PNG</button>
+          <button type="button" onClick={draw} className="flex-1 px-3 py-2 rounded-lg border border-[#22222a] text-sm font-bold touch-manipulation">Vista previa</button>
+          <button type="button" onClick={exportPNG} className="flex-1 px-3 py-2 rounded-lg bg-[#FF5C00] text-black text-sm font-black touch-manipulation active:scale-95">⬇ Exportar PNG</button>
         </div>
         <button type="button" onClick={onClose} className="w-full text-xs text-neutral-500">Cerrar</button>
       </div>

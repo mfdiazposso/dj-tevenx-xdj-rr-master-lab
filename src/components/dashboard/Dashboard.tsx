@@ -15,14 +15,14 @@ function TracksCard({ onSim }: { onSim: () => void }) {
   const [open, setOpen] = useState(false);
   const pct = Math.round((tracks.length / MAX_TRACK_COUNT) * 100);
   return (
-    <div className="rounded-xl border border-[#00B0FF]/40 bg-[#00B0FF]/5 p-4">
+    <div className="rounded-xl border border-[#FF5C00]/40 bg-[#FF5C00]/5 p-4">
       <div className="flex items-center gap-2">
-        <p className="text-[11px] font-black tracking-widest text-[#00B0FF]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
+        <p className="text-[11px] font-black tracking-widest text-[#FF5C00]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
         <span className="text-[11px] text-neutral-500">{fmtMB(usedBytes())}</span>
-        <button type="button" onClick={() => setOpen((o) => !o)} className="ml-auto px-3 py-1.5 rounded-lg bg-[#8A5CFF] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR</button>
-        <button type="button" onClick={onSim} className="text-xs font-black border border-[#00B0FF] text-[#00B0FF] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">Ir a Simulador</button>
+        <button type="button" onClick={() => setOpen((o) => !o)} className="ml-auto px-3 py-1.5 rounded-lg bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR</button>
+        <button type="button" onClick={onSim} className="text-xs font-black border border-[#FF5C00] text-[#FF5C00] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">Ir a Simulador</button>
       </div>
-      <div className="h-2 rounded bg-black border border-[#2A2E37] mt-2 overflow-hidden"><div className="h-full bg-[#00B0FF] transition-all" style={{ width: `${pct}%` }} /></div>
+      <div className="h-2 rounded bg-black border border-[#22222a] mt-2 overflow-hidden"><div className="h-full bg-[#FF5C00] transition-all" style={{ width: `${pct}%` }} /></div>
       {tracks.length > 0 && <p className="text-xs text-neutral-400 mt-1 truncate">Último: {tracks[tracks.length - 1].name}</p>}
       {open && (
         <Suspense fallback={<p className="text-xs text-neutral-500 mt-2">Cargando uploader...</p>}>
@@ -39,7 +39,7 @@ function Confetti() {
   const [pieces] = useState(() =>
     Array.from({ length: 60 }, (_, i) => ({
       left: (i * 37) % 100,
-      color: ['#8A5CFF', '#8A5CFF', '#D4FF32', '#FF1744', '#FFEA00'][i % 5],
+      color: ['#FF5C00', '#FF5C00', '#FF3D00', '#FF3D00', '#FFEA00'][i % 5],
       delay: (i % 10) * 0.15,
     }))
   );
@@ -63,16 +63,16 @@ function ClubCard() {
   };
   const importJSON = (f: File) => { const r = new FileReader(); r.onload = () => { localStorage.setItem('xdj-rr-lab-v1', String(r.result)); location.reload(); }; r.readAsText(f); };
   return (
-    <div className="rounded-xl border border-[#8A5CFF]/40 bg-[#8A5CFF]/5 p-4">
-      <p className="text-[11px] font-black tracking-widest text-[#8A5CFF]">MODO CLUB · CHECKLIST PRE-SET</p>
+    <div className="rounded-xl border border-[#FF5C00]/40 bg-[#FF5C00]/5 p-4">
+      <p className="text-[11px] font-black tracking-widest text-[#FF5C00]">MODO CLUB · CHECKLIST PRE-SET</p>
       <div className="grid sm:grid-cols-2 gap-1.5 mt-2">
         {CLUB_CHECK.map((c) => (
-          <button key={c} onClick={() => toggle(c)} aria-label={c} className={`text-left text-sm px-2 py-1.5 rounded-lg border focus:ring-1 focus:ring-[#8A5CFF] ${check.includes(c) ? 'border-emerald-600 text-emerald-400' : 'border-[#2A2E37] text-neutral-300'}`}>{check.includes(c) ? '✓ ' : '○ '}{c}</button>
+          <button key={c} onClick={() => toggle(c)} aria-label={c} className={`text-left text-sm px-2 py-1.5 rounded-lg border focus:ring-1 focus:ring-[#FF5C00] ${check.includes(c) ? 'border-emerald-600 text-emerald-400' : 'border-[#22222a] text-neutral-300'}`}>{check.includes(c) ? '✓ ' : '○ '}{c}</button>
         ))}
       </div>
       <div className="flex gap-2 mt-3">
-        <button onClick={exportJSON} className="text-xs font-bold border border-[#2A2E37] rounded-lg px-2 py-1.5">Exportar progreso JSON</button>
-        <label className="text-xs font-bold border border-[#2A2E37] rounded-lg px-2 py-1.5 cursor-pointer">Importar<input type="file" accept="application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); }} /></label>
+        <button onClick={exportJSON} className="text-xs font-bold border border-[#22222a] rounded-lg px-2 py-1.5">Exportar progreso JSON</button>
+        <label className="text-xs font-bold border border-[#22222a] rounded-lg px-2 py-1.5 cursor-pointer">Importar<input type="file" accept="application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); }} /></label>
       </div>
     </div>
   );
@@ -92,67 +92,67 @@ export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) =
       <DashboardStats />
       {done.length >= controls.length && controls.length > 0 && <Confetti />}
       {done.length >= controls.length && controls.length > 0 && (
-        <div className="rounded-2xl border border-[#D4FF32]/50 bg-[#D4FF32]/10 p-4 text-center">
-          <p className="font-black text-[#D4FF32]">🎉 100% RR MASTER — 48/48 controles dominados</p>
+        <div className="rounded-2xl border border-[#FF3D00]/50 bg-[#FF3D00]/10 p-4 text-center">
+          <p className="font-black text-[#FF3D00]">🎉 100% RR MASTER — 48/48 controles dominados</p>
         </div>
       )}
       <DailyHabit onGo={onGo} onSim={(id) => onSim(id)} />
       <TracksCard onSim={() => onSim()} />
       <ClubCard />
       {unlocked ? (
-        <div className="rounded-xl border border-[#8A5CFF]/50 bg-[#8A5CFF]/5 p-4">
-          <p className="text-[11px] font-black tracking-widest text-[#8A5CFF]">EXAMEN FINAL · 30 PREGUNTAS ALEATORIAS</p>
+        <div className="rounded-xl border border-[#FF5C00]/50 bg-[#FF5C00]/5 p-4">
+          <p className="text-[11px] font-black tracking-widest text-[#FF5C00]">EXAMEN FINAL · 30 PREGUNTAS ALEATORIAS</p>
           {examScore !== null && examScore >= 85 && <p className="mt-1 font-black text-emerald-400">🏆 MASTER RR — {examScore}%</p>}
           {examScore !== null && examScore < 85 && <p className="mt-1 text-sm text-neutral-300">Último score: {examScore}% (necesitas 85% para MASTER RR)</p>}
           {!examDone ? (
             <div className="mt-2 space-y-2 max-h-96 overflow-auto">
               {examQs.map((t, i) => (
-                <div key={t.id} className="rounded-lg border border-[#2A2E37] bg-black/40 p-2 text-sm">
+                <div key={t.id} className="rounded-lg border border-[#22222a] bg-black/40 p-2 text-sm">
                   <p><b>{i + 1}. {t.q}</b></p>
                   <div className="flex flex-wrap gap-1.5 mt-1">
-                    {t.type === 'mc' ? t.options!.map((o, oi) => <button key={oi} onClick={() => setExamAns((a) => ({ ...a, [t.id]: oi }))} className={`text-xs px-2 py-1 rounded-lg border focus:ring-1 focus:ring-[#8A5CFF] ${examAns[t.id] === oi ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37]'}`}>{o}</button>)
-                    : [true, false].map((b) => <button key={String(b)} onClick={() => setExamAns((a) => ({ ...a, [t.id]: b }))} className={`text-xs px-2 py-1 rounded-lg border ${examAns[t.id] === b ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37]'}`}>{b ? 'V' : 'F'}</button>)}
+                    {t.type === 'mc' ? t.options!.map((o, oi) => <button key={oi} onClick={() => setExamAns((a) => ({ ...a, [t.id]: oi }))} className={`text-xs px-2 py-1 rounded-lg border focus:ring-1 focus:ring-[#FF5C00] ${examAns[t.id] === oi ? 'bg-[#FF5C00] text-black' : 'border-[#22222a]'}`}>{o}</button>)
+                    : [true, false].map((b) => <button key={String(b)} onClick={() => setExamAns((a) => ({ ...a, [t.id]: b }))} className={`text-xs px-2 py-1 rounded-lg border ${examAns[t.id] === b ? 'bg-[#FF5C00] text-black' : 'border-[#22222a]'}`}>{b ? 'V' : 'F'}</button>)}
                   </div>
                 </div>
               ))}
-              <button onClick={() => { const s = Math.round((examQs.filter((t) => examAns[t.id] === t.correct).length / examQs.length) * 100); saveExam(s); setExamDone(true); }} className="px-4 py-2 rounded-lg bg-[#8A5CFF] text-black text-sm font-black">Corregir examen</button>
+              <button onClick={() => { const s = Math.round((examQs.filter((t) => examAns[t.id] === t.correct).length / examQs.length) * 100); saveExam(s); setExamDone(true); }} className="px-4 py-2 rounded-lg bg-[#FF5C00] text-black text-sm font-black">Corregir examen</button>
             </div>
           ) : (
             <div className="mt-2 text-sm">
               <p className="font-black text-lg">Score: {examPct}% {examPct !== null && examPct >= 85 ? '🏆 MASTER RR' : ''}</p>
-              <button onClick={() => { setExamDone(false); setExamAns({}); }} className="mt-1 text-xs border border-[#2A2E37] rounded-lg px-2 py-1">Reintentar (nuevas 30)</button>
+              <button onClick={() => { setExamDone(false); setExamAns({}); }} className="mt-1 text-xs border border-[#22222a] rounded-lg px-2 py-1">Reintentar (nuevas 30)</button>
             </div>
           )}
         </div>
       ) : (
-        <div className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-4 text-sm text-neutral-500">🔒 Examen final bloqueado: completa 24 lecciones N0-N2 + 12 ejercicios base ({completedLessons.length}/24 · {completedExercises.length}/12).</div>
+        <div className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-4 text-sm text-neutral-500">🔒 Examen final bloqueado: completa 24 lecciones N0-N2 + 12 ejercicios base ({completedLessons.length}/24 · {completedExercises.length}/12).</div>
       )}
       <div className="grid lg:grid-cols-2 gap-3">
-        <div className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-4">
-          <p className="text-[11px] font-bold tracking-widest text-[#8A5CFF]">CONTINUAR APRENDIENDO</p>
+        <div className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-4">
+          <p className="text-[11px] font-bold tracking-widest text-[#FF5C00]">CONTINUAR APRENDIENDO</p>
           {next ? (
             <div className="mt-1">
               <p className="font-bold">{next.title} <span className="text-xs text-neutral-500">N{next.level}</span></p>
               <p className="text-sm text-neutral-400">{next.vsFLX4_note}</p>
               <ul className="text-sm mt-2 space-y-1">{next.objectives.map((o) => <li key={o}>· {o}</li>)}</ul>
               <div className="flex gap-2 mt-3">
-                <button onClick={() => onGo(next.controls[0])} className="px-3 py-1.5 rounded-lg border border-[#8A5CFF] text-[#8A5CFF] text-sm font-bold">Ver en Mapa</button>
+                <button onClick={() => onGo(next.controls[0])} className="px-3 py-1.5 rounded-lg border border-[#FF5C00] text-[#FF5C00] text-sm font-bold">Ver en Mapa</button>
                 <button onClick={() => completeLesson(next.id, next.controls)} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-sm font-bold">Completar lección (+controles)</button>
               </div>
             </div>
           ) : <p className="text-sm text-emerald-400 font-bold">N0/N1 completado. Pasa a misiones.</p>}
           {lastLessonId && <p className="text-[11px] text-neutral-500 mt-2">Última: {lastLessonId}</p>}
         </div>
-        <div className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-4">
-          <p className="text-[11px] font-bold tracking-widest text-[#8A5CFF]">MISIONES 01–10</p>
+        <div className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-4">
+          <p className="text-[11px] font-bold tracking-widest text-[#FF5C00]">MISIONES 01–10</p>
           <div className="mt-2 space-y-1.5 max-h-56 overflow-auto">
             {missions.map((m) => {
               const ok = completedMissions.includes(m.id);
               return (
-                <div key={m.id} className="flex items-center gap-2 rounded-lg bg-black/40 border border-[#2A2E37] px-2 py-1.5 text-sm">
-                  <span className={`text-[11px] font-black px-1.5 py-0.5 rounded ${ok ? 'bg-emerald-600' : 'bg-[#8A5CFF]'}`}>{String(m.n).padStart(2, '0')}</span>
+                <div key={m.id} className="flex items-center gap-2 rounded-lg bg-black/40 border border-[#22222a] px-2 py-1.5 text-sm">
+                  <span className={`text-[11px] font-black px-1.5 py-0.5 rounded ${ok ? 'bg-emerald-600' : 'bg-[#FF5C00]'}`}>{String(m.n).padStart(2, '0')}</span>
                   <span className="flex-1">{ok ? '✓ ' : ''}{m.title} <span className="text-neutral-500 text-xs">· {m.difficulty}</span></span>
-                  <button onClick={() => onGo(m.controlIds[0])} className="text-xs text-[#8A5CFF] font-bold">Ver</button>
+                  <button onClick={() => onGo(m.controlIds[0])} className="text-xs text-[#FF5C00] font-bold">Ver</button>
                   {!ok && <button onClick={() => completeMission(m.id)} className="text-xs font-bold text-emerald-400">Hecha</button>}
                 </div>
               );
@@ -160,12 +160,12 @@ export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) =
           </div>
         </div>
       </div>
-      <div className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-4">
+      <div className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-4">
         <p className="text-[11px] font-bold tracking-widest text-neutral-400">LECCIONES N0/N1</p>
         <div className="flex flex-wrap gap-1.5 mt-2">
           {lessons.map((l) => {
             const ok = completedLessons.includes(l.id);
-            return <button key={l.id} onClick={() => onGo(l.controls[0])} title={l.vsFLX4_note} className={`text-xs px-2 py-1.5 rounded-lg border ${ok ? 'border-emerald-600 text-emerald-400' : 'border-[#2A2E37] text-neutral-300 hover:border-[#8A5CFF]'}`}>{ok ? '✓ ' : ''}N{l.level} · {l.title}</button>;
+            return <button key={l.id} onClick={() => onGo(l.controls[0])} title={l.vsFLX4_note} className={`text-xs px-2 py-1.5 rounded-lg border ${ok ? 'border-emerald-600 text-emerald-400' : 'border-[#22222a] text-neutral-300 hover:border-[#FF5C00]'}`}>{ok ? '✓ ' : ''}N{l.level} · {l.title}</button>;
           })}
         </div>
       </div>

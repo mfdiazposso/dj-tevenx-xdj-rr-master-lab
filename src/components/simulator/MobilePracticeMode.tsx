@@ -10,7 +10,7 @@ const buzz = (ms = 10) => { if (navigator.vibrate) navigator.vibrate(ms); };
 const FXS = ['DELAY', 'ECHO', 'SPIRAL', 'REVERB', 'TRANS', 'FLANGER', 'PITCH', 'ROLL'] as const;
 const COLORS = ['DUB ECHO', 'SWEEP', 'FILTER', 'NOISE'] as const;
 const HOTPADS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] as const;
-const HOTCOLORS = ['#00B0FF', '#FF8F00', '#D4FF32', '#E040FB', '#FFEA00', '#D500F9', '#651FFF', '#00E5FF'] as const;
+const HOTCOLORS = ['#FF5C00', '#FF8F00', '#FF3D00', '#E040FB', '#FFEA00', '#D500F9', '#651FFF', '#00E5FF'] as const;
 const LOOPS = [1, 2, 4, 8] as const;
 const RANGES = [{ l: '±8', v: 8 }, { l: '±16', v: 16 }, { l: 'WIDE', v: 100 }] as const;
 
@@ -18,8 +18,8 @@ function Jog({ label, vinyl, onNudge }: { label: string; vinyl: boolean; onNudge
   const lastX = useRef(0);
   return (
     <div role="slider" aria-label={`Jog ${label}`} tabIndex={0}
-      className={`jog jog-pro rounded-full border-4 flex items-center justify-center select-none focus:ring-1 focus:ring-[#8A5CFF] touch-none ${vinyl ? 'border-[#00FFD1]/70' : 'border-[#2A2E37]'}`}
-      style={{ width: 140, height: 140, background: 'radial-gradient(circle,#262626 18%,#1A1D23 45%,#07080A 75%)' }}
+      className={`jog jog-pro rounded-full border-4 flex items-center justify-center select-none focus:ring-1 focus:ring-[#FF5C00] touch-none ${vinyl ? 'border-[#FF8A00]/70' : 'border-[#22222a]'}`}
+      style={{ width: 140, height: 140, background: 'radial-gradient(circle,#262626 18%,#0d0e12 45%,#070707 75%)' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}
       onPointerMove={(e) => { if (e.buttons === 1) { onNudge(e.clientX - lastX.current); lastX.current = e.clientX; } }}
       onPointerUp={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ } }}
@@ -49,17 +49,17 @@ function DeckZone({ n, eng, tick }: { n: 0 | 1; eng: Eng; tick: number }) {
   const T = (v: number) => { setTempo(v); E.setTempo(n, v); buzz(); };
 
   return (
-    <div className="rounded-xl border border-[#2A2E37] bg-[#07080A] p-2 space-y-2">
-      <div className="rounded-lg bg-black border border-[#2A2E37] p-2 font-mono">
+    <div className="rounded-xl border border-[#22222a] bg-[#070707] p-2 space-y-2">
+      <div className="rounded-lg bg-black border border-[#22222a] p-2 font-mono">
         <div className="flex justify-between text-[10px] text-neutral-500"><span>DECK {n + 1}</span>
           <button type="button" onClick={() => setShowRemain((s) => !s)} className="text-neutral-400">{showRemain ? st.remain : st.time}</button></div>
         <div className="flex justify-between items-end">
-          <span className="text-2xl font-black text-[#8A5CFF]">{st.bpm}</span>
-          <span className="text-sm font-bold text-[#8A5CFF]">{st.pitch}%</span>
+          <span className="text-2xl font-black text-[#FF5C00]">{st.bpm}</span>
+          <span className="text-sm font-bold text-[#FF5C00]">{st.pitch}%</span>
         </div>
         <div className="flex gap-1 mt-1">
-          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${sync ? 'bg-[#D4FF32] text-black' : 'bg-[#1a1a1a] text-neutral-600'}`}>SYNC</span>
-          {slip && <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#8A5CFF] text-black">SLIP</span>}
+          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${sync ? 'bg-[#FF3D00] text-black' : 'bg-[#1a1a1a] text-neutral-600'}`}>SYNC</span>
+          {slip && <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#FF5C00] text-black">SLIP</span>}
           {quant && <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#1a1a1a] text-neutral-300 border border-[#333]">Q</span>}
         </div>
         <div className="text-[10px] text-neutral-500">RANGE {st.range === 100 ? 'WIDE' : `±${st.range}`} {st.mt ? '· MT ON' : ''} {rev ? '· REV' : ''} {st.loop ? `· LOOP ${st.loop}` : ''}</div>
@@ -71,43 +71,43 @@ function DeckZone({ n, eng, tick }: { n: 0 | 1; eng: Eng; tick: number }) {
           <span className="text-[9px] text-neutral-500 font-bold">TEMPO</span>
           <input aria-label={`Tempo deck ${n + 1}`} type="range" min={-(st.range ?? 8)} max={st.range ?? 8} step={0.1} value={tempo}
             onInput={(e) => T(Number((e.target as HTMLInputElement).value))} onChange={(e) => T(Number(e.target.value))}
-            className="accent-[#8A5CFF] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 40, height: 160 }} />
-          <span className="text-[9px] font-mono text-[#8A5CFF]">{tempo.toFixed(1)}</span>
+            className="accent-[#FF5C00] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 40, height: 160 }} />
+          <span className="text-[9px] font-mono text-[#FF5C00]">{tempo.toFixed(1)}</span>
         </div>
       </div>
 
       <div className="flex gap-1.5">
         {RANGES.map((r) => (
-          <button key={r.l} type="button" onClick={() => { E.setTempoRange(n, r.v); setTempo(0); E.resetTempo(n); buzz(); }} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border px-1 py-2 ${st.range === r.v ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>{r.l}</button>
+          <button key={r.l} type="button" onClick={() => { E.setTempoRange(n, r.v); setTempo(0); E.resetTempo(n); buzz(); }} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border px-1 py-2 ${st.range === r.v ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-400'}`}>{r.l}</button>
         ))}
       </div>
       <div className="flex gap-1.5">
-        <button type="button" onClick={() => { E.setMasterTempo(n, !st.mt); buzz(); }} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border px-1 py-2 ${st.mt ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>MT</button>
-        <button type="button" onClick={() => { setTempo(0); E.resetTempo(n); buzz(); }} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border border-[#2A2E37] text-neutral-400 px-1 py-2`}>RESET</button>
+        <button type="button" onClick={() => { E.setMasterTempo(n, !st.mt); buzz(); }} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border px-1 py-2 ${st.mt ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-400'}`}>MT</button>
+        <button type="button" onClick={() => { setTempo(0); E.resetTempo(n); buzz(); }} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border border-[#22222a] text-neutral-400 px-1 py-2`}>RESET</button>
       </div>
 
       <div className="grid grid-cols-3 gap-1.5">
         <button type="button" aria-label={`Play ${n + 1}`} onPointerDown={() => buzz()} onClick={() => { const now = Date.now(); (E._lt ??= {})[n] = (E._lt ?? {})[n] || 0; if (now - E._lt[n] < 300) E.cue(n); else E.play(n); E._lt[n] = now; }}
-          className={`${BTN} btn-pro min-h-[56px] rounded-xl bg-[#D4FF32] text-black font-black text-base ${eng.playing[n] ? 'shadow-[0_0_12px_#D4FF32]' : ''}`}>▶ PLAY</button>
+          className={`${BTN} btn-pro min-h-[56px] rounded-xl bg-[#FF3D00] text-black font-black text-base ${eng.playing[n] ? 'shadow-[0_0_12px_#FF3D00]' : ''}`}>▶ PLAY</button>
         <button type="button" aria-label={`Cue ${n + 1}`} onPointerDown={() => { if (navigator.vibrate) navigator.vibrate(50); E.cue(n); }} onPointerUp={() => E.pause(n)}
-          className={`${BTN} btn-pro min-h-[56px] rounded-xl bg-[#FF1744] text-white font-black text-base`}>CUE</button>
-        <button type="button" onClick={() => { setSync((s) => !s); E.play(n); buzz(); }} className={`${BTN} min-h-[56px] rounded-xl border font-black text-xs ${sync ? 'bg-[#00FFD1] text-black shadow-[0_0_12px_#00FFD1]' : 'border-[#2A2E37] text-neutral-300'}`}>SYNC</button>
+          className={`${BTN} btn-pro min-h-[56px] rounded-xl bg-[#FF3D00] text-white font-black text-base`}>CUE</button>
+        <button type="button" onClick={() => { setSync((s) => !s); E.play(n); buzz(); }} className={`${BTN} min-h-[56px] rounded-xl border font-black text-xs ${sync ? 'bg-[#FF8A00] text-black shadow-[0_0_12px_#FF8A00]' : 'border-[#22222a] text-neutral-300'}`}>SYNC</button>
       </div>
       <div className="grid grid-cols-4 gap-1.5">
-        <button type="button" onClick={() => { setSlip((s) => !s); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${slip ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>SLIP</button>
-        <button type="button" onClick={() => { setQuant((q) => !q); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${quant ? 'border-[#8A5CFF] text-[#8A5CFF]' : 'border-[#2A2E37] text-neutral-400'}`}>QUANT</button>
-        <button type="button" onClick={() => { setVinyl((v) => !v); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${vinyl ? 'border-[#8A5CFF] text-[#8A5CFF]' : 'border-[#2A2E37] text-neutral-400'}`}>VINYL</button>
-        <button type="button" onClick={() => { setRev((r) => !r); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${rev ? 'bg-[#e10600] text-white' : 'border-[#2A2E37] text-neutral-400'}`}>REV</button>
+        <button type="button" onClick={() => { setSlip((s) => !s); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${slip ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-400'}`}>SLIP</button>
+        <button type="button" onClick={() => { setQuant((q) => !q); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${quant ? 'border-[#FF5C00] text-[#FF5C00]' : 'border-[#22222a] text-neutral-400'}`}>QUANT</button>
+        <button type="button" onClick={() => { setVinyl((v) => !v); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${vinyl ? 'border-[#FF5C00] text-[#FF5C00]' : 'border-[#22222a] text-neutral-400'}`}>VINYL</button>
+        <button type="button" onClick={() => { setRev((r) => !r); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${rev ? 'bg-[#e10600] text-white' : 'border-[#22222a] text-neutral-400'}`}>REV</button>
       </div>
       <div className="flex gap-1">
-        <button type="button" aria-label="Pitch bend menos" onClick={() => E.nudge?.(n, -20)} className={`${BTN} flex-1 text-xs font-black rounded-lg border border-[#2A2E37] py-2`}>−</button>
-        <button type="button" aria-label="Pitch bend mas" onClick={() => E.nudge?.(n, 20)} className={`${BTN} flex-1 text-xs font-black rounded-lg border border-[#2A2E37] py-2`}>+</button>
+        <button type="button" aria-label="Pitch bend menos" onClick={() => E.nudge?.(n, -20)} className={`${BTN} flex-1 text-xs font-black rounded-lg border border-[#22222a] py-2`}>−</button>
+        <button type="button" aria-label="Pitch bend mas" onClick={() => E.nudge?.(n, 20)} className={`${BTN} flex-1 text-xs font-black rounded-lg border border-[#22222a] py-2`}>+</button>
       </div>
 
       <div>
         <div className="flex gap-1 mb-1">
           {(['play', 'rec', 'del'] as const).map((m) => (
-            <button key={m} type="button" onClick={() => setHotMode(m)} className={`text-[9px] font-black px-2 py-1 rounded border ${hotMode === m ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-500'}`}>{m === 'play' ? 'CALL' : m === 'rec' ? '● REC' : '✕ DEL'}</button>
+            <button key={m} type="button" onClick={() => setHotMode(m)} className={`text-[9px] font-black px-2 py-1 rounded border ${hotMode === m ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-500'}`}>{m === 'play' ? 'CALL' : m === 'rec' ? '● REC' : '✕ DEL'}</button>
           ))}
         </div>
         <div className="grid grid-cols-4 gap-1.5">
@@ -118,7 +118,7 @@ function DeckZone({ n, eng, tick }: { n: 0 | 1; eng: Eng; tick: number }) {
               <button key={p} type="button" aria-label={`Hot cue ${p}`}
                 onClick={() => { buzz(); if (hotMode === 'rec') E.setHotCue(n, i); else if (hotMode === 'del') E.deleteHotCue(n, i); else E.triggerHotCue(n, i); }}
                 style={set ? { borderColor: col, color: col, background: col + '22', boxShadow: `0 0 12px ${col}` } : undefined}
-                className={`${BTN} min-h-[48px] rounded-lg font-black text-sm border ${set ? '' : 'border-[#2A2E37] text-neutral-500'}`}>{p}</button>
+                className={`${BTN} min-h-[48px] rounded-lg font-black text-sm border ${set ? '' : 'border-[#22222a] text-neutral-500'}`}>{p}</button>
             );
           })}
         </div>
@@ -127,16 +127,16 @@ function DeckZone({ n, eng, tick }: { n: 0 | 1; eng: Eng; tick: number }) {
       <div>
         <div className="grid grid-cols-4 gap-1 mb-1">
           {LOOPS.map((b) => (
-            <button key={b} type="button" onClick={() => { E.setBeatLoop(n, b); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${st.loop === b ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>{b}</button>
+            <button key={b} type="button" onClick={() => { E.setBeatLoop(n, b); buzz(); }} className={`${BTN} text-[10px] font-black rounded-lg border px-1 py-2 ${st.loop === b ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-400'}`}>{b}</button>
           ))}
         </div>
         <div className="grid grid-cols-4 gap-1">
-          <button type="button" onClick={() => { E.setBeatLoop(n, 4); buzz(); }} className={`${BTN} text-[9px] font-black rounded-lg border border-[#2A2E37] text-neutral-400 px-1 py-2`}>IN</button>
-          <button type="button" onClick={() => { E.reloopExit(n); buzz(); }} className={`${BTN} text-[9px] font-black rounded-lg border border-[#2A2E37] text-neutral-400 px-1 py-2`}>OUT</button>
-          <button type="button" onClick={() => { E.reloopExit(n); buzz(); }} className={`${BTN} text-[9px] font-black rounded-lg border border-[#2A2E37] text-neutral-400 px-1 py-2`}>RELOOP</button>
+          <button type="button" onClick={() => { E.setBeatLoop(n, 4); buzz(); }} className={`${BTN} text-[9px] font-black rounded-lg border border-[#22222a] text-neutral-400 px-1 py-2`}>IN</button>
+          <button type="button" onClick={() => { E.reloopExit(n); buzz(); }} className={`${BTN} text-[9px] font-black rounded-lg border border-[#22222a] text-neutral-400 px-1 py-2`}>OUT</button>
+          <button type="button" onClick={() => { E.reloopExit(n); buzz(); }} className={`${BTN} text-[9px] font-black rounded-lg border border-[#22222a] text-neutral-400 px-1 py-2`}>RELOOP</button>
           <div className="flex gap-1">
-            <button type="button" aria-label="Loop mitad" onClick={() => E.loopHalfDouble(n, -1)} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border border-[#2A2E37] text-neutral-300`}>½</button>
-            <button type="button" aria-label="Loop doble" onClick={() => E.loopHalfDouble(n, 1)} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border border-[#2A2E37] text-neutral-300`}>2×</button>
+            <button type="button" aria-label="Loop mitad" onClick={() => E.loopHalfDouble(n, -1)} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border border-[#22222a] text-neutral-300`}>½</button>
+            <button type="button" aria-label="Loop doble" onClick={() => E.loopHalfDouble(n, 1)} className={`${BTN} flex-1 text-[10px] font-black rounded-lg border border-[#22222a] text-neutral-300`}>2×</button>
           </div>
         </div>
       </div>
@@ -164,92 +164,92 @@ function MixerZone({ eng }: { eng: Eng }) {
   const toggleFx = () => { const v = !fxOn; setFxOn(v); if (!E.fxWetInit) { E.setBeatFX(fx, fxLvl, fxTime); E.fxWetInit = true; } E.fxOnOff(v); buzz(15); };
 
   return (
-    <div className="rounded-xl border border-[#2A2E37] bg-[#07080A] p-2 space-y-2">
-      <p className="text-[10px] font-black tracking-widest text-[#8A5CFF] text-center">MIXER</p>
+    <div className="rounded-xl border border-[#22222a] bg-[#070707] p-2 space-y-2">
+      <p className="text-[10px] font-black tracking-widest text-[#FF5C00] text-center">MIXER</p>
       {[0, 1].map((d) => (
-        <div key={d} className="rounded-lg border border-[#2A2E37] p-2 space-y-1">
+        <div key={d} className="rounded-lg border border-[#22222a] p-2 space-y-1">
           <p className="text-[9px] font-black text-neutral-500">CH{d + 1}</p>
           <label className="block text-[10px] text-neutral-400 touch-manipulation">TRIM
             <input aria-label={`Trim CH${d + 1}`} type="range" min={0} max={1.2} step={0.01} defaultValue={0.8}
               onDoubleClick={(e) => { (e.target as HTMLInputElement).value = '0.8'; E.setTrim(d, 0.8); }}
               onInput={(e) => E.setTrim(d, Number((e.target as HTMLInputElement).value))} onChange={(e) => E.setTrim(d, Number(e.target.value))}
-              className="w-full h-12 accent-[#8A5CFF]" /></label>
+              className="w-full h-12 accent-[#FF5C00]" /></label>
           {(['HI', 'MID', 'LOW'] as const).map((b) => (
             <label key={b} className="block text-[10px] text-neutral-400 touch-manipulation">{b} · doble-tap=kill
               <input aria-label={`${b} CH${d + 1}`} type="range" min={0} max={1} step={0.01} value={Q(d, b.toLowerCase(), 0.75)}
                 onDoubleClick={() => kill(d as 0 | 1, b.toLowerCase() as any)}
                 onInput={(e) => SQ(d as 0 | 1, b.toLowerCase() as any, Number((e.target as HTMLInputElement).value))}
                 onChange={(e) => SQ(d as 0 | 1, b.toLowerCase() as any, Number(e.target.value))}
-                className="w-full h-12 accent-[#8A5CFF]" /></label>
+                className="w-full h-12 accent-[#FF5C00]" /></label>
           ))}
           <div className="grid grid-cols-4 gap-1">
             {COLORS.map((c) => (
-              <button key={c} type="button" onClick={() => { setColor(c); E.setColorFX(d, c); buzz(); }} className={`${BTN} text-[8px] font-black rounded border px-0.5 py-2 ${color === c ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-500'}`}>{c}</button>
+              <button key={c} type="button" onClick={() => { setColor(c); E.setColorFX(d, c); buzz(); }} className={`${BTN} text-[8px] font-black rounded border px-0.5 py-2 ${color === c ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-500'}`}>{c}</button>
             ))}
           </div>
           <label className="block text-[10px] text-neutral-400 touch-manipulation">COLOR · doble-tap=reset
             <input aria-label={`Color CH${d + 1}`} type="range" min={-1} max={1} step={0.01} defaultValue={0}
               onDoubleClick={(e) => { (e.target as HTMLInputElement).value = '0'; E.setColor(d, 0); }}
               onInput={(e) => E.setColor(d, Number((e.target as HTMLInputElement).value))} onChange={(e) => E.setColor(d, Number(e.target.value))}
-              className="w-full h-12 accent-[#8A5CFF]" /></label>
+              className="w-full h-12 accent-[#FF5C00]" /></label>
           <div className="flex gap-2 items-center">
-            <button type="button" aria-label={`CUE phones CH${d + 1}`} onClick={() => buzz()} className={`${BTN} text-[10px] font-black rounded-lg border border-[#2A2E37] text-neutral-300 px-2 py-2`}>🎧 CUE</button>
+            <button type="button" aria-label={`CUE phones CH${d + 1}`} onClick={() => buzz()} className={`${BTN} text-[10px] font-black rounded-lg border border-[#22222a] text-neutral-300 px-2 py-2`}>🎧 CUE</button>
             <label className="flex-1 text-[10px] text-neutral-400 touch-manipulation">CH FADER
               <input aria-label={`Fader CH${d + 1}`} type="range" min={0} max={1} step={0.01} value={f[d]}
                 onInput={(e) => { const v = Number((e.target as HTMLInputElement).value); setF((p) => (d === 0 ? [v, p[1]] : [p[0], v])); E.setFader(d, v); }}
                 onChange={(e) => { const v = Number(e.target.value); setF((p) => (d === 0 ? [v, p[1]] : [p[0], v])); E.setFader(d, v); }}
-                className="accent-[#8A5CFF]" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 44, height: 120 }} /></label>
+                className="accent-[#FF5C00]" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 44, height: 120 }} /></label>
           </div>
         </div>
       ))}
 
-      <div className="rounded-lg border border-[#2A2E37] p-2">
+      <div className="rounded-lg border border-[#22222a] p-2">
         <p className="text-[9px] font-black text-neutral-500">BEAT FX</p>
         <div className="grid grid-cols-4 gap-1 my-1">
           {FXS.map((t) => (
-            <button key={t} type="button" onClick={() => { applyFx(t); buzz(); }} className={`${BTN} text-[8px] font-black rounded border px-0.5 py-2 ${fx === t ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-500'}`}>{t}</button>
+            <button key={t} type="button" onClick={() => { applyFx(t); buzz(); }} className={`${BTN} text-[8px] font-black rounded border px-0.5 py-2 ${fx === t ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-500'}`}>{t}</button>
           ))}
         </div>
         <div className="grid grid-cols-4 gap-1 mb-1">
           {['CH1', 'CH2', 'MASTER'].map((c) => (
-            <button key={c} type="button" onClick={() => { setChSel(c); buzz(); }} className={`${BTN} text-[9px] font-black rounded border px-1 py-1.5 ${chSel === c ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-500'}`}>{c}</button>
+            <button key={c} type="button" onClick={() => { setChSel(c); buzz(); }} className={`${BTN} text-[9px] font-black rounded border px-1 py-1.5 ${chSel === c ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-500'}`}>{c}</button>
           ))}
-          <button type="button" onClick={() => { const b = E.tapTempo?.(); buzz(); if (b) setFxTime(30 / b); }} className={`${BTN} text-[9px] font-black rounded border border-[#2A2E37] text-neutral-300 px-1 py-1.5`}>TAP</button>
+          <button type="button" onClick={() => { const b = E.tapTempo?.(); buzz(); if (b) setFxTime(30 / b); }} className={`${BTN} text-[9px] font-black rounded border border-[#22222a] text-neutral-300 px-1 py-1.5`}>TAP</button>
         </div>
         <label className="block text-[10px] text-neutral-400 touch-manipulation">TIME
           <input aria-label="FX time" type="range" min={0.03} max={1} step={0.01} value={fxTime}
             onInput={(e) => { setFxTime(Number((e.target as HTMLInputElement).value)); E.setBeatFX(fx, fxLvl, Number((e.target as HTMLInputElement).value)); }}
-            onChange={(e) => { setFxTime(Number(e.target.value)); E.setBeatFX(fx, fxLvl, Number(e.target.value)); }} className="w-full h-12 accent-[#8A5CFF]" /></label>
+            onChange={(e) => { setFxTime(Number(e.target.value)); E.setBeatFX(fx, fxLvl, Number(e.target.value)); }} className="w-full h-12 accent-[#FF5C00]" /></label>
         <label className="block text-[10px] text-neutral-400 touch-manipulation">LEVEL/DEPTH
           <input aria-label="FX level" type="range" min={0} max={1} step={0.01} value={fxLvl}
             onInput={(e) => { setFxLvl(Number((e.target as HTMLInputElement).value)); E.setBeatFX(fx, Number((e.target as HTMLInputElement).value), fxTime); }}
-            onChange={(e) => { setFxLvl(Number(e.target.value)); E.setBeatFX(fx, Number(e.target.value), fxTime); }} className="w-full h-12 accent-[#8A5CFF]" /></label>
-        <button type="button" onClick={toggleFx} className={`${BTN} btn-pro-violet w-full min-h-[56px] rounded-3xl font-black text-base ${fxOn ? 'bg-[#8A5CFF] text-black' : 'border border-[#8A5CFF] text-[#8A5CFF]'}`}>{fxOn ? '● FX ON' : '○ FX OFF'}</button>
+            onChange={(e) => { setFxLvl(Number(e.target.value)); E.setBeatFX(fx, Number(e.target.value), fxTime); }} className="w-full h-12 accent-[#FF5C00]" /></label>
+        <button type="button" onClick={toggleFx} className={`${BTN} btn-pro-violet w-full min-h-[56px] rounded-3xl font-black text-base ${fxOn ? 'bg-[#FF5C00] text-black' : 'border border-[#FF5C00] text-[#FF5C00]'}`}>{fxOn ? '● FX ON' : '○ FX OFF'}</button>
       </div>
 
       <label className="block text-[10px] text-neutral-400 touch-manipulation">CROSSFADER · THRU
         <input aria-label="Crossfader" type="range" min={0} max={1} step={0.01} value={xf}
           onInput={(e) => { setXf(Number((e.target as HTMLInputElement).value)); E.setCrossfader(xf); }} onChange={(e) => { setXf(Number(e.target.value)); E.setCrossfader(Number(e.target.value)); }}
-          className="w-full h-14 accent-[#8A5CFF]" /></label>
+          className="w-full h-14 accent-[#FF5C00]" /></label>
       <div className="grid grid-cols-2 gap-1">
         <label className="block text-[10px] text-neutral-400 touch-manipulation">MASTER
           <input aria-label="Master" type="range" min={0} max={1.2} step={0.01} value={master}
-            onInput={(e) => { setMaster(Number((e.target as HTMLInputElement).value)); E.setMaster(master); }} onChange={(e) => { setMaster(Number(e.target.value)); E.setMaster(Number(e.target.value)); }} className="w-full h-10 accent-[#8A5CFF]" /></label>
+            onInput={(e) => { setMaster(Number((e.target as HTMLInputElement).value)); E.setMaster(master); }} onChange={(e) => { setMaster(Number(e.target.value)); E.setMaster(Number(e.target.value)); }} className="w-full h-10 accent-[#FF5C00]" /></label>
         <label className="block text-[10px] text-neutral-400 touch-manipulation">BOOTH
           <input aria-label="Booth" type="range" min={0} max={1.2} step={0.01} value={booth}
-            onInput={(e) => setBooth(Number((e.target as HTMLInputElement).value))} onChange={(e) => setBooth(Number(e.target.value))} className="w-full h-10 accent-[#8A5CFF]" /></label>
+            onInput={(e) => setBooth(Number((e.target as HTMLInputElement).value))} onChange={(e) => setBooth(Number(e.target.value))} className="w-full h-10 accent-[#FF5C00]" /></label>
       </div>
       <div className="grid grid-cols-2 gap-1">
         <label className="block text-[10px] text-neutral-400 touch-manipulation">HP MIX/CUE
-          <input aria-label="HP mix" type="range" min={0} max={1} step={0.01} value={mix} onInput={(e) => setMix(Number((e.target as HTMLInputElement).value))} onChange={(e) => setMix(Number(e.target.value))} className="w-full h-10 accent-[#8A5CFF]" /></label>
+          <input aria-label="HP mix" type="range" min={0} max={1} step={0.01} value={mix} onInput={(e) => setMix(Number((e.target as HTMLInputElement).value))} onChange={(e) => setMix(Number(e.target.value))} className="w-full h-10 accent-[#FF5C00]" /></label>
         <label className="block text-[10px] text-neutral-400 touch-manipulation">HP LEVEL
-          <input aria-label="HP level" type="range" min={0} max={1} step={0.01} value={hpLvl} onInput={(e) => setHpLvl(Number((e.target as HTMLInputElement).value))} onChange={(e) => setHpLvl(Number(e.target.value))} className="w-full h-10 accent-[#8A5CFF]" /></label>
+          <input aria-label="HP level" type="range" min={0} max={1} step={0.01} value={hpLvl} onInput={(e) => setHpLvl(Number((e.target as HTMLInputElement).value))} onChange={(e) => setHpLvl(Number(e.target.value))} className="w-full h-10 accent-[#FF5C00]" /></label>
       </div>
-      <div className="rounded-lg border border-[#2A2E37] p-2">
+      <div className="rounded-lg border border-[#22222a] p-2">
         <p className="text-[9px] font-black text-neutral-500">MIC 1/2 <span className="text-neutral-600">(demo: sin fuente en web)</span></p>
         <label className="block text-[10px] text-neutral-400 touch-manipulation">MIC LEVEL
           <input aria-label="Mic level" type="range" min={0} max={1} step={0.01} defaultValue={0}
-            onInput={(e) => E.setMicLevel?.(Number((e.target as HTMLInputElement).value))} onChange={(e) => E.setMicLevel?.(Number(e.target.value))} className="w-full h-12 accent-[#8A5CFF]" /></label>
+            onInput={(e) => E.setMicLevel?.(Number((e.target as HTMLInputElement).value))} onChange={(e) => E.setMicLevel?.(Number(e.target.value))} className="w-full h-12 accent-[#FF5C00]" /></label>
       </div>
     </div>
   );
@@ -287,12 +287,12 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
 
   const meter = (v: number) => {
     const p = Math.round(Math.min(1, Math.max(0, v)) * 100);
-    const c = p > 90 ? 'bg-[#e10600]' : p > 70 ? 'bg-[#8A5CFF]' : 'bg-emerald-500';
-    return <div className="w-6 h-20 rounded bg-black border border-[#2A2E37] flex flex-col justify-end overflow-hidden"><div className={`${c} duration-75`} style={{ height: `${p}%` }} /></div>;
+    const c = p > 90 ? 'bg-[#e10600]' : p > 70 ? 'bg-[#FF5C00]' : 'bg-emerald-500';
+    return <div className="w-6 h-20 rounded bg-black border border-[#22222a] flex flex-col justify-end overflow-hidden"><div className={`${c} duration-75`} style={{ height: `${p}%` }} /></div>;
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#07080A] overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-[#070707] overflow-hidden">
       <div className="h-[100dvh] flex flex-col gap-2 p-2 overflow-hidden">
         <header className="flex items-center gap-3">
           <div className="flex gap-2">
@@ -300,10 +300,10 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
             <div className="text-center"><p className="text-[9px] text-neutral-500">MST</p>{meter(lv.master)}</div>
             <div className="text-center"><p className="text-[9px] text-neutral-500">CH2</p>{meter(lv.deck[1])}</div>
           </div>
-          <p className="font-black text-xs">XDJ-RR <span className="text-[#8A5CFF]">1:1</span></p>
+          <p className="font-black text-xs">XDJ-RR <span className="text-[#FF5C00]">1:1</span></p>
           <button type="button" aria-label="Abrir uploader (long-press LOAD)"
             onPointerDown={lpOpen} onPointerUp={() => lpCancel(true)} onPointerLeave={() => lpCancel()}
-            className={`${BTN} text-xs border border-[#00B0FF] text-[#00B0FF] rounded-lg px-3 py-2`}>📁 LOAD</button>
+            className={`${BTN} text-xs border border-[#FF5C00] text-[#FF5C00] rounded-lg px-3 py-2`}>📁 LOAD</button>
           <button type="button" aria-label="Pantalla completa" onClick={() => {
             try {
               if (document.fullscreenElement) document.exitFullscreen();
@@ -313,23 +313,23 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
               else if (o?.unlock) o.unlock();
             } catch { /* noop */ }
             buzz();
-          }} className={`${BTN} text-xs border border-[#2A2E37] text-neutral-300 rounded-lg px-3 py-2`}>⛶ FULL</button>
-          <button type="button" onClick={onExit} aria-label="Salir" className={`${BTN} ml-auto text-sm border border-[#2A2E37] rounded-lg px-3 py-2`}>✕</button>
+          }} className={`${BTN} text-xs border border-[#22222a] text-neutral-300 rounded-lg px-3 py-2`}>⛶ FULL</button>
+          <button type="button" onClick={onExit} aria-label="Salir" className={`${BTN} ml-auto text-sm border border-[#22222a] rounded-lg px-3 py-2`}>✕</button>
         </header>
-        <p className="portrait-only text-center text-[11px] text-[#8A5CFF] font-bold">📱 Gira tu celular para ver la RR completa sin scroll + ⛶ FULL</p>
+        <p className="portrait-only text-center text-[11px] text-[#FF5C00] font-bold">📱 Gira tu celular para ver la RR completa sin scroll + ⛶ FULL</p>
         <div className="grid grid-cols-[1fr_auto_1fr] gap-2 flex-1 min-h-0 overflow-y-auto">
           <DeckZone n={0} eng={eng} tick={0} />
           <MixerZone eng={eng} />
           <DeckZone n={1} eng={eng} tick={0} />
         </div>
-        <button type="button" onClick={onExit} className={`${BTN} w-full min-h-[52px] rounded-xl border border-[#8A5CFF] text-[#8A5CFF] font-black text-sm`}>SALIR DE MODO PRÁCTICA</button>
+        <button type="button" onClick={onExit} className={`${BTN} w-full min-h-[52px] rounded-xl border border-[#FF5C00] text-[#FF5C00] font-black text-sm`}>SALIR DE MODO PRÁCTICA</button>
         {showRotate && (
           <div className={`rotate-hint show fixed inset-0 z-[130] items-center justify-center bg-black/85 p-6`} role="dialog" aria-label="Gira tu celular">
-            <div className="w-full max-w-[420px] rounded-2xl border border-[#8A5CFF]/50 bg-[#111111] p-6 text-center space-y-3">
+            <div className="w-full max-w-[420px] rounded-2xl border border-[#FF5C00]/50 bg-[#141418] p-6 text-center space-y-3">
               <p className="text-4xl">📱↻</p>
               <p className="font-black">GIRA TU CELULAR</p>
               <p className="text-sm text-neutral-400">Modo horizontal para usar todo el XDJ-RR sin scroll.</p>
-              <button type="button" onClick={goLandscape} className="w-full min-h-[52px] rounded-full bg-[#8A5CFF] text-black font-black touch-manipulation active:scale-95">⛶ FULLSCREEN + HORIZONTAL</button>
+              <button type="button" onClick={goLandscape} className="w-full min-h-[52px] rounded-full bg-[#FF5C00] text-black font-black touch-manipulation active:scale-95">⛶ FULLSCREEN + HORIZONTAL</button>
               <button type="button" onClick={() => setShowRotate(false)} className="text-xs text-neutral-500">Seguir en vertical</button>
             </div>
           </div>
@@ -337,8 +337,8 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
         {showUp && (
           <div className="absolute inset-0 z-[110] bg-black/80 p-3 overflow-y-auto">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-xs font-black text-[#00B0FF]">📁 CARGAR TRACK A DECK</p>
-              <button type="button" onClick={() => setShowUp(false)} className={`${BTN} ml-auto text-sm border border-[#2A2E37] rounded-lg px-3 py-2`}>✕ Cerrar</button>
+              <p className="text-xs font-black text-[#FF5C00]">📁 CARGAR TRACK A DECK</p>
+              <button type="button" onClick={() => setShowUp(false)} className={`${BTN} ml-auto text-sm border border-[#22222a] rounded-lg px-3 py-2`}>✕ Cerrar</button>
             </div>
             <Suspense fallback={<p className="text-xs text-neutral-500">Cargando...</p>}>
               <TrackUploader eng={eng} />

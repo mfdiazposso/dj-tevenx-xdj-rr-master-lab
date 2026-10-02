@@ -21,8 +21,8 @@ export default function UsbExportSim() {
   const ready = sel.length >= 3 && check.length === CHECK.length;
 
   return (
-    <div className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-4">
-      <p className="text-xs font-black tracking-widest text-[#8A5CFF]">USB MASTER · SIMULADOR DE EXPORT</p>
+    <div className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-4">
+      <p className="text-xs font-black tracking-widest text-[#FF5C00]">USB MASTER · SIMULADOR DE EXPORT</p>
       <p className="text-xs text-neutral-400 mt-1">Toca tracks para añadirlos + completa el checklist. Mínimo 3 tracks.</p>
       <div className="grid md:grid-cols-2 gap-3 mt-3">
         <div>
@@ -30,33 +30,33 @@ export default function UsbExportSim() {
           <div className="flex flex-wrap gap-1.5">
             {pool.map((t) => (
               <button key={t} type="button" onClick={() => toggleTrack(t)}
-                className={`text-xs px-2 py-1.5 rounded-lg border touch-manipulation active:scale-95 ${sel.includes(t) ? 'bg-[#8A5CFF] text-black border-[#8A5CFF] font-bold' : 'border-[#2A2E37] text-neutral-300'}`}>{sel.includes(t) ? '✓ ' : '+ '}{t}</button>
+                className={`text-xs px-2 py-1.5 rounded-lg border touch-manipulation active:scale-95 ${sel.includes(t) ? 'bg-[#FF5C00] text-black border-[#FF5C00] font-bold' : 'border-[#22222a] text-neutral-300'}`}>{sel.includes(t) ? '✓ ' : '+ '}{t}</button>
             ))}
           </div>
           <p className="text-[11px] font-bold text-neutral-400 mt-3 mb-1">2 · CHECKLIST PRE-EVENTO</p>
           <div className="space-y-1">
             {CHECK.map((c) => (
               <button key={c} type="button" onClick={() => toggleCheck(c)}
-                className={`block w-full text-left text-xs px-2 py-1.5 rounded-lg border touch-manipulation ${check.includes(c) ? 'border-emerald-600 text-emerald-400' : 'border-[#2A2E37] text-neutral-300'}`}>{check.includes(c) ? '✓ ' : '○ '}{c}</button>
+                className={`block w-full text-left text-xs px-2 py-1.5 rounded-lg border touch-manipulation ${check.includes(c) ? 'border-emerald-600 text-emerald-400' : 'border-[#22222a] text-neutral-300'}`}>{check.includes(c) ? '✓ ' : '○ '}{c}</button>
             ))}
           </div>
           <button type="button" disabled={!ready} onClick={() => setExported(true)}
-            className={`mt-3 px-4 py-2 rounded-lg text-sm font-black touch-manipulation ${ready ? 'bg-[#8A5CFF] text-black active:scale-95' : 'bg-[#1a1a1a] text-neutral-600'}`}>
+            className={`mt-3 px-4 py-2 rounded-lg text-sm font-black touch-manipulation ${ready ? 'bg-[#FF5C00] text-black active:scale-95' : 'bg-[#1a1a1a] text-neutral-600'}`}>
             ⬇ EXPORTAR A USB
           </button>
         </div>
         <div>
           <p className="text-[11px] font-bold text-neutral-400 mb-1">USB:/ <span className="text-neutral-600">(virtual)</span></p>
-          <div className="rounded-lg bg-black border border-[#2A2E37] p-3 font-mono text-xs min-h-[220px]">
+          <div className="rounded-lg bg-black border border-[#22222a] p-3 font-mono text-xs min-h-[220px]">
             {exported ? (
               <div className="space-y-0.5">
-                <p className="text-[#8A5CFF]">USB:/</p>
+                <p className="text-[#FF5C00]">USB:/</p>
                 <p className="pl-3 text-neutral-300">└─ PIONEER/</p>
                 <p className="pl-6 text-neutral-300">└─ rekordbox/ <span className="text-neutral-600">(DB + grids + cues)</span></p>
                 <p className="pl-3 text-neutral-300">└─ Contents/</p>
                 {sel.map((t) => <p key={t} className="pl-6 text-emerald-400">├─ {t}.mp3</p>)}
                 <p className="pl-6 text-neutral-400">└─ setlist.m3u <span className="text-neutral-600">({sel.length} tracks)</span></p>
-                <p className="pt-2 text-[#8A5CFF]">✓ Lista para XDJ-RR · STOP 2s al expulsar</p>
+                <p className="pt-2 text-[#FF5C00]">✓ Lista para XDJ-RR · STOP 2s al expulsar</p>
               </div>
             ) : <p className="text-neutral-600">Arrastra (toca) tracks + checklist → EXPORTAR</p>}
           </div>

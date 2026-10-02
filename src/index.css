@@ -1,44 +1,32 @@
 @import "tailwindcss";
 
-/* ===== DJ TEVENX DESIGN SYSTEM v8.0 PREMIUM =====
-   Obsidian #07080A · Void #1A1D23 · Plasma Violet #8A5CFF
-   Electric Lime #D4FF32 · Signal #F5F5F7 · naranja solo detalle 5% */
+/* ===== TEVENX CYBERPUNK v11 — DESIGN.md structure, neon-orange theme =====
+   --color-void-canvas #070707 · carbon #0d0e12 · obsidian #141418
+   --color-neon-orange #FF5C00 · amber #FF8A00 · core #FF3D00
+   spacing base 8px · cards 20px · pills/badges 800px · Geist + Calsans */
 
 @theme {
-  --color-base: #07080A;
-  --color-panel: #1A1D23;
-  --color-card: #111111;
-  --color-line: #2A2E37;
-  --color-line2: #1e1e1e;
-  --color-accent: #8A5CFF;
-  --color-cyanx: #8A5CFF;
+  --color-base: #070707;
+  --color-panel: #0d0e12;
+  --color-card: #141418;
+  --color-line: #22222a;
+  --color-line2: #22222a;
+  --color-accent: #FF5C00;
+  --color-cyanx: #FF5C00;
   --color-action: #e10600;
-  --color-ok: #D4FF32;
+  --color-ok: #FF3D00;
   --color-fail: #ff1744;
   --color-muted: #8a8a8a;
-  --tevx-void: #07080A;
-  --tevx-gray: #1A1D23;
-  --tevx-violet: #8A5CFF;
-  --tevx-lime: #D4FF32;
-  --tevx-teal: #00FFD1;
-  --tevx-white: #F5F5F7;
-  --font-display: "Space Grotesk", Inter, system-ui, sans-serif;
-  --font-mono2: "JetBrains Mono", ui-monospace, monospace;
-}
-
-@theme {
-  --color-base: #07080A;
-  --color-panel: #1A1D23;
-  --color-card: #111111;
-  --color-line: #262626;
-  --color-line2: #1e1e1e;
-  --color-accent: #8A5CFF;
-  --color-cyanx: #8A5CFF;
-  --color-action: #e10600;
-  --color-ok: #D4FF32;
-  --color-fail: #ff1744;
-  --color-muted: #8a8a8a;
-  --font-display: Inter, system-ui, sans-serif;
+  --color-void-canvas: #070707;
+  --color-carbon-plate: #0d0e12;
+  --color-obsidian: #141418;
+  --color-neon-orange: #FF5C00;
+  --color-neon-amber: #FF8A00;
+  --color-neon-core: #FF3D00;
+  --color-pure-white: #ffffff;
+  --color-fog: #d9dae5;
+  --font-display: "Calsans", "Space Grotesk", Geist, Inter, system-ui, sans-serif;
+  --font-geist: Geist, Inter, system-ui, sans-serif;
   --font-mono2: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -50,8 +38,8 @@ button { touch-action: manipulation; }
 .tab-enter { animation: tabIn .18s ease-out; }
 @keyframes tabIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 body {
-  background: #07080A; color: #f5f5f5;
-  font-family: Inter, system-ui, sans-serif;
+  background: #070707; color: #f5f5f5;
+  font-family: Geist, Inter, system-ui, sans-serif;
   font-size: clamp(13px, 1.8vw, 15px);
   min-height: 100dvh;
   padding-top: env(safe-area-inset-top);
@@ -63,18 +51,38 @@ h1.app-title { font-size: clamp(20px, 4vw, 32px); }
 .ficha-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .ficha-grid > * { width: 100%; max-width: 100%; box-sizing: border-box; }
 .map-label { font-size: clamp(10px, 1.5vw, 12px); }
-.card { background: #111111; border: 1px solid #1e1e1e; border-radius: 24px; }
-.btn-pill { border-radius: 999px; }
-h1, h2 { font-family: "Space Grotesk", Inter, system-ui, sans-serif; letter-spacing: -0.02em; }
+.card { background: #0d0e12; border: 1px solid #22222a; border-radius: 20px; padding: 24px; }
+.btn-pill { border-radius: 800px; }
+h1, h2 { font-family: "Calsans", "Space Grotesk", Geist, Inter, system-ui, sans-serif; letter-spacing: 0.056em; }
+body { font-family: Geist, Inter, system-ui, sans-serif; }
+
+/* Botón pill neón 800px + glow */
+.btn-neon {
+  border-radius: 800px;
+  box-shadow: 0 0 20px rgba(255,92,0,0.5), inset 0 0 10px rgba(255,92,0,0.2);
+}
+/* Hairline neón + scanlines + aurora naranja */
+.hairline-neon { border: 1px solid rgba(255,92,0,0.3); }
+.neon-text {
+  font-family: "Calsans", "Space Grotesk", Geist, sans-serif; letter-spacing: 0.056em;
+  color: #FF5C00; text-shadow: 0 0 10px #FF5C00, 0 0 32px rgba(255,92,0,0.5);
+}
+.scanlines::before {
+  content: ""; position: fixed; inset: 0; z-index: 61; pointer-events: none; opacity: 0.5;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+}
+.aurora-neon {
+  background: radial-gradient(600px at 0% 0%, rgba(255,92,0,0.15), transparent 60%);
+}
 .glass { background: rgba(26, 29, 35, 0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
-.glow-orange { box-shadow: 0 0 20px rgba(138, 92, 255, 0.25); }
+.glow-orange { box-shadow: 0 0 20px rgba(255, 92, 0, 0.25); }
 
 /* Botón pro: inner shadow + glow lime/violet */
 .btn-pro {
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.25), inset 0 -3px 6px rgba(0, 0, 0, 0.35), 0 0 16px rgba(212, 255, 50, 0.25);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.25), inset 0 -3px 6px rgba(0, 0, 0, 0.35), 0 0 16px rgba(255, 138, 0, 0.25);
 }
 .btn-pro-violet {
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.22), inset 0 -3px 6px rgba(0, 0, 0, 0.4), 0 0 16px rgba(138, 92, 255, 0.4);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.22), inset 0 -3px 6px rgba(0, 0, 0, 0.4), 0 0 16px rgba(255, 92, 0, 0.4);
 }
 /* Label mono 11px uppercase tracking 15% */
 .lbl { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; }
@@ -83,9 +91,9 @@ h1, h2 { font-family: "Space Grotesk", Inter, system-ui, sans-serif; letter-spac
 body::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(600px 400px at 12% 8%, rgba(138, 92, 255, 0.14), transparent 60%),
-    radial-gradient(700px 500px at 88% 20%, rgba(138, 92, 255, 0.08), transparent 60%),
-    radial-gradient(500px 500px at 50% 100%, rgba(212, 255, 50, 0.05), transparent 60%);
+    radial-gradient(600px 400px at 12% 8%, rgba(255, 92, 0, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 88% 20%, rgba(255, 92, 0, 0.08), transparent 60%),
+    radial-gradient(500px 500px at 50% 100%, rgba(255, 138, 0, 0.05), transparent 60%);
 }
 body::after {
   content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.03;
@@ -93,14 +101,16 @@ body::after {
 }
 #root { position: relative; z-index: 1; }
 
-/* Kinetic title: aurora oficial */
+/* Kinetic title: neón naranja con glow */
 .kinetic {
-  background: linear-gradient(135deg, #8A5CFF 0%, #00FFD1 50%, #D4FF32 100%);
+  font-family: "Calsans", "Space Grotesk", Geist, sans-serif; letter-spacing: 0.056em;
+  background: linear-gradient(135deg, #FF5C00 0%, #FF8A00 50%, #FF3D00 100%);
   background-size: 220% auto;
   -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: kinetic-flow 7s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(255,92,0,0.45));
 }
-.kinetic span { -webkit-text-fill-color: #ff6b00; color: #ff6b00; }
+.kinetic span { -webkit-text-fill-color: #FF5C00; color: #FF5C00; }
 @keyframes kinetic-flow { to { background-position: 220% center; } }
 
 /* Neumorphism real en jogs */

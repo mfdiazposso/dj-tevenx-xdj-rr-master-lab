@@ -13,7 +13,7 @@ import { useDaily } from './store/daily';
 function StreakPill() {
   const streak = useDaily((s) => s.streak);
   if (!streak) return null;
-  return <span className="px-3 py-1.5 rounded-full bg-[#1A1D23] border border-[#2A2E37] text-xs font-black" title="Racha diaria">🔥 {streak}</span>;
+  return <span className="px-3 py-1.5 rounded-full bg-[#0d0e12] border border-[#22222a] text-xs font-black" title="Racha diaria">🔥 {streak}</span>;
 }
 
 // Fallback que solo aparece si la carga tarda >1s (nunca pantalla negra)
@@ -23,7 +23,7 @@ function SlowFallback() {
     const id = setTimeout(() => setSlow(true), 1000);
     return () => clearTimeout(id);
   }, []);
-  return slow ? <p className="text-sm text-[#8A5CFF] font-bold animate-pulse">CARGANDO XDJ-RR...</p> : null;
+  return slow ? <p className="text-sm text-[#FF5C00] font-bold animate-pulse">CARGANDO XDJ-RR...</p> : null;
 }
 
 const LessonsView = lazy(() => import('./components/lessons/LessonsView'));
@@ -82,35 +82,35 @@ export default function App() {
   const tabs: Tab[] = ['dashboard', 'mapa', 'lecciones', 'simulador', 'ejercicios', 'tests', 'glosario'];
 
   return (
-    <div className="min-h-screen bg-[#07080A] text-neutral-100">
-      <header className="app-header sticky top-0 z-20 border-b border-[#2A2E37] bg-[#07080A]/90 backdrop-blur-md">
+    <div className="scanlines min-h-screen bg-[#070707] text-neutral-100">
+      <header className="app-header sticky top-0 z-20 border-b border-[#22222a] bg-[#070707]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
-          <h1 className="app-title lab-title kinetic font-black tracking-tight w-full sm:w-auto">DJ TEVENX <span className="text-[#ff6b00]">· XDJ-RR MASTER LAB</span></h1>
+          <h1 className="app-title lab-title kinetic font-black tracking-tight w-full sm:w-auto">DJ TEVENX <span className="text-[#FF5C00]">· XDJ-RR MASTER LAB</span></h1>
           <div className="ml-auto flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <div className="relative">
-              <input aria-label="Búsqueda global" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar: trim, echo, jog..." className="w-56 rounded-lg bg-[#1A1D23] border border-[#2A2E37] px-3 py-1.5 text-sm outline-none focus:border-[#8A5CFF] focus:ring-1 focus:ring-[#8A5CFF]" />
+              <input aria-label="Búsqueda global" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar: trim, echo, jog..." className="w-56 rounded-lg bg-[#0d0e12] border border-[#22222a] px-3 py-1.5 text-sm outline-none focus:border-[#FF5C00] focus:ring-1 focus:ring-[#FF5C00]" />
               {q && (
-                <div className="absolute top-10 left-0 w-72 rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-2 shadow-2xl z-30">
+                <div className="absolute top-10 left-0 w-72 rounded-xl border border-[#22222a] bg-[#0d0e12] p-2 shadow-2xl z-30">
                   {results.slice(0, 8).map((r) => (
-                    <button key={r.id} onClick={() => { go(r.id); setQ(''); }} className="block w-full text-left px-2 py-1.5 rounded-lg text-sm hover:bg-white/5 focus:ring-1 focus:ring-[#8A5CFF]"><b>{r.name}</b> <span className="text-neutral-400">— {r.shortTip}</span></button>
+                    <button key={r.id} onClick={() => { go(r.id); setQ(''); }} className="block w-full text-left px-2 py-1.5 rounded-lg text-sm hover:bg-white/5 focus:ring-1 focus:ring-[#FF5C00]"><b>{r.name}</b> <span className="text-neutral-400">— {r.shortTip}</span></button>
                   ))}
                   {results.length === 0 && <p className="text-sm text-neutral-500 px-2 py-1">Sin resultados.</p>}
                 </div>
               )}
             </div>
-            <button type="button" aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 min-h-[44px] rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#8A5CFF] ${rrMode ? 'border-[#8A5CFF] text-[#8A5CFF]' : 'border-[#2A2E37] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
+            <button type="button" aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 min-h-[44px] rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#FF5C00] ${rrMode ? 'border-[#FF5C00] text-[#FF5C00]' : 'border-[#22222a] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
             <button type="button" onClick={() => setTab('simulador')} aria-label="Subir tracks"
-              className="px-3 min-h-[44px] w-full sm:w-auto rounded-full bg-[#8A5CFF] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
+              className="px-3 min-h-[44px] w-full sm:w-auto rounded-full bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
             <StreakPill />
-            <span className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-lg bg-[#1A1D23] border border-[#2A2E37] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
+            <span className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-lg bg-[#0d0e12] border border-[#22222a] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
           </div>
         </div>
         <div className="tabs max-w-7xl mx-auto px-4 pb-2 flex gap-1.5 flex-wrap">
           {tabs.map((t) => (
-            <button key={t} onClick={() => setTab(t)} aria-label={`Ir a ${t}`} className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-widest focus:ring-1 focus:ring-[#8A5CFF] ${tab === t ? 'bg-[#8A5CFF] text-black' : 'border border-[#2A2E37] text-neutral-400 hover:border-[#8A5CFF] hover:text-white'}`}>{t.toUpperCase()}</button>
+            <button key={t} onClick={() => setTab(t)} aria-label={`Ir a ${t}`} className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-widest focus:ring-1 focus:ring-[#FF5C00] ${tab === t ? 'bg-[#FF5C00] text-black' : 'border border-[#22222a] text-neutral-400 hover:border-[#FF5C00] hover:text-white'}`}>{t.toUpperCase()}</button>
           ))}
         </div>
-        <div className="h-1 bg-[#1a1a1a]"><div className="h-1 bg-gradient-to-r from-[#8A5CFF] via-[#8A5CFF] to-[#D4FF32] transition-all" style={{ width: `${pct}%` }} /></div>
+        <div className="h-1 bg-[#1a1a1a]"><div className="h-1 bg-gradient-to-r from-[#FF5C00] via-[#FF5C00] to-[#FF3D00] transition-all" style={{ width: `${pct}%` }} /></div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-5 space-y-4">
@@ -118,7 +118,7 @@ export default function App() {
             {tab === 'dashboard' && (<><WhatToPracticeToday onGo={go} /><Dashboard onGo={go} onSim={(id) => { if (id) simulate(id); else setTab('simulador'); }} /></>)}
             {tab === 'mapa' && (
               <>
-                {hover && <div className="pointer-events-none fixed top-24 left-1/2 -translate-x-1/2 z-50 rounded-lg border border-[#8A5CFF]/40 bg-black px-3 py-2 text-sm shadow-2xl"><b className="text-[#8A5CFF]">{hover.name}:</b> {hover.shortTip}</div>}
+                {hover && <div className="pointer-events-none fixed top-24 left-1/2 -translate-x-1/2 z-50 rounded-lg border border-[#FF5C00]/40 bg-black px-3 py-2 text-sm shadow-2xl"><b className="text-[#FF5C00]">{hover.name}:</b> {hover.shortTip}</div>}
                 <div ref={mapRef} className="scroll-mt-24">
                   <MapaRR selected={selected} onSelect={setSelected} onHover={setHover} />
                 </div>

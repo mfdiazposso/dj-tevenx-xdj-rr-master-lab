@@ -25,15 +25,15 @@ function click() {
 }
 
 /* Knob giratorio estilo hardware: arrastra vertical, doble-click resetea */
-function Knob({ label, min, max, value, onChange, color = '#8A5CFF', reset }: any) {
+function Knob({ label, min, max, value, onChange, color = '#FF5C00', reset }: any) {
   const drag = useRef<{ y: number; v: number } | null>(null);
   const pct = Math.min(1, Math.max(0, (value - min) / (max - min)));
   const ang = -135 + pct * 270;
   return (
     <div className="flex flex-col items-center gap-1 select-none">
       <div role="slider" aria-label={label} aria-valuenow={Math.round(value * 100)} tabIndex={0}
-        className="relative h-12 w-12 lg:h-14 lg:w-14 rounded-full touch-none cursor-ns-resize focus:ring-1 focus:ring-[#8A5CFF]"
-        style={{ background: 'radial-gradient(circle at 35% 30%, #2A2E37, #111111 70%)', boxShadow: '4px 4px 10px rgba(0,0,0,.65), -2px -2px 6px rgba(255,255,255,.06), inset 2px 2px 5px rgba(0,0,0,.65)' }}
+        className="relative h-12 w-12 lg:h-14 lg:w-14 rounded-full touch-none cursor-ns-resize focus:ring-1 focus:ring-[#FF5C00]"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #22222a, #141418 70%)', boxShadow: '4px 4px 10px rgba(0,0,0,.65), -2px -2px 6px rgba(255,255,255,.06), inset 2px 2px 5px rgba(0,0,0,.65)' }}
         onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); drag.current = { y: e.clientY, v: value }; e.preventDefault(); }}
         onPointerMove={(e) => { if (e.buttons === 1 && drag.current) { const dv = ((drag.current.y - e.clientY) / 120) * (max - min); const nv = Math.min(max, Math.max(min, drag.current.v + dv)); onChange(Math.round(nv * 100) / 100); } }}
         onDoubleClick={() => { if (reset !== undefined) onChange(reset); }}
@@ -42,7 +42,7 @@ function Knob({ label, min, max, value, onChange, color = '#8A5CFF', reset }: an
         <div className="absolute inset-0 pointer-events-none" style={{ transform: `rotate(${ang}deg)` }}>
           <div className="absolute left-1/2 top-[4px] h-[10px] w-[3px] -translate-x-1/2 rounded" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
         </div>
-        <div className="absolute inset-[15px] rounded-full pointer-events-none" style={{ background: '#07080A' }} />
+        <div className="absolute inset-[15px] rounded-full pointer-events-none" style={{ background: '#070707' }} />
       </div>
       <span className="lbl text-neutral-400">{label}</span>
     </div>
@@ -52,11 +52,11 @@ function Knob({ label, min, max, value, onChange, color = '#8A5CFF', reset }: an
 function Slider({ label, min, max, step, value, onChange }: any) {
   const fire = (v: number) => onChange(v);
   return (
-    <label className="block text-[11px] text-neutral-400 touch-manipulation">{label} <span className="text-[#8A5CFF] font-bold">{typeof value === 'number' ? Math.round(value * 100) + '%' : ''}</span>
+    <label className="block text-[11px] text-neutral-400 touch-manipulation">{label} <span className="text-[#FF5C00] font-bold">{typeof value === 'number' ? Math.round(value * 100) + '%' : ''}</span>
       <input type="range" aria-label={label} min={min} max={max} step={step} value={value}
         onInput={(e) => fire(Number((e.target as HTMLInputElement).value))}
         onChange={(e) => fire(Number(e.target.value))}
-        className="w-full accent-[#8A5CFF] h-12 lg:h-8 py-2 lg:py-0" />
+        className="w-full accent-[#FF5C00] h-12 lg:h-8 py-2 lg:py-0" />
     </label>
   );
 }
@@ -66,13 +66,13 @@ function VFader({ label, min, max, step, value, onChange, height = 120 }: any) {
   return (
     <div className="flex flex-col items-center gap-1 select-none">
       <span className="lbl text-neutral-400">{label}</span>
-      <div className="rounded-lg bg-black border border-[#2A2E37] flex items-center justify-center py-2" style={{ height, width: 52 }}>
+      <div className="rounded-lg bg-black border border-[#22222a] flex items-center justify-center py-2" style={{ height, width: 52 }}>
         <input type="range" aria-label={label} min={min} max={max} step={step} value={value}
           onInput={(e) => onChange(Number((e.target as HTMLInputElement).value))}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="accent-[#8A5CFF] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 40, height: height - 20 }} />
+          className="accent-[#FF5C00] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 40, height: height - 20 }} />
       </div>
-      <span className="mono text-[10px] text-[#8A5CFF]">{Math.round(value * 100)}%</span>
+      <span className="mono text-[10px] text-[#FF5C00]">{Math.round(value * 100)}%</span>
     </div>
   );
 }
@@ -80,8 +80,8 @@ function VFader({ label, min, max, step, value, onChange, height = 120 }: any) {
 function Meter({ value }: { value: number }) {
   const v = Math.min(1, Math.max(0, value));
   const pct = Math.round(v * 100);
-  const color = pct > 90 ? 'bg-[#FF1744]' : pct > 70 ? 'bg-[#8A5CFF]' : 'bg-[#D4FF32]';
-  return <div className="w-4 h-28 rounded bg-black border border-[#2A2E37] flex flex-col justify-end overflow-hidden"><div className={`${color} duration-75`} style={{ height: `${pct}%` }} /></div>;
+  const color = pct > 90 ? 'bg-[#FF3D00]' : pct > 70 ? 'bg-[#FF5C00]' : 'bg-[#FF3D00]';
+  return <div className="w-4 h-28 rounded bg-black border border-[#22222a] flex flex-col justify-end overflow-hidden"><div className={`${color} duration-75`} style={{ height: `${pct}%` }} /></div>;
 }
 
 function useLevels(eng: ReturnType<typeof useAudioEngine>) {
@@ -100,14 +100,14 @@ function Jog({ onNudge }: { onNudge: (dx: number) => void }) {
   const lastX = useRef(0);
   return (
     <div role="slider" aria-label="Jog wheel" tabIndex={0}
-      className="jog jog-pro mx-auto h-28 w-28 lg:h-[180px] lg:w-[180px] rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center select-none focus:ring-1 focus:ring-[#8A5CFF] touch-none"
-      style={{ background: 'radial-gradient(circle, #1A1D23 0%, #111111 45%, #07080A 75%)', border: '6px solid #1A1D23', outline: '2px solid #2A2E37' }}
+      className="jog jog-pro mx-auto h-28 w-28 lg:h-[180px] lg:w-[180px] rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center select-none focus:ring-1 focus:ring-[#FF5C00] touch-none"
+      style={{ background: 'radial-gradient(circle, #0d0e12 0%, #141418 45%, #070707 75%)', border: '6px solid #0d0e12', outline: '2px solid #22222a' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}
       onPointerMove={(e) => { if (e.buttons === 1) { onNudge(e.clientX - lastX.current); lastX.current = e.clientX; } }}
       onPointerUp={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ } }}
       onPointerCancel={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ } }}
     >
-      <div className="rounded-full flex items-center justify-center h-12 w-12 lg:h-20 lg:w-20" style={{ background: 'radial-gradient(circle at 40% 35%, #2A2E37, #07080A 75%)', boxShadow: 'inset 2px 2px 6px rgba(0,0,0,.7)' }}>
+      <div className="rounded-full flex items-center justify-center h-12 w-12 lg:h-20 lg:w-20" style={{ background: 'radial-gradient(circle at 40% 35%, #22222a, #070707 75%)', boxShadow: 'inset 2px 2px 6px rgba(0,0,0,.7)' }}>
         <span className="mono text-[9px] lg:text-[10px] text-neutral-500 pointer-events-none">XDJ-RR</span>
       </div>
     </div>
@@ -118,10 +118,10 @@ function Wave({ seed }: { seed: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current!; const g = c.getContext('2d')!;
-    g.clearRect(0, 0, c.width, c.height); g.fillStyle = '#00FFD1';
+    g.clearRect(0, 0, c.width, c.height); g.fillStyle = '#FF8A00';
     for (let x = 0; x < c.width; x += 3) { const h = 8 + Math.abs(Math.sin(x * 0.2 + seed * 5)) * 24; g.fillRect(x, 32 - h / 2, 2, h); }
   }, [seed]);
-  return <canvas ref={ref} width={220} height={64} className="waveform w-full h-[60px] lg:h-[80px] rounded-xl bg-black border border-[#2A2E37] pointer-events-none" />;
+  return <canvas ref={ref} width={220} height={64} className="waveform w-full h-[60px] lg:h-[80px] rounded-xl bg-black border border-[#22222a] pointer-events-none" />;
 }
 
 /* Pantalla central 7" estilo hardware: filenames + BPM + time */
@@ -131,18 +131,18 @@ function ScreenStrip({ eng }: { eng: ReturnType<typeof useAudioEngine> }) {
   const n0 = (eng as any).fileName ? (eng as any).fileName(0) : '';
   const n1 = (eng as any).fileName ? (eng as any).fileName(1) : '';
   return (
-    <div className="rounded-2xl border border-[#2A2E37] bg-black p-2 grid grid-cols-[1fr_auto_1fr] gap-2 items-center" style={{ boxShadow: 'inset 0 0 24px rgba(138,92,255,.12)' }}>
+    <div className="rounded-2xl border border-[#22222a] bg-black p-2 grid grid-cols-[1fr_auto_1fr] gap-2 items-center" style={{ boxShadow: 'inset 0 0 24px rgba(255,92,0,.12)' }}>
       <div className="min-w-0">
-        <p className="mono text-[10px] text-[#00FFD1] truncate">{n0 || 'DECK 1 · demo osc'}</p>
-        <p className="mono bpm font-black text-[#F5F5F7]">{st0.bpm || '---'} <span className="text-[10px] text-neutral-500">{st0.pitch}% · {st0.time}</span></p>
+        <p className="mono text-[10px] text-[#FF8A00] truncate">{n0 || 'DECK 1 · demo osc'}</p>
+        <p className="mono bpm font-black text-[#ffffff]">{st0.bpm || '---'} <span className="text-[10px] text-neutral-500">{st0.pitch}% · {st0.time}</span></p>
       </div>
       <div className="text-center px-2">
-        <p className="lbl text-[#8A5CFF]">XDJ-RR</p>
+        <p className="lbl text-[#FF5C00]">XDJ-RR</p>
         <p className="mono text-[9px] text-neutral-500">{eng.playing[0] ? '▶' : '❚❚'} {eng.playing[1] ? '▶' : '❚❚'}</p>
       </div>
       <div className="min-w-0 text-right">
-        <p className="mono text-[10px] text-[#00FFD1] truncate">{n1 || 'demo osc · DECK 2'}</p>
-        <p className="mono bpm font-black text-[#F5F5F7]">{st1.bpm || '---'} <span className="text-[10px] text-neutral-500">{st1.pitch}% · {st1.time}</span></p>
+        <p className="mono text-[10px] text-[#FF8A00] truncate">{n1 || 'demo osc · DECK 2'}</p>
+        <p className="mono bpm font-black text-[#ffffff]">{st1.bpm || '---'} <span className="text-[10px] text-neutral-500">{st1.pitch}% · {st1.time}</span></p>
       </div>
     </div>
   );
@@ -193,7 +193,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   const [fxLvl, setFxLvl] = useState(0.5);
   const FXS = ['DELAY', 'ECHO', 'SPIRAL', 'REVERB', 'TRANS', 'FLANGER', 'PITCH', 'ROLL'];
   const COLORS = ['DUB ECHO', 'SWEEP', 'FILTER', 'NOISE'];
-  const HOTPADS: Array<[string, string]> = [['A', '#00B0FF'], ['B', '#FF8F00'], ['C', '#00E676'], ['D', '#E040FB']];
+  const HOTPADS: Array<[string, string]> = [['A', '#FF5C00'], ['B', '#FF8A00'], ['C', '#FF3D00'], ['D', '#FFB800']];
   const LOOPS = [1, 2, 4, 8];
   const led = (k: string) => !!leds[k];
   const toggleLed = (k: string) => { setLeds((s) => ({ ...s, [k]: !s[k] })); buzz(); };
@@ -252,21 +252,21 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     return (
     <div className="flex flex-col items-center gap-1 select-none">
       <span className="lbl text-neutral-400">Tempo</span>
-      <div className="rounded-lg bg-black border border-[#2A2E37] flex items-center justify-center py-2" style={{ height: 168, width: 52 }}>
+      <div className="rounded-lg bg-black border border-[#22222a] flex items-center justify-center py-2" style={{ height: 168, width: 52 }}>
         <input aria-label={`Tempo deck ${n + 1}`} type="range" min={-(st.range ?? 8)} max={st.range ?? 8} step={0.1} value={K(n, 'p', 0)}
           onInput={(e) => SK(n, 'p', Number((e.target as HTMLInputElement).value), (x) => eng.setTempo(n, x))}
           onChange={(e) => SK(n, 'p', Number(e.target.value), (x) => eng.setTempo(n, x))}
-          className="accent-[#8A5CFF] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 40, height: 148 }} />
+          className="accent-[#FF5C00] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 40, height: 148 }} />
       </div>
       <div className="flex gap-1">
         {[8, 16].map((r) => (
           <button key={r} type="button" onClick={() => { (eng as any).setTempoRange(n, r); SK(n, 'p', 0, (x) => eng.setTempo(n, x)); buzz(); }}
-            className={`text-[9px] font-black rounded-full px-1.5 py-1 border touch-manipulation ${st.range === r ? 'bg-[#8A5CFF] text-black' : 'border-[#2A2E37] text-neutral-500'}`}>±{r}</button>
+            className={`text-[9px] font-black rounded-full px-1.5 py-1 border touch-manipulation ${st.range === r ? 'bg-[#FF5C00] text-black' : 'border-[#22222a] text-neutral-500'}`}>±{r}</button>
         ))}
         <button type="button" onClick={() => { (eng as any).setMasterTempo(n, !st.mt); buzz(); }}
-          className={`text-[9px] font-black rounded-full px-1.5 py-1 border touch-manipulation ${st.mt ? 'bg-[#00FFD1] text-black' : 'border-[#2A2E37] text-neutral-500'}`}>MT</button>
+          className={`text-[9px] font-black rounded-full px-1.5 py-1 border touch-manipulation ${st.mt ? 'bg-[#FF8A00] text-black' : 'border-[#22222a] text-neutral-500'}`}>MT</button>
       </div>
-      <button type="button" onClick={() => SK(n, 'p', 0, (x) => eng.setTempo(n, x))} className="lbl text-neutral-500 border border-[#2A2E37] rounded-full px-2 py-1 touch-manipulation">reset</button>
+      <button type="button" onClick={() => SK(n, 'p', 0, (x) => eng.setTempo(n, x))} className="lbl text-neutral-500 border border-[#22222a] rounded-full px-2 py-1 touch-manipulation">reset</button>
     </div>
     );
   };
@@ -289,25 +289,25 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       else (eng as any).setHotCue(n, i);
     };
     return (
-      <div className="rounded-3xl border border-[#2A2E37] p-3 space-y-2" style={{ background: 'linear-gradient(180deg,#1A1D23 0%,#111111 100%)' }}>
+      <div className="rounded-3xl border border-[#22222a] p-3 space-y-2" style={{ background: 'linear-gradient(180deg,#0d0e12 0%,#141418 100%)' }}>
         <div className="flex items-center justify-between gap-2">
-          <p className="lbl font-black text-[#8A5CFF] truncate">Deck {n + 1}{tname ? ` · ${tname}` : ''}</p>
-          <span className={`shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full ${isFile ? 'bg-[#D4FF32] text-black' : 'bg-[#2A2E37] text-neutral-400'}`}>{isFile ? '● TRACK' : '○ DEMO'}</span>
+          <p className="lbl font-black text-[#FF5C00] truncate">Deck {n + 1}{tname ? ` · ${tname}` : ''}</p>
+          <span className={`shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full ${isFile ? 'bg-[#FF3D00] text-black' : 'bg-[#22222a] text-neutral-400'}`}>{isFile ? '● TRACK' : '○ DEMO'}</span>
         </div>
-        {uploaded ? <WavePeaks peaks={uploaded.peaks} color="#00FFD1" height={64} /> : <Wave seed={n} />}
+        {uploaded ? <WavePeaks peaks={uploaded.peaks} color="#FF8A00" height={64} /> : <Wave seed={n} />}
         {!isFile && <p className="text-[11px] text-neutral-500">Sube tracks en MIS TRACKS para practicar TRIM/GAIN.</p>}
         <div className="flex gap-3 items-center justify-center">
           {n === 0 ? jogTempo : <>{tempoCol(n)}<Jog onNudge={(dx) => (eng as any).nudge?.(n, dx)} /></>}
         </div>
         <div className="flex gap-2">
-          <button type="button" aria-label={`Play deck ${n + 1}`} onClick={() => { buzz(); click(); if (eng.hasFile[n]) { try { useDaily.getState().bumpMixes(); } catch { /* noop */ } } eng.play(n); }} className={`${BTN} btn-pro flex-1 rounded-3xl bg-[#D4FF32] text-black font-black text-base`}>▶</button>
-          <button type="button" aria-label={`Cue deck ${n + 1}`} onClick={() => { cueBuzz(); click(); eng.cue(n); }} className={`${BTN} btn-pro flex-1 rounded-3xl bg-[#FF1744] text-white font-black text-base`}>CUE</button>
-          <button type="button" aria-label={`Pause deck ${n + 1}`} onClick={() => { buzz(); eng.pause(n); }} className={`${BTN} flex-1 rounded-3xl border border-[#2A2E37] font-black text-base text-neutral-300`}>❚❚</button>
+          <button type="button" aria-label={`Play deck ${n + 1}`} onClick={() => { buzz(); click(); if (eng.hasFile[n]) { try { useDaily.getState().bumpMixes(); } catch { /* noop */ } } eng.play(n); }} className={`${BTN} btn-pro flex-1 rounded-3xl bg-[#FF3D00] text-black font-black text-base`}>▶</button>
+          <button type="button" aria-label={`Cue deck ${n + 1}`} onClick={() => { cueBuzz(); click(); eng.cue(n); }} className={`${BTN} btn-pro flex-1 rounded-3xl bg-[#FF3D00] text-white font-black text-base`}>CUE</button>
+          <button type="button" aria-label={`Pause deck ${n + 1}`} onClick={() => { buzz(); eng.pause(n); }} className={`${BTN} flex-1 rounded-3xl border border-[#22222a] font-black text-base text-neutral-300`}>❚❚</button>
         </div>
         <div className="flex gap-1.5 justify-center">
           {[['VINYL', `v${n}`], ['SYNC', `s${n}`], ['QUANT', `q${n}`]].map(([l, k]) => (
             <button key={k} type="button" onClick={() => toggleLed(k)}
-              className={`lbl font-black rounded-full px-2 py-1.5 border touch-manipulation active:scale-95 ${led(k) ? 'border-[#00FFD1] text-[#00FFD1]' : 'border-[#2A2E37] text-neutral-600'}`}>{l}</button>
+              className={`lbl font-black rounded-full px-2 py-1.5 border touch-manipulation active:scale-95 ${led(k) ? 'border-[#FF8A00] text-[#FF8A00]' : 'border-[#22222a] text-neutral-600'}`}>{l}</button>
           ))}
         </div>
         <div>
@@ -317,7 +317,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
               <button key={p} type="button" aria-label={`Hot cue ${p} deck ${n + 1}`}
                 onClick={() => hotTap(i)} onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
                 style={hot[i] != null ? { borderColor: col, color: col, background: col + '22', boxShadow: `0 0 12px ${col}` } : undefined}
-                className={`${BTN} min-h-[48px] rounded-xl font-black text-sm border ${hot[i] != null ? '' : 'border-[#2A2E37] text-neutral-600'}`}>{p}</button>
+                className={`${BTN} min-h-[48px] rounded-xl font-black text-sm border ${hot[i] != null ? '' : 'border-[#22222a] text-neutral-600'}`}>{p}</button>
             ))}
           </div>
         </div>
@@ -326,22 +326,22 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
           <div className="grid grid-cols-6 gap-1">
             {LOOPS.map((b) => (
               <button key={b} type="button" onClick={() => { (eng as any).setBeatLoop(n, b); buzz(); click(); }}
-                className={`${BTN} min-h-[44px] rounded-xl font-black text-xs border touch-manipulation ${st.loop === b ? 'bg-[#00FFD1] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>{b}</button>
+                className={`${BTN} min-h-[44px] rounded-xl font-black text-xs border touch-manipulation ${st.loop === b ? 'bg-[#FF8A00] text-black' : 'border-[#22222a] text-neutral-400'}`}>{b}</button>
             ))}
-            <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }} className={`${BTN} min-h-[44px] rounded-xl font-black text-[10px] border border-[#2A2E37] text-neutral-300 touch-manipulation col-span-2`}>EXIT</button>
+            <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }} className={`${BTN} min-h-[44px] rounded-xl font-black text-[10px] border border-[#22222a] text-neutral-300 touch-manipulation col-span-2`}>EXIT</button>
           </div>
         </div>
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-2">
           <Knob label="Trim" min={0} max={1.2} value={K(n, 't', 0.8)} reset={0.8} onChange={(v: number) => SK(n, 't', v, (x) => eng.setTrim(n, x))} />
-          <Knob label="Hi" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
-          <Knob label="Mid" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
-          <Knob label="Low" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
-          <Knob label="Color" min={-1} max={1} value={K(n, 'c', 0)} reset={0} color="#D4FF32" onChange={(v: number) => SK(n, 'c', v, (x) => eng.setColor(n, x))} />
+          <Knob label="Hi" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
+          <Knob label="Mid" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
+          <Knob label="Low" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
+          <Knob label="Color" min={-1} max={1} value={K(n, 'c', 0)} reset={0} color="#FF3D00" onChange={(v: number) => SK(n, 'c', v, (x) => eng.setColor(n, x))} />
         </div>
         <div className="grid grid-cols-4 gap-1">
           {COLORS.map((ct) => (
             <button key={ct} type="button" onClick={() => { (eng as any).setColorFX(n, ct); buzz(); }}
-              className="lbl font-black rounded-lg border border-[#2A2E37] text-neutral-500 px-1 py-2 touch-manipulation active:scale-95">{ct.split(' ')[0]}</button>
+              className="lbl font-black rounded-lg border border-[#22222a] text-neutral-500 px-1 py-2 touch-manipulation active:scale-95">{ct.split(' ')[0]}</button>
           ))}
         </div>
         <div className="flex gap-3 items-start justify-center">
@@ -356,21 +356,21 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   };
 
   const mixerUI = (
-    <div className="rounded-3xl border border-[#2A2E37] p-3 space-y-2 text-center" style={{ background: 'linear-gradient(180deg,#1A1D23 0%,#111111 100%)' }}>
-      <p className="lbl font-black text-[#8A5CFF]">Mixer</p>
+    <div className="rounded-3xl border border-[#22222a] p-3 space-y-2 text-center" style={{ background: 'linear-gradient(180deg,#0d0e12 0%,#141418 100%)' }}>
+      <p className="lbl font-black text-[#FF5C00]">Mixer</p>
       <div className="flex justify-center gap-3"><div><p className="lbl text-neutral-500">CH1</p><Meter value={lv.deck[0]} /></div><div><p className="lbl text-neutral-500">MST</p><Meter value={lv.master} /></div><div><p className="lbl text-neutral-500">CH2</p><Meter value={lv.deck[1]} /></div></div>
       <div className="mx-auto w-full" style={{ width: 'clamp(140px, 60vw, 200px)', maxWidth: '100%' }}><Slider label="Crossfader" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} /></div>
-      <div className="rounded-2xl border border-[#2A2E37] bg-black/40 p-2">
+      <div className="rounded-2xl border border-[#22222a] bg-black/40 p-2">
         <p className="lbl text-neutral-500">Beat FX · {fxSel}</p>
         <div className="flex gap-1 mt-1">
-          <button type="button" aria-label="FX anterior" onClick={() => { const i = (FXS.indexOf(fxSel) + FXS.length - 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="flex-1 min-h-[44px] rounded-xl border border-[#2A2E37] font-black touch-manipulation">◀</button>
+          <button type="button" aria-label="FX anterior" onClick={() => { const i = (FXS.indexOf(fxSel) + FXS.length - 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="flex-1 min-h-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation">◀</button>
           <button type="button" onClick={() => { const v = !fxOn; setFxOn(v); if (v) (eng as any).setBeatFX(fxSel, fxLvl, 0.375); (eng as any).fxOnOff(v); buzz(); }}
-            className={`flex-[2] min-h-[48px] rounded-2xl font-black text-sm touch-manipulation active:scale-95 ${fxOn ? 'bg-[#8A5CFF] text-black' : 'border border-[#8A5CFF] text-[#8A5CFF]'}`}>{fxOn ? '● ON' : '○ OFF'}</button>
-          <button type="button" aria-label="FX siguiente" onClick={() => { const i = (FXS.indexOf(fxSel) + 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="flex-1 min-h-[44px] rounded-xl border border-[#2A2E37] font-black touch-manipulation">▶</button>
+            className={`flex-[2] min-h-[48px] rounded-2xl font-black text-sm touch-manipulation active:scale-95 ${fxOn ? 'bg-[#FF5C00] text-black' : 'border border-[#FF5C00] text-[#FF5C00]'}`}>{fxOn ? '● ON' : '○ OFF'}</button>
+          <button type="button" aria-label="FX siguiente" onClick={() => { const i = (FXS.indexOf(fxSel) + 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="flex-1 min-h-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation">▶</button>
         </div>
         <Slider label="FX Level" min={0} max={1} step={0.01} value={fxLvl} onChange={(v: number) => { setFxLvl(v); if (fxOn) (eng as any).setBeatFX(fxSel, v, 0.375); }} />
       </div>
-      <div className="flex justify-center"><Knob label="Master" min={0} max={1.2} value={master} reset={0.9} color="#D4FF32" onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} /></div>
+      <div className="flex justify-center"><Knob label="Master" min={0} max={1.2} value={master} reset={0.9} color="#FF3D00" onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} /></div>
     </div>
   );
 
@@ -379,45 +379,45 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     const hot8: (number | null)[] = (eng as any).deckHot ? (eng as any).deckHot(n) : [];
     const stc: any = (eng as any).deckState ? (eng as any).deckState(n) : { loop: 0 };
     return (
-      <div className="rounded-2xl border border-[#2A2E37] p-2 space-y-1.5 min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#1A1D23,#111111)' }}>
+      <div className="rounded-2xl border border-[#22222a] p-2 space-y-1.5 min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#0d0e12,#141418)' }}>
         <div className="flex items-center justify-center gap-2">
           <Jog onNudge={(dx) => (eng as any).nudge?.(n, dx)} />
         </div>
         <div className="flex gap-1">
-          <button type="button" onClick={() => { buzz(); click(); eng.play(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#D4FF32] text-black font-black text-sm touch-manipulation active:scale-95">▶</button>
-          <button type="button" onClick={() => { cueBuzz(); click(); eng.cue(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#FF1744] text-white font-black text-sm touch-manipulation active:scale-95">CUE</button>
-          <button type="button" onClick={() => { buzz(); eng.pause(n); }} className="flex-1 min-h-[44px] rounded-xl border border-[#2A2E37] font-black text-sm text-neutral-300 touch-manipulation">❚❚</button>
+          <button type="button" onClick={() => { buzz(); click(); eng.play(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#FF3D00] text-black font-black text-sm touch-manipulation active:scale-95">▶</button>
+          <button type="button" onClick={() => { cueBuzz(); click(); eng.cue(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#FF3D00] text-white font-black text-sm touch-manipulation active:scale-95">CUE</button>
+          <button type="button" onClick={() => { buzz(); eng.pause(n); }} className="flex-1 min-h-[44px] rounded-xl border border-[#22222a] font-black text-sm text-neutral-300 touch-manipulation">❚❚</button>
         </div>
         <div className="grid grid-cols-8 gap-1">
           {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
             <button key={i} type="button" aria-label={`Hot ${i + 1} deck ${n + 1}`}
               onClick={() => { buzz(); if (hot8[i] != null) (eng as any).triggerHotCue(n, i); else (eng as any).setHotCue(n, i); }}
               onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
-              style={hot8[i] != null ? { borderColor: '#00B0FF', color: '#00B0FF', background: '#00B0FF22', boxShadow: '0 0 10px #00B0FF' } : undefined}
-              className="min-h-[36px] rounded-lg border border-[#2A2E37] text-neutral-600 font-black text-xs touch-manipulation active:scale-95">{i + 1}</button>
+              style={hot8[i] != null ? { borderColor: '#FF5C00', color: '#FF5C00', background: '#FF5C0022', boxShadow: '0 0 10px #FF5C00' } : undefined}
+              className="min-h-[36px] rounded-lg border border-[#22222a] text-neutral-600 font-black text-xs touch-manipulation active:scale-95">{i + 1}</button>
           ))}
         </div>
         <Slider label="Tempo" min={-8} max={8} step={0.1} value={K(n, 'p', 0)} onChange={(v: number) => SK(n, 'p', v, (x) => eng.setTempo(n, x))} />
         <div className="grid grid-cols-5 gap-1">
           {[1, 2, 4, 8].map((b) => (
             <button key={b} type="button" onClick={() => { (eng as any).setBeatLoop(n, b); buzz(); }}
-              className={`min-h-[36px] rounded-lg text-xs font-black border touch-manipulation ${stc.loop === b ? 'bg-[#00FFD1] text-black' : 'border-[#2A2E37] text-neutral-400'}`}>{b}</button>
+              className={`min-h-[36px] rounded-lg text-xs font-black border touch-manipulation ${stc.loop === b ? 'bg-[#FF8A00] text-black' : 'border-[#22222a] text-neutral-400'}`}>{b}</button>
           ))}
-          <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }} className="min-h-[36px] rounded-lg text-[10px] font-black border border-[#2A2E37] text-neutral-300 touch-manipulation">EXIT</button>
+          <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }} className="min-h-[36px] rounded-lg text-[10px] font-black border border-[#22222a] text-neutral-300 touch-manipulation">EXIT</button>
         </div>
         <div className="flex justify-center gap-2">
           <Knob label="Trim" min={0} max={1.2} value={K(n, 't', 0.8)} reset={0.8} onChange={(v: number) => SK(n, 't', v, (x) => eng.setTrim(n, x))} />
-          <Knob label="Hi" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
-          <Knob label="Mid" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
-          <Knob label="Low" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#00FFD1" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
+          <Knob label="Hi" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
+          <Knob label="Mid" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
+          <Knob label="Low" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
         </div>
       </div>
     );
   };
 
   const mixerC = (
-    <div className="rounded-2xl border border-[#2A2E37] p-2 space-y-1.5 text-center min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#1A1D23,#111111)' }}>
-      <p className="lbl font-black text-[#8A5CFF]">Mixer</p>
+    <div className="rounded-2xl border border-[#22222a] p-2 space-y-1.5 text-center min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#0d0e12,#141418)' }}>
+      <p className="lbl font-black text-[#FF5C00]">Mixer</p>
       <div className="flex justify-center gap-2">
         <div><p className="lbl text-neutral-500">1</p><Meter value={lv.deck[0]} /></div>
         <div><p className="lbl text-neutral-500">M</p><Meter value={lv.master} /></div>
@@ -426,11 +426,11 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       <Slider label="CH1" min={0} max={1} step={0.01} value={K(0, 'f', 0.9)} onChange={(v: number) => SK(0, 'f', v, (x) => eng.setFader(0, x))} />
       <Slider label="CH2" min={0} max={1} step={0.01} value={K(1, 'f', 0.9)} onChange={(v: number) => SK(1, 'f', v, (x) => eng.setFader(1, x))} />
       <Slider label="Xfade" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} />
-      <div className="flex justify-center"><Knob label="Master" min={0} max={1.2} value={master} reset={0.9} color="#D4FF32" onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} /></div>
+      <div className="flex justify-center"><Knob label="Master" min={0} max={1.2} value={master} reset={0.9} color="#FF3D00" onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} /></div>
       <div className="flex gap-1 items-center justify-center">
-        <button type="button" onClick={() => { const i = (FXS.indexOf(fxSel) + 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="text-[10px] font-black text-[#8A5CFF] truncate">FX:{fxSel}</button>
+        <button type="button" onClick={() => { const i = (FXS.indexOf(fxSel) + 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="text-[10px] font-black text-[#FF5C00] truncate">FX:{fxSel}</button>
         <button type="button" onClick={() => { const v = !fxOn; setFxOn(v); if (v) (eng as any).setBeatFX(fxSel, fxLvl, 0.375); (eng as any).fxOnOff(v); buzz(); }}
-          className={`min-h-[44px] px-3 rounded-xl font-black text-xs touch-manipulation ${fxOn ? 'bg-[#8A5CFF] text-black' : 'border border-[#8A5CFF] text-[#8A5CFF]'}`}>{fxOn ? '●' : '○'}</button>
+          className={`min-h-[44px] px-3 rounded-xl font-black text-xs touch-manipulation ${fxOn ? 'bg-[#FF5C00] text-black' : 'border border-[#FF5C00] text-[#FF5C00]'}`}>{fxOn ? '●' : '○'}</button>
       </div>
     </div>
   );
@@ -440,15 +440,15 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       <div className="xdj-rr-container" style={{ width: 1280, height: 533, transform: `scale(${cs})`, transformOrigin: 'top left' }}>
         <div style={{ gridColumn: '1 / -1' }} className="flex gap-2 items-stretch">
           <div className="flex-1 min-w-0"><ScreenStrip eng={eng} /></div>
-          <div className="rounded-2xl border border-[#2A2E37] bg-black/60 px-3 py-1 flex items-center gap-2 shrink-0">
-            <button type="button" aria-label="Browser anterior" onClick={() => { setBrowseIdx((i) => (i + trackNames.length - 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#2A2E37] font-black touch-manipulation">◀</button>
+          <div className="rounded-2xl border border-[#22222a] bg-black/60 px-3 py-1 flex items-center gap-2 shrink-0">
+            <button type="button" aria-label="Browser anterior" onClick={() => { setBrowseIdx((i) => (i + trackNames.length - 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation">◀</button>
             <div className="w-40">
               <p className="lbl text-neutral-500">Browse</p>
-              <p className="mono text-[11px] text-[#00FFD1] truncate">{browseName}</p>
+              <p className="mono text-[11px] text-[#FF8A00] truncate">{browseName}</p>
             </div>
-            <button type="button" aria-label="Browser siguiente" onClick={() => { setBrowseIdx((i) => (i + 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#2A2E37] font-black touch-manipulation">▶</button>
-            <button type="button" onClick={() => browseLoad(0)} className="min-h-[44px] px-2 rounded-xl border border-[#00B0FF] text-[#00B0FF] text-xs font-black touch-manipulation">LOAD1</button>
-            <button type="button" onClick={() => browseLoad(1)} className="min-h-[44px] px-2 rounded-xl border border-[#00B0FF] text-[#00B0FF] text-xs font-black touch-manipulation">LOAD2</button>
+            <button type="button" aria-label="Browser siguiente" onClick={() => { setBrowseIdx((i) => (i + 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation">▶</button>
+            <button type="button" onClick={() => browseLoad(0)} className="min-h-[44px] px-2 rounded-xl border border-[#FF5C00] text-[#FF5C00] text-xs font-black touch-manipulation">LOAD1</button>
+            <button type="button" onClick={() => browseLoad(1)} className="min-h-[44px] px-2 rounded-xl border border-[#FF5C00] text-[#FF5C00] text-xs font-black touch-manipulation">LOAD2</button>
           </div>
         </div>
         {deckC(0)}
@@ -463,25 +463,25 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   return (
     <div className="simulator-wrapper pb-24">
       <div className="sim-chrome"><ScreenStrip eng={eng} /></div>
-      {rrMode && <div className="sim-chrome mb-2 rounded-2xl border border-[#8A5CFF]/50 bg-[#8A5CFF]/10 p-3 text-sm"><b className="text-[#8A5CFF]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
-      {focusName && <div className="sim-chrome mb-2 rounded-2xl border border-[#8A5CFF]/50 bg-[#8A5CFF]/5 p-3 text-sm">🎯 <b className="text-[#8A5CFF]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
-      {!rrMode && <div className="sim-chrome mb-2 rounded-2xl border border-[#2A2E37] bg-[#1A1D23] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + Tempo Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}
+      {rrMode && <div className="sim-chrome mb-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/10 p-3 text-sm"><b className="text-[#FF5C00]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
+      {focusName && <div className="sim-chrome mb-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/5 p-3 text-sm">🎯 <b className="text-[#FF5C00]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
+      {!rrMode && <div className="sim-chrome mb-2 rounded-2xl border border-[#22222a] bg-[#0d0e12] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + Tempo Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}
       <Suspense fallback={<p className="sim-chrome text-xs text-neutral-500">Cargando uploader...</p>}>
         <div className="sim-chrome"><TrackUploader eng={eng} /></div>
       </Suspense>
       <div className="sim-chrome flex gap-2 mb-2">
-        <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-full bg-[#8A5CFF] text-black text-sm font-black btn-pro-violet`}>📱 MODO PRÁCTICA CELULAR</button>
+        <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-full bg-[#FF5C00] text-black text-sm font-black btn-pro-violet`}>📱 MODO PRÁCTICA CELULAR</button>
         <button type="button" onClick={() => setMode((m) => (m === 'consola' ? 'tactil' : 'consola'))}
-          className="px-4 py-2 rounded-full border border-[#00FFD1] text-[#00FFD1] text-sm font-black touch-manipulation active:scale-95 min-h-[56px] lg:min-h-[44px]">
+          className="px-4 py-2 rounded-full border border-[#FF8A00] text-[#FF8A00] text-sm font-black touch-manipulation active:scale-95 min-h-[56px] lg:min-h-[44px]">
           {mode === 'consola' ? '◧ TÁCTIL' : '🎛 CONSOLA 1:1'}
         </button>
       </div>
       {mode === 'consola' ? consoleView : (<></>)}
       {mode === 'tactil' && (
       <>
-      <div className="sim-tabs tabs-mobile md:hidden border border-[#2A2E37] rounded-2xl flex gap-1.5 mb-2 py-2 px-2 bg-[#07080A]">
+      <div className="sim-tabs tabs-mobile md:hidden border border-[#22222a] rounded-2xl flex gap-1.5 mb-2 py-2 px-2 bg-[#070707]">
         {(['d1', 'mix', 'd2'] as const).map((t) => (
-          <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-2xl text-xs font-black ${mobileTab === t ? 'bg-[#8A5CFF] text-black' : 'border border-[#2A2E37] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
+          <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-2xl text-xs font-black ${mobileTab === t ? 'bg-[#FF5C00] text-black' : 'border border-[#22222a] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
         ))}
       </div>
       <div className="sim-mobile md:hidden overflow-hidden"

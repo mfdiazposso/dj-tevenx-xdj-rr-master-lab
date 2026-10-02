@@ -23,8 +23,8 @@ function Hotspot({ c, selected, fail, onSelect, onHover }: { c: Control; selecte
       onClick={onSelect}
       aria-label={c.name}
       title={`${c.name} — ${c.shortTip}`}
-      className={`relative box-border border border-[#2A2E37] text-left text-[11px] leading-tight px-2 py-1.5 min-h-[44px] rounded-md select-none touch-manipulation cursor-pointer transition-colors duration-150 transform-gpu hover:outline hover:outline-2 hover:outline-[#8A5CFF] hover:bg-[#1a1a1a] hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8A5CFF]
-        ${fail ? 'bg-[#e10600]/10 text-white' : selected ? 'bg-[#8A5CFF]/10 text-white outline outline-2 outline-[#8A5CFF]' : 'bg-[#1a1a1a] text-neutral-300'}`}
+      className={`relative box-border border border-[#22222a] text-left text-[11px] leading-tight px-2 py-1.5 min-h-[44px] rounded-md select-none touch-manipulation cursor-pointer transition-colors duration-150 transform-gpu hover:outline hover:outline-2 hover:outline-[#FF5C00] hover:bg-[#1a1a1a] hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF5C00]
+        ${fail ? 'bg-[#e10600]/10 text-white' : selected ? 'bg-[#FF5C00]/10 text-white outline outline-2 outline-[#FF5C00]' : 'bg-[#1a1a1a] text-neutral-300'}`}
     >
       <span className="map-label font-semibold pointer-events-none">{isDone ? '✓ ' : ''}{c.name}</span>
       {fail && (
@@ -55,17 +55,17 @@ export default function MapaRR({ selected, onSelect, onHover }: { selected: stri
           type="button"
           onClick={() => setQa((v) => !v)}
           aria-label="Activar diagnóstico QA del mapa"
-          className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-widest border touch-manipulation active:scale-95 ${qa ? 'bg-[#e10600] text-white border-[#e10600]' : 'border-[#2A2E37] text-neutral-400 hover:border-[#e10600] hover:text-white'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-widest border touch-manipulation active:scale-95 ${qa ? 'bg-[#e10600] text-white border-[#e10600]' : 'border-[#22222a] text-neutral-400 hover:border-[#e10600] hover:text-white'}`}
         >{qa ? `QA: ${fails.size} FAIL ✕ (ver consola)` : 'QA - FAILURE MAP'}</button>
         {qa && <span className="text-xs text-neutral-400">OK: {controls.length - fails.size} · FAIL: {fails.size} · AudioContext N/A en mapa</span>}
       </div>
       <div className="grid gap-3 lg:grid-cols-[1fr_1.2fr_1fr] isolate overflow-visible">
         {[decks, center, decks].map((list, i) => (
-          <div key={i} className="rounded-xl border border-[#2A2E37] bg-[#1A1D23] p-3">
-            <h3 className="text-xs font-bold tracking-widest text-[#8A5CFF] mb-2">{ZONES[i].label}</h3>
+          <div key={i} className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-3">
+            <h3 className="text-xs font-bold tracking-widest text-[#FF5C00] mb-2">{ZONES[i].label}</h3>
             {i === 1 && (
-              <div className="mb-2 rounded-lg border border-[#8A5CFF]/40 bg-black p-3 text-center">
-                <p className="text-[11px] tracking-widest text-[#8A5CFF]">PANTALLA 7" — WAVEFORM + BROWSE</p>
+              <div className="mb-2 rounded-lg border border-[#FF5C00]/40 bg-black p-3 text-center">
+                <p className="text-[11px] tracking-widest text-[#FF5C00]">PANTALLA 7" — WAVEFORM + BROWSE</p>
                 <p className="text-[11px] text-neutral-400">Diagrama esquemático educativo. No oficial Pioneer.</p>
               </div>
             )}

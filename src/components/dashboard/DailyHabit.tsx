@@ -34,46 +34,46 @@ export default function DailyHabit({ onGo, onSim }: { onGo: (id: string) => void
   const hacker = learnedTricks.length >= 10;
 
   return (
-    <div className="rounded-xl border border-[#8A5CFF]/40 bg-[#07080A] p-4 space-y-3">
+    <div className="rounded-xl border border-[#FF5C00]/40 bg-[#070707] p-4 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-[11px] font-black tracking-widest text-[#8A5CFF]">HÁBITO DIARIO</p>
+        <p className="text-[11px] font-black tracking-widest text-[#FF5C00]">HÁBITO DIARIO</p>
         <span className="text-xs font-black">🔥 {streak} días</span>
-        <span className="text-xs text-[#8A5CFF] font-bold">{xp} XP</span>
+        <span className="text-xs text-[#FF5C00] font-bold">{xp} XP</span>
         <span className="text-xs text-neutral-400" title="Mezclas con track real">🎚 {mixes}</span>
-        {hacker && <span className="text-xs font-black bg-[#8A5CFF] text-black px-2 py-0.5 rounded-full">🏆 RR HACKER</span>}
-        {mixes >= 20 && <span className="text-xs font-black bg-[#D4FF32] text-black px-2 py-0.5 rounded-full">🎚 TRIM MASTER</span>}
-        <button type="button" onClick={surprise} className="ml-auto text-xs font-black border border-[#2A2E37] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">🎲 Sorpréndeme</button>
+        {hacker && <span className="text-xs font-black bg-[#FF5C00] text-black px-2 py-0.5 rounded-full">🏆 RR HACKER</span>}
+        {mixes >= 20 && <span className="text-xs font-black bg-[#FF3D00] text-black px-2 py-0.5 rounded-full">🎚 TRIM MASTER</span>}
+        <button type="button" onClick={surprise} className="ml-auto text-xs font-black border border-[#22222a] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">🎲 Sorpréndeme</button>
       </div>
 
       <div className="grid md:grid-cols-3 gap-2">
-        <div className="rounded-lg border border-[#2A2E37] bg-black/40 p-3 text-sm">
-          <p className="text-[10px] font-black tracking-widest text-[#8A5CFF]">TRUCO DEL DÍA</p>
+        <div className="rounded-lg border border-[#22222a] bg-black/40 p-3 text-sm">
+          <p className="text-[10px] font-black tracking-widest text-[#FF5C00]">TRUCO DEL DÍA</p>
           <p className="font-bold mt-1">{trick.title}</p>
           <p className="text-xs text-neutral-400">"{trick.hook}"</p>
           <div className="flex gap-1.5 mt-2">
-            <button type="button" onClick={() => onGo(trick.controlIds[0])} className="text-xs font-bold text-[#8A5CFF]">Ver ficha</button>
-            <button type="button" onClick={() => onSim(trick.simFocus)} className="text-xs font-bold text-[#8A5CFF]">Probar</button>
+            <button type="button" onClick={() => onGo(trick.controlIds[0])} className="text-xs font-bold text-[#FF5C00]">Ver ficha</button>
+            <button type="button" onClick={() => onSim(trick.simFocus)} className="text-xs font-bold text-[#FF5C00]">Probar</button>
           </div>
         </div>
-        <div className="rounded-lg border border-[#2A2E37] bg-black/40 p-3 text-sm">
-          <p className="text-[10px] font-black tracking-widest text-[#8A5CFF]">RETO DIARIO · 10 MIN</p>
+        <div className="rounded-lg border border-[#22222a] bg-black/40 p-3 text-sm">
+          <p className="text-[10px] font-black tracking-widest text-[#FF5C00]">RETO DIARIO · 10 MIN</p>
           <p className="font-bold mt-1 text-xs">{challenge}</p>
           <p className="font-mono text-lg mt-1">{Math.floor(timer.left / 60)}:{String(timer.left % 60).padStart(2, '0')}</p>
           <div className="flex gap-1.5 mt-1">
             {!timer.run
               ? <button type="button" onClick={() => timer.setRun(true)} className="text-xs font-black bg-emerald-600 rounded-lg px-3 py-1.5">▶ Empezar</button>
-              : <button type="button" onClick={() => timer.setRun(false)} className="text-xs font-bold border border-[#2A2E37] rounded-lg px-3 py-1.5">⏸ Pausa</button>}
+              : <button type="button" onClick={() => timer.setRun(false)} className="text-xs font-bold border border-[#22222a] rounded-lg px-3 py-1.5">⏸ Pausa</button>}
             <button type="button" onClick={timer.reset} className="text-xs text-neutral-500">Reset</button>
           </div>
         </div>
-        <div className="rounded-lg border border-[#2A2E37] bg-black/40 p-3 text-sm">
+        <div className="rounded-lg border border-[#22222a] bg-black/40 p-3 text-sm">
           <p className="text-[10px] font-black tracking-widest text-neutral-400">RUTINA 10 MIN</p>
           <div className="space-y-1 mt-1">
             {ROUTINE.map((r) => {
               const done = routineDone.includes(`${today}:${r}`);
               return (
                 <button key={r} type="button" onClick={() => toggleRoutine(r)}
-                  className={`block w-full text-left text-xs px-2 py-1.5 rounded-lg border touch-manipulation ${done ? 'border-emerald-600 text-emerald-400' : 'border-[#2A2E37] text-neutral-300'}`}>
+                  className={`block w-full text-left text-xs px-2 py-1.5 rounded-lg border touch-manipulation ${done ? 'border-emerald-600 text-emerald-400' : 'border-[#22222a] text-neutral-300'}`}>
                   {done ? '✓ ' : '○ '}{r}
                 </button>
               );
