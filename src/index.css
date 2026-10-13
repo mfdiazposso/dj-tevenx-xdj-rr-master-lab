@@ -137,37 +137,18 @@ body::after {
 }
 .simulator-wrapper > * { position: relative; transform: none; }
 
-/* ===== v7.0 HORIZONTAL POR DEFECTO (body.force-landscape lo pone App en tab simulador) ===== */
-@media (orientation: portrait) and (max-width: 900px) {
-  body.force-landscape { overflow: hidden !important; height: 100dvw; }
-  body.force-landscape .simulator-wrapper {
-    position: fixed !important; top: 0; left: 0;
-    width: 100dvh !important; height: 100dvw !important;
-    transform: rotate(90deg) translateY(-100%); transform-origin: top left;
-    overflow: hidden !important; display: block !important;
-  }
-  body.force-landscape .sim-tabs,
-  body.force-landscape .sim-mobile,
-  body.force-landscape .sim-chrome { display: none !important; }
-  body.force-landscape .sim-desktop {
-    display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr;
-    gap: 8px; padding: 6px; height: 100%; overflow: hidden;
-  }
-  body.force-landscape .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-  body.force-landscape .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
-  body.force-landscape .waveform { height: clamp(40px, 12vh, 68px) !important; }
-  body.force-landscape .app-header,
-  body.force-landscape .lab-title, body.force-landscape .tabs, body.force-landscape .footer { display: none !important; }
-}
+/* ===== v7.0retirado: la rotación forzada por CSS dejaba franja inútil.
+   Portrait = tabs táctiles. Landscape corto = consola 1:1 (abajo). ===== */
 
 /* ===== v6.x LANDSCAPE CORTO: columnas con scroll interno si el contenido excede ===== */
 @media (orientation: landscape) and (max-height: 600px) {
   body, #root { height: 100dvh !important; width: 100dvw !important; overflow: hidden !important; max-height: 100dvh; }
-  .simulator-wrapper { height: 100dvh !important; width: 100dvw !important; display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr; gap: 8px; padding: 6px; overflow: hidden !important; }
+  .simulator-wrapper { height: 100dvh !important; width: 100dvw !important; display: block !important; overflow: hidden !important; }
   .simulator-wrapper .sim-tabs,
   .simulator-wrapper .sim-mobile,
   .simulator-wrapper .sim-chrome { display: none !important; }
-  .simulator-wrapper .sim-desktop { display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr; height: 100dvh; gap: 8px; padding: 6px; overflow: hidden !important; }
+  .simulator-wrapper .sim-desktop { display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr; width: 100% !important; height: 100dvh; gap: 8px; padding: 6px; overflow: hidden !important; }
+  .simulator-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; }
   .simulator-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .simulator-wrapper .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
   .simulator-wrapper .waveform { height: clamp(40px, 12vh, 68px) !important; }
@@ -179,9 +160,23 @@ body::after {
   .landscape-only { display: none !important; }
 }
 
-/* ===== v10 CONSOLA 1:1 — fiel a la foto, escala fluida, nunca apiñada ===== */
+/* ===== v11.3 LEGIBILIDAD: tracks y controles visibles sobre negro ===== */
+input[type=range] { background: transparent; }
+input[type=range]::-webkit-slider-runnable-track { background: #2A2E37; height: 6px; border-radius: 3px; }
+input[type=range]::-webkit-slider-thumb { margin-top: -5px; }
+input[type=range]::-moz-range-track { background: #2A2E37; height: 6px; border-radius: 3px; }
+input[type=range]::-moz-range-progress { background: #FF5C00; height: 6px; border-radius: 3px; }
+.panel-hw {
+  background: linear-gradient(180deg, #1E2129 0%, #141418 100%);
+  border: 1px solid rgba(255,92,0,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 18px rgba(255,92,0,0.12);
+}
+.simulator-wrapper { background: #070707; min-height: 400px; }
 .xdj-rr-container {
   width: min(100vw, 1200px);
+  min-height: 400px;
+  background: #070707;
+  opacity: 1;
   aspect-ratio: 2.4 / 1;
   margin: 0 auto;
   display: grid;

@@ -59,13 +59,6 @@ export default function App() {
     return () => { window.removeEventListener('touchstart', unlock); window.removeEventListener('click', unlock); };
   }, []);
 
-  // v7.0: en tab simulador, el body pide horizontal (la CSS rota en portrait <900px)
-  useEffect(() => {
-    if (tab === 'simulador') document.body.classList.add('force-landscape');
-    else document.body.classList.remove('force-landscape');
-    return () => document.body.classList.remove('force-landscape');
-  }, [tab]);
-
   const go = (id: string) => {
     setSelected(id);
     setTab('mapa');

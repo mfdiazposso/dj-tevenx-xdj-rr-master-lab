@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { controls } from '../../data/controls';
 import { useProgress } from '../../store/progress';
@@ -33,7 +33,7 @@ function Knob({ label, min, max, value, onChange, color = '#FF5C00', reset }: an
     <div className="flex flex-col items-center gap-1 select-none">
       <div role="slider" aria-label={label} aria-valuenow={Math.round(value * 100)} tabIndex={0}
         className="relative h-12 w-12 lg:h-14 lg:w-14 rounded-full touch-none cursor-ns-resize focus:ring-1 focus:ring-[#FF5C00]"
-        style={{ background: 'radial-gradient(circle at 35% 30%, #22222a, #141418 70%)', boxShadow: '4px 4px 10px rgba(0,0,0,.65), -2px -2px 6px rgba(255,255,255,.06), inset 2px 2px 5px rgba(0,0,0,.65)' }}
+        style={{ background: 'radial-gradient(circle at 35% 30%, #3A3F4A, #1E2129 70%)', boxShadow: '4px 4px 10px rgba(0,0,0,.65), -2px -2px 6px rgba(255,255,255,.09), inset 2px 2px 5px rgba(0,0,0,.65), 0 0 12px rgba(255,92,0,.15)' }}
         onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); drag.current = { y: e.clientY, v: value }; e.preventDefault(); }}
         onPointerMove={(e) => { if (e.buttons === 1 && drag.current) { const dv = ((drag.current.y - e.clientY) / 120) * (max - min); const nv = Math.min(max, Math.max(min, drag.current.v + dv)); onChange(Math.round(nv * 100) / 100); } }}
         onDoubleClick={() => { if (reset !== undefined) onChange(reset); }}
@@ -77,23 +77,31 @@ function VFader({ label, min, max, step, value, onChange, height = 120 }: any) {
   );
 }
 
-function Meter({ value }: { value: number }) {
-  const v = Math.min(1, Math.max(0, value));
-  const pct = Math.round(v * 100);
-  const color = pct > 90 ? 'bg-[#FF3D00]' : pct > 70 ? 'bg-[#FF5C00]' : 'bg-[#FF3D00]';
-  return <div className="w-4 h-28 rounded bg-black border border-[#22222a] flex flex-col justify-end overflow-hidden"><div className={`${color} duration-75`} style={{ height: `${pct}%` }} /></div>;
-}
-
-function useLevels(eng: ReturnType<typeof useAudioEngine>) {
-  const [lv, setLv] = useState({ deck: [0, 0] as [number, number], master: 0 });
-  const ref = useRef(eng);
-  ref.current = eng;
+/* Vúmetro vivo aislado: actualiza el DOM por ref, sin re-renderizar el árbol.
+   Evita el churn de renders que rompe el pintado y drena batería en móvil. */
+function LiveMeter({ get, tall }: { get: () => number; tall?: boolean }) {
+  const bar = useRef<HTMLDivElement>(null);
+  const getRef = useRef(get);
+  getRef.current = get;
   useEffect(() => {
-    const id = setInterval(() => setLv(ref.current.getLevels()), 120);
+    const id = setInterval(() => {
+      const el = bar.current;
+      if (!el) return;
+      const v = Math.min(1, Math.max(0, getRef.current()));
+      const pct = Math.round(v * 100);
+      el.style.height = `${pct}%`;
+      el.className = `${pct > 90 ? 'bg-[#FF3D00]' : pct > 70 ? 'bg-[#FF5C00]' : 'bg-[#FF3D00]'}`;
+    }, 150);
     return () => clearInterval(id);
   }, []);
-  return lv;
+  return (
+    <div className={`${tall ? 'w-3 h-24' : 'w-4 h-28'} rounded border border-[#3A3F4A] flex flex-col justify-end overflow-hidden`} style={{ background: '#1E2129' }}>
+      <div ref={bar} style={{ height: '0%' }} />
+    </div>
+  );
 }
+
+/* Pantalla central: se actualiza sola cada 500ms sin re-renderizar el simulador */
 
 /* Jog con anillos metálicos como el hardware */
 function Jog({ onNudge }: { onNudge: (dx: number) => void }) {
@@ -101,14 +109,14 @@ function Jog({ onNudge }: { onNudge: (dx: number) => void }) {
   return (
     <div role="slider" aria-label="Jog wheel" tabIndex={0}
       className="jog jog-pro mx-auto h-28 w-28 lg:h-[180px] lg:w-[180px] rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center select-none focus:ring-1 focus:ring-[#FF5C00] touch-none"
-      style={{ background: 'radial-gradient(circle, #0d0e12 0%, #141418 45%, #070707 75%)', border: '6px solid #0d0e12', outline: '2px solid #22222a' }}
+      style={{ background: 'radial-gradient(circle, #2A2F3A 0%, #1E2129 45%, #0d0e12 75%)', border: '6px solid #3A3F4A', outline: '2px solid rgba(255,92,0,.4)', boxShadow: '0 0 22px rgba(255,92,0,.18)' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}
       onPointerMove={(e) => { if (e.buttons === 1) { onNudge(e.clientX - lastX.current); lastX.current = e.clientX; } }}
       onPointerUp={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ } }}
       onPointerCancel={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ } }}
     >
-      <div className="rounded-full flex items-center justify-center h-12 w-12 lg:h-20 lg:w-20" style={{ background: 'radial-gradient(circle at 40% 35%, #22222a, #070707 75%)', boxShadow: 'inset 2px 2px 6px rgba(0,0,0,.7)' }}>
-        <span className="mono text-[9px] lg:text-[10px] text-neutral-500 pointer-events-none">XDJ-RR</span>
+      <div className="rounded-full flex items-center justify-center h-12 w-12 lg:h-20 lg:w-20" style={{ background: 'radial-gradient(circle at 40% 35%, #3A3F4A, #0d0e12 75%)', boxShadow: 'inset 2px 2px 6px rgba(0,0,0,.7)' }}>
+        <span className="mono text-[9px] lg:text-[10px] text-neutral-300 pointer-events-none">XDJ-RR</span>
       </div>
     </div>
   );
@@ -124,14 +132,19 @@ function Wave({ seed }: { seed: number }) {
   return <canvas ref={ref} width={220} height={64} className="waveform w-full h-[60px] lg:h-[80px] rounded-xl bg-black border border-[#22222a] pointer-events-none" />;
 }
 
-/* Pantalla central 7" estilo hardware: filenames + BPM + time */
+/* Pantalla central 7" estilo hardware: filenames + BPM + time (tick propio) */
 function ScreenStrip({ eng }: { eng: ReturnType<typeof useAudioEngine> }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 500);
+    return () => clearInterval(id);
+  }, []);
   const st0: any = (eng as any).deckState ? (eng as any).deckState(0) : {};
   const st1: any = (eng as any).deckState ? (eng as any).deckState(1) : {};
   const n0 = (eng as any).fileName ? (eng as any).fileName(0) : '';
   const n1 = (eng as any).fileName ? (eng as any).fileName(1) : '';
   return (
-    <div className="rounded-2xl border border-[#22222a] bg-black p-2 grid grid-cols-[1fr_auto_1fr] gap-2 items-center" style={{ boxShadow: 'inset 0 0 24px rgba(255,92,0,.12)' }}>
+    <div className="rounded-2xl hairline-neon bg-black p-2 grid grid-cols-[1fr_auto_1fr] gap-2 items-center" style={{ boxShadow: 'inset 0 0 24px rgba(255,92,0,.18), 0 0 16px rgba(255,92,0,.15)' }}>
       <div className="min-w-0">
         <p className="mono text-[10px] text-[#FF8A00] truncate">{n0 || 'DECK 1 · demo osc'}</p>
         <p className="mono bpm font-black text-[#ffffff]">{st0.bpm || '---'} <span className="text-[10px] text-neutral-500">{st0.pitch}% · {st0.time}</span></p>
@@ -151,15 +164,20 @@ function ScreenStrip({ eng }: { eng: ReturnType<typeof useAudioEngine> }) {
 export default function Simulator({ focusId }: { focusId?: string | null }) {
   const eng = useAudioEngine();
   const { rrMode } = useProgress();
-  const lv = useLevels(eng);
+  const levels = useRef({ deck: [0, 0] as [number, number], master: 0 });
+  const readDeck = (n: 0 | 1) => levels.current.deck[n];
+  const readDeck0 = useCallback(() => levels.current.deck[0], []);
+  const readDeck1 = useCallback(() => levels.current.deck[1], []);
+  const readMaster = useCallback(() => levels.current.master, []);
+  useEffect(() => {
+    const id = setInterval(() => { levels.current = eng.getLevels(); }, 150);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [xf, setXf] = useState(0.5); const [master, setMaster] = useState(0.9);
   const [mobileTab, setMobileTab] = useState<'d1' | 'mix' | 'd2'>('mix');
   const [practice, setPractice] = useState(false);
   const [browseIdx, setBrowseIdx] = useState(0);
-  const [mode, setMode] = useState<'tactil' | 'consola'>(() =>
-    typeof window !== 'undefined' && (/Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 900) ? 'consola' : 'tactil');
-  const [cs, setCs] = useState(0.5);
-  const fitRef = useRef<HTMLDivElement>(null);
   const { tracks: upTracks } = useTracks();
   const trackNames = upTracks.length ? upTracks.map((t) => t.name) : ['(sube tracks en MIS TRACKS)'];
   const browseName = trackNames[browseIdx % trackNames.length];
@@ -175,17 +193,6 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     } catch { /* noop */ }
   };
 
-  useEffect(() => {
-    if (mode !== 'consola') return;
-    const el = fitRef.current;
-    if (!el || !el.parentElement) return;
-    const ro = new ResizeObserver(() => {
-      const r = el.parentElement!.getBoundingClientRect();
-      setCs(Math.min(r.width / 1280, (r.height || 620) / 533));
-    });
-    ro.observe(el.parentElement);
-    return () => ro.disconnect();
-  }, [mode]);
   const [knobs, setKnobs] = useState<Record<string, number>>({});
   const [leds, setLeds] = useState<Record<string, boolean>>({ v0: true, v1: true, q0: true, q1: true });
   const [fxSel, setFxSel] = useState('ECHO');
@@ -193,7 +200,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   const [fxLvl, setFxLvl] = useState(0.5);
   const FXS = ['DELAY', 'ECHO', 'SPIRAL', 'REVERB', 'TRANS', 'FLANGER', 'PITCH', 'ROLL'];
   const COLORS = ['DUB ECHO', 'SWEEP', 'FILTER', 'NOISE'];
-  const HOTPADS: Array<[string, string]> = [['A', '#FF5C00'], ['B', '#FF8A00'], ['C', '#FF3D00'], ['D', '#FFB800']];
+  const HOTPADS: Array<[string, string]> = [['A', '#FF5C00'], ['B', '#FF8A00'], ['C', '#FF3D00'], ['D', '#FFB800'], ['E', '#00B0FF'], ['F', '#00B0FF'], ['G', '#00B0FF'], ['H', '#00B0FF']];
   const LOOPS = [1, 2, 4, 8];
   const led = (k: string) => !!leds[k];
   const toggleLed = (k: string) => { setLeds((s) => ({ ...s, [k]: !s[k] })); buzz(); };
@@ -207,16 +214,15 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // v7.0: horizontal por defecto en móvil (fullscreen + lock; iOS lo ignora y usa rotación CSS)
+  // v7.0retirado: sin fullscreen/lock automático (provocaba pantallas raras).
+  // El botón ⛶ FULL del modo práctica lo hace con gesto del usuario.
   useEffect(() => {
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 900;
-    if (!isMobile) return;
-    try { document.documentElement.requestFullscreen?.(); } catch { /* noop */ }
-    try {
-      const o = screen.orientation as any;
-      o?.lock?.('landscape')?.catch?.(() => {});
-    } catch { /* noop */ }
+    // eslint-disable-next-line no-console
+    console.log('XDJRR MOUNTED');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const showDebug = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug');
 
   const K = (d: 0 | 1, k: string, def: number) => knobs[`${d}${k}`] ?? def;
   const SK = (d: 0 | 1, k: string, v: number, fn: (v: number) => void) => { setKnobs((s) => ({ ...s, [`${d}${k}`]: v })); fn(v); };
@@ -230,7 +236,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
       if (e.code === 'Space') { e.preventDefault(); eng.play(0); }
       else if (e.key === 'c' || e.key === 'C') (eng as any).cue(0);
-      else if (e.key >= '1' && e.key <= '4') (eng as any).triggerHotCue?.(0, Number(e.key) - 1);
+      else if (e.key >= '1' && e.key <= '8') (eng as any).triggerHotCue?.(0, Number(e.key) - 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -312,12 +318,12 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
         </div>
         <div>
           <p className="lbl text-neutral-500 text-center mb-1">Hot cue · toca = dispara/graba · doble-click = borra</p>
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-4 lg:grid-cols-8 gap-1.5">
             {HOTPADS.map(([p, col], i) => (
               <button key={p} type="button" aria-label={`Hot cue ${p} deck ${n + 1}`}
                 onClick={() => hotTap(i)} onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
                 style={hot[i] != null ? { borderColor: col, color: col, background: col + '22', boxShadow: `0 0 12px ${col}` } : undefined}
-                className={`${BTN} min-h-[48px] rounded-xl font-black text-sm border ${hot[i] != null ? '' : 'border-[#22222a] text-neutral-600'}`}>{p}</button>
+                className={`${BTN} min-h-[48px] rounded-xl font-black text-sm border ${hot[i] != null ? '' : 'border-[#3A3F4A] text-neutral-400 bg-[#1E2129]'}`}>{p}</button>
             ))}
           </div>
         </div>
@@ -348,7 +354,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
           <VFader label={`CH${n + 1}`} min={0} max={1} step={0.01} value={K(n, 'f', 0.9)} onChange={(v: number) => SK(n, 'f', v, (x) => eng.setFader(n, x))} />
           <div className="flex flex-col items-center gap-1">
             <span className="lbl text-neutral-400">Nivel</span>
-            <Meter value={lv.deck[n]} />
+            <LiveMeter get={() => readDeck(n)} />
           </div>
         </div>
       </div>
@@ -358,7 +364,7 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
   const mixerUI = (
     <div className="rounded-3xl border border-[#22222a] p-3 space-y-2 text-center" style={{ background: 'linear-gradient(180deg,#0d0e12 0%,#141418 100%)' }}>
       <p className="lbl font-black text-[#FF5C00]">Mixer</p>
-      <div className="flex justify-center gap-3"><div><p className="lbl text-neutral-500">CH1</p><Meter value={lv.deck[0]} /></div><div><p className="lbl text-neutral-500">MST</p><Meter value={lv.master} /></div><div><p className="lbl text-neutral-500">CH2</p><Meter value={lv.deck[1]} /></div></div>
+      <div className="flex justify-center gap-3"><div><p className="lbl text-neutral-500">CH1</p><LiveMeter get={readDeck0} /></div><div><p className="lbl text-neutral-500">MST</p><LiveMeter get={readMaster} /></div><div><p className="lbl text-neutral-500">CH2</p><LiveMeter get={readDeck1} /></div></div>
       <div className="mx-auto w-full" style={{ width: 'clamp(140px, 60vw, 200px)', maxWidth: '100%' }}><Slider label="Crossfader" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} /></div>
       <div className="rounded-2xl border border-[#22222a] bg-black/40 p-2">
         <p className="lbl text-neutral-500">Beat FX · {fxSel}</p>
@@ -374,87 +380,17 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
     </div>
   );
 
-  /* ===== CONSOLA 1:1 — réplica fiel escalada (nunca apiñada) ===== */
-  const deckC = (n: 0 | 1) => {
-    const hot8: (number | null)[] = (eng as any).deckHot ? (eng as any).deckHot(n) : [];
-    const stc: any = (eng as any).deckState ? (eng as any).deckState(n) : { loop: 0 };
-    return (
-      <div className="rounded-2xl border border-[#22222a] p-2 space-y-1.5 min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#0d0e12,#141418)' }}>
-        <div className="flex items-center justify-center gap-2">
-          <Jog onNudge={(dx) => (eng as any).nudge?.(n, dx)} />
-        </div>
-        <div className="flex gap-1">
-          <button type="button" onClick={() => { buzz(); click(); eng.play(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#FF3D00] text-black font-black text-sm touch-manipulation active:scale-95">▶</button>
-          <button type="button" onClick={() => { cueBuzz(); click(); eng.cue(n); }} className="flex-1 min-h-[44px] rounded-xl bg-[#FF3D00] text-white font-black text-sm touch-manipulation active:scale-95">CUE</button>
-          <button type="button" onClick={() => { buzz(); eng.pause(n); }} className="flex-1 min-h-[44px] rounded-xl border border-[#22222a] font-black text-sm text-neutral-300 touch-manipulation">❚❚</button>
-        </div>
-        <div className="grid grid-cols-8 gap-1">
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <button key={i} type="button" aria-label={`Hot ${i + 1} deck ${n + 1}`}
-              onClick={() => { buzz(); if (hot8[i] != null) (eng as any).triggerHotCue(n, i); else (eng as any).setHotCue(n, i); }}
-              onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
-              style={hot8[i] != null ? { borderColor: '#FF5C00', color: '#FF5C00', background: '#FF5C0022', boxShadow: '0 0 10px #FF5C00' } : undefined}
-              className="min-h-[36px] rounded-lg border border-[#22222a] text-neutral-600 font-black text-xs touch-manipulation active:scale-95">{i + 1}</button>
-          ))}
-        </div>
-        <Slider label="Tempo" min={-8} max={8} step={0.1} value={K(n, 'p', 0)} onChange={(v: number) => SK(n, 'p', v, (x) => eng.setTempo(n, x))} />
-        <div className="grid grid-cols-5 gap-1">
-          {[1, 2, 4, 8].map((b) => (
-            <button key={b} type="button" onClick={() => { (eng as any).setBeatLoop(n, b); buzz(); }}
-              className={`min-h-[36px] rounded-lg text-xs font-black border touch-manipulation ${stc.loop === b ? 'bg-[#FF8A00] text-black' : 'border-[#22222a] text-neutral-400'}`}>{b}</button>
-          ))}
-          <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }} className="min-h-[36px] rounded-lg text-[10px] font-black border border-[#22222a] text-neutral-300 touch-manipulation">EXIT</button>
-        </div>
-        <div className="flex justify-center gap-2">
-          <Knob label="Trim" min={0} max={1.2} value={K(n, 't', 0.8)} reset={0.8} onChange={(v: number) => SK(n, 't', v, (x) => eng.setTrim(n, x))} />
-          <Knob label="Hi" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
-          <Knob label="Mid" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
-          <Knob label="Low" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
-        </div>
+  /* Fila browser: recorre MIS TRACKS + LOAD físico a cada deck */
+  const browserRow = (
+    <div className="rounded-2xl hairline-neon bg-black/60 px-3 py-2 flex items-center gap-2">
+      <button type="button" aria-label="Browser anterior" onClick={() => { setBrowseIdx((i) => (i + trackNames.length - 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation active:scale-95">◀</button>
+      <div className="flex-1 min-w-0">
+        <p className="lbl text-neutral-500">Browse · MIS TRACKS</p>
+        <p className="mono text-[11px] text-[#FF8A00] truncate">{browseName}</p>
       </div>
-    );
-  };
-
-  const mixerC = (
-    <div className="rounded-2xl border border-[#22222a] p-2 space-y-1.5 text-center min-h-0 overflow-hidden" style={{ background: 'linear-gradient(180deg,#0d0e12,#141418)' }}>
-      <p className="lbl font-black text-[#FF5C00]">Mixer</p>
-      <div className="flex justify-center gap-2">
-        <div><p className="lbl text-neutral-500">1</p><Meter value={lv.deck[0]} /></div>
-        <div><p className="lbl text-neutral-500">M</p><Meter value={lv.master} /></div>
-        <div><p className="lbl text-neutral-500">2</p><Meter value={lv.deck[1]} /></div>
-      </div>
-      <Slider label="CH1" min={0} max={1} step={0.01} value={K(0, 'f', 0.9)} onChange={(v: number) => SK(0, 'f', v, (x) => eng.setFader(0, x))} />
-      <Slider label="CH2" min={0} max={1} step={0.01} value={K(1, 'f', 0.9)} onChange={(v: number) => SK(1, 'f', v, (x) => eng.setFader(1, x))} />
-      <Slider label="Xfade" min={0} max={1} step={0.01} value={xf} onChange={(v: number) => { setXf(v); eng.setCrossfader(v); }} />
-      <div className="flex justify-center"><Knob label="Master" min={0} max={1.2} value={master} reset={0.9} color="#FF3D00" onChange={(v: number) => { setMaster(v); eng.setMaster(v); }} /></div>
-      <div className="flex gap-1 items-center justify-center">
-        <button type="button" onClick={() => { const i = (FXS.indexOf(fxSel) + 1) % FXS.length; setFxSel(FXS[i]); (eng as any).setBeatFX(FXS[i], fxLvl, 0.375); buzz(); }} className="text-[10px] font-black text-[#FF5C00] truncate">FX:{fxSel}</button>
-        <button type="button" onClick={() => { const v = !fxOn; setFxOn(v); if (v) (eng as any).setBeatFX(fxSel, fxLvl, 0.375); (eng as any).fxOnOff(v); buzz(); }}
-          className={`min-h-[44px] px-3 rounded-xl font-black text-xs touch-manipulation ${fxOn ? 'bg-[#FF5C00] text-black' : 'border border-[#FF5C00] text-[#FF5C00]'}`}>{fxOn ? '●' : '○'}</button>
-      </div>
-    </div>
-  );
-
-  const consoleView = (
-    <div ref={fitRef} className="w-full overflow-hidden" style={{ height: Math.max(200, 533 * cs) }}>
-      <div className="xdj-rr-container" style={{ width: 1280, height: 533, transform: `scale(${cs})`, transformOrigin: 'top left' }}>
-        <div style={{ gridColumn: '1 / -1' }} className="flex gap-2 items-stretch">
-          <div className="flex-1 min-w-0"><ScreenStrip eng={eng} /></div>
-          <div className="rounded-2xl border border-[#22222a] bg-black/60 px-3 py-1 flex items-center gap-2 shrink-0">
-            <button type="button" aria-label="Browser anterior" onClick={() => { setBrowseIdx((i) => (i + trackNames.length - 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation">◀</button>
-            <div className="w-40">
-              <p className="lbl text-neutral-500">Browse</p>
-              <p className="mono text-[11px] text-[#FF8A00] truncate">{browseName}</p>
-            </div>
-            <button type="button" aria-label="Browser siguiente" onClick={() => { setBrowseIdx((i) => (i + 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation">▶</button>
-            <button type="button" onClick={() => browseLoad(0)} className="min-h-[44px] px-2 rounded-xl border border-[#FF5C00] text-[#FF5C00] text-xs font-black touch-manipulation">LOAD1</button>
-            <button type="button" onClick={() => browseLoad(1)} className="min-h-[44px] px-2 rounded-xl border border-[#FF5C00] text-[#FF5C00] text-xs font-black touch-manipulation">LOAD2</button>
-          </div>
-        </div>
-        {deckC(0)}
-        {mixerC}
-        {deckC(1)}
-      </div>
+      <button type="button" aria-label="Browser siguiente" onClick={() => { setBrowseIdx((i) => (i + 1) % trackNames.length); buzz(); }} className="min-h-[44px] min-w-[44px] rounded-xl border border-[#22222a] font-black touch-manipulation active:scale-95">▶</button>
+      <button type="button" onClick={() => browseLoad(0)} className="min-h-[44px] px-3 rounded-xl border border-[#FF5C00] text-[#FF5C00] text-xs font-black touch-manipulation active:scale-95">LOAD 1</button>
+      <button type="button" onClick={() => browseLoad(1)} className="min-h-[44px] px-3 rounded-xl border border-[#FF5C00] text-[#FF5C00] text-xs font-black touch-manipulation active:scale-95">LOAD 2</button>
     </div>
   );
 
@@ -462,23 +398,18 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
 
   return (
     <div className="simulator-wrapper pb-24">
-      <div className="sim-chrome"><ScreenStrip eng={eng} /></div>
-      {rrMode && <div className="sim-chrome mb-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/10 p-3 text-sm"><b className="text-[#FF5C00]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
-      {focusName && <div className="sim-chrome mb-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/5 p-3 text-sm">🎯 <b className="text-[#FF5C00]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
-      {!rrMode && <div className="sim-chrome mb-2 rounded-2xl border border-[#22222a] bg-[#0d0e12] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + Tempo Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}
+      {showDebug && <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999, background: 'red', color: 'white', padding: 10 }}>DEBUG: SIMULADOR MONTADO</div>}
+      <div><ScreenStrip eng={eng} /></div>
+      <div className="mt-2">{browserRow}</div>
+      {rrMode && <div className="sim-chrome mb-2 mt-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/10 p-3 text-sm"><b className="text-[#FF5C00]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
+      {focusName && <div className="sim-chrome mb-2 mt-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/5 p-3 text-sm">🎯 <b className="text-[#FF5C00]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
+      {!rrMode && <div className="sim-chrome mb-2 mt-2 rounded-2xl border border-[#22222a] bg-[#0d0e12] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + Tempo Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}
       <Suspense fallback={<p className="sim-chrome text-xs text-neutral-500">Cargando uploader...</p>}>
         <div className="sim-chrome"><TrackUploader eng={eng} /></div>
       </Suspense>
       <div className="sim-chrome flex gap-2 mb-2">
         <button type="button" onClick={() => setPractice(true)} className={`${BTN} px-4 py-2 rounded-full bg-[#FF5C00] text-black text-sm font-black btn-pro-violet`}>📱 MODO PRÁCTICA CELULAR</button>
-        <button type="button" onClick={() => setMode((m) => (m === 'consola' ? 'tactil' : 'consola'))}
-          className="px-4 py-2 rounded-full border border-[#FF8A00] text-[#FF8A00] text-sm font-black touch-manipulation active:scale-95 min-h-[56px] lg:min-h-[44px]">
-          {mode === 'consola' ? '◧ TÁCTIL' : '🎛 CONSOLA 1:1'}
-        </button>
       </div>
-      {mode === 'consola' ? consoleView : (<></>)}
-      {mode === 'tactil' && (
-      <>
       <div className="sim-tabs tabs-mobile md:hidden border border-[#22222a] rounded-2xl flex gap-1.5 mb-2 py-2 px-2 bg-[#070707]">
         {(['d1', 'mix', 'd2'] as const).map((t) => (
           <button type="button" key={t} onClick={() => setMobileTab(t)} aria-label={`Ver ${t}`} className={`${BTN} flex-1 px-2 py-3 rounded-2xl text-xs font-black ${mobileTab === t ? 'bg-[#FF5C00] text-black' : 'border border-[#22222a] text-neutral-400'}`}>{t === 'd1' ? 'DECK 1' : t === 'mix' ? 'MIXER' : 'DECK 2'}</button>
@@ -495,10 +426,8 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
       <div className="sim-desktop hidden md:grid gap-3 md:grid-cols-2 lg:grid-cols-[1fr_320px_1fr] overflow-hidden">
         {deckUI(0)}
         {deckUI(1)}
-        <div className="md:col-span-2 lg:col-span-1">{mixerUI}</div>
+        <div className="mixer-cell md:col-span-2 lg:col-span-1">{mixerUI}</div>
       </div>
-      </>
-      )}
     </div>
   );
 }
