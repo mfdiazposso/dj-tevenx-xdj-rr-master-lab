@@ -30,8 +30,13 @@
   --font-mono2: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html, body, #root { height: 100%; }
-html, body { width: 100%; max-width: 100%; overflow-x: hidden; overscroll-behavior: none; }
+/* min-height en vez de height: con height:100% el <body> se convertía en el
+   scroller (html overflow-x hidden) → sticky header roto y window.scrollTo no-op */
+html, body, #root { min-height: 100%; }
+/* overflow-x solo en <html>: propagado al viewport. Si va también en <body>,
+   el body se vuelve scroll container y rompe position:sticky del header. */
+html { width: 100%; max-width: 100%; overflow-x: hidden; overscroll-behavior: none; }
+body { width: 100%; max-width: 100%; overscroll-behavior: none; }
 body { overscroll-behavior-y: none; }
 * { -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; }
@@ -140,21 +145,40 @@ body::after {
 /* ===== v7.0retirado: la rotación forzada por CSS dejaba franja inútil.
    Portrait = tabs táctiles. Landscape corto = consola 1:1 (abajo). ===== */
 
-/* ===== v6.x LANDSCAPE CORTO: columnas con scroll interno si el contenido excede ===== */
+/* ===== v11.4 LANDSCAPE CORTO: consola 1:1 SOLO en el tab simulador =====
+   body.sim-console lo pone App.tsx al montar el simulador. Antes estas reglas
+   se aplicaban a toda la app: en landscape la PWA (orientation: landscape)
+   escondía las tabs y bloqueaba el scroll → el simulador era inalcanzable. */
+/* position !important: .simulator-wrapper > * fuerza position:relative */
+.console-exit { display: none; position: fixed !important; top: 6px; right: 8px; z-index: 80; }
 @media (orientation: landscape) and (max-height: 600px) {
-  body, #root { height: 100dvh !important; width: 100dvw !important; overflow: hidden !important; max-height: 100dvh; }
-  .simulator-wrapper { height: 100dvh !important; width: 100dvw !important; display: block !important; overflow: hidden !important; }
-  .simulator-wrapper .sim-tabs,
-  .simulator-wrapper .sim-mobile,
-  .simulator-wrapper .sim-chrome { display: none !important; }
-  .simulator-wrapper .sim-desktop { display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr; width: 100% !important; height: 100dvh; gap: 8px; padding: 6px; overflow: hidden !important; }
-  .simulator-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; }
-  .simulator-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-  .simulator-wrapper .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
-  .simulator-wrapper .waveform { height: clamp(40px, 12vh, 68px) !important; }
-  .simulator-header { display: none; }
-  .app-header, .lab-title, .footer, .tabs-mobile { display: none !important; }
-  .portrait-only { display: none !important; }
+  body.sim-console, body.sim-console #root {
+    height: 100dvh !important; width: 100dvw !important;
+    max-height: 100dvh; overflow: hidden !important;
+  }
+  body.sim-console .simulator-wrapper {
+    height: 100dvh !important; width: 100dvw !important;
+    display: flex !important; flex-direction: column; gap: 6px;
+    min-height: 0 !important; overflow: hidden !important;
+  }
+  body.sim-console .simulator-wrapper .sim-tabs,
+  body.sim-console .simulator-wrapper .sim-mobile,
+  body.sim-console .simulator-wrapper .sim-chrome,
+  body.sim-console .simulator-wrapper .sim-top { display: none !important; }
+  body.sim-console .simulator-wrapper .sim-desktop {
+    display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr;
+    flex: 1 1 0; min-height: 0; width: 100% !important; gap: 8px; padding: 6px;
+    overflow: hidden !important;
+  }
+  body.sim-console .simulator-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; }
+  body.sim-console .simulator-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  body.sim-console .simulator-wrapper .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
+  body.sim-console .simulator-wrapper .waveform { height: clamp(40px, 12vh, 68px) !important; }
+  body.sim-console .app-header,
+  body.sim-console .lab-title,
+  body.sim-console .footer,
+  body.sim-console .tabs-mobile { display: none !important; }
+  body.sim-console .console-exit { display: inline-flex !important; }
 }
 @media (orientation: portrait) {
   .landscape-only { display: none !important; }

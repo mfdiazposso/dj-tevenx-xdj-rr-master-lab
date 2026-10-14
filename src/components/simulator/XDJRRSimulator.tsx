@@ -161,7 +161,7 @@ function ScreenStrip({ eng }: { eng: ReturnType<typeof useAudioEngine> }) {
   );
 }
 
-export default function Simulator({ focusId }: { focusId?: string | null }) {
+export default function Simulator({ focusId, onExit }: { focusId?: string | null; onExit?: () => void }) {
   const eng = useAudioEngine();
   const { rrMode } = useProgress();
   const levels = useRef({ deck: [0, 0] as [number, number], master: 0 });
@@ -398,9 +398,13 @@ export default function Simulator({ focusId }: { focusId?: string | null }) {
 
   return (
     <div className="simulator-wrapper pb-24">
+      {onExit && (
+        <button type="button" onClick={onExit} aria-label="Salir del simulador"
+          className="console-exit min-h-[44px] px-3 rounded-full border border-[#FF5C00] bg-[#070707] text-[#FF5C00] text-xs font-black touch-manipulation">✕ SALIR</button>
+      )}
       {showDebug && <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999, background: 'red', color: 'white', padding: 10 }}>DEBUG: SIMULADOR MONTADO</div>}
-      <div><ScreenStrip eng={eng} /></div>
-      <div className="mt-2">{browserRow}</div>
+      <div className="sim-top"><ScreenStrip eng={eng} /></div>
+      <div className="sim-top mt-2">{browserRow}</div>
       {rrMode && <div className="sim-chrome mb-2 mt-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/10 p-3 text-sm"><b className="text-[#FF5C00]">RR DELANTE ON:</b> replica cada gesto en tu RR real.</div>}
       {focusName && <div className="sim-chrome mb-2 mt-2 rounded-2xl border border-[#FF5C00]/50 bg-[#FF5C00]/5 p-3 text-sm">🎯 <b className="text-[#FF5C00]">Practicando: {focusName}</b> <span className="text-neutral-400">— venido desde su ficha. Toca los controles equivalentes aquí.</span></div>}
       {!rrMode && <div className="sim-chrome mb-2 mt-2 rounded-2xl border border-[#22222a] bg-[#0d0e12] p-3 text-xs text-neutral-400">🖐 <b className="text-neutral-200">Guía de manos (sin RR delante):</b> izquierda → Jog + Tempo Deck 1 · derecha → Jog + fader Deck 2 · pulgares → PLAY/CUE · mezcla con CROSSFADER al centro.</div>}

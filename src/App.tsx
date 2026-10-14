@@ -59,6 +59,13 @@ export default function App() {
     return () => { window.removeEventListener('touchstart', unlock); window.removeEventListener('click', unlock); };
   }, []);
 
+  // Consola 1:1 en landscape corto (solo mientras el simulador está montado)
+  useEffect(() => {
+    if (tab !== 'simulador') return;
+    document.body.classList.add('sim-console');
+    return () => document.body.classList.remove('sim-console');
+  }, [tab]);
+
   const go = (id: string) => {
     setSelected(id);
     setTab('mapa');
@@ -118,7 +125,7 @@ export default function App() {
                 <FichaControl id={selected} onSimulate={simulate} />
               </>
             )}
-            {tab === 'simulador' && <Simulator focusId={simFocus} />}
+            {tab === 'simulador' && <Simulator focusId={simFocus} onExit={() => setTab('dashboard')} />}
             <Suspense fallback={<SlowFallback />}>
               {tab === 'lecciones' && <LessonsView onGo={go} />}
               {tab === 'ejercicios' && <ExercisesView onGo={go} />}
