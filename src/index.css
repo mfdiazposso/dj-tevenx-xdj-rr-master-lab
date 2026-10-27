@@ -50,7 +50,12 @@ body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
-h1.app-title { font-size: clamp(20px, 4vw, 32px); }
+h1.app-title { font-size: clamp(17px, 4vw, 32px); }
+
+/* Navegación principal: una sola fila deslizable en pantallas estrechas */
+.tabs { flex-wrap: nowrap !important; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs > button { flex: 0 0 auto; white-space: nowrap; }
 .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; }
 .bpm { font-size: clamp(14px, 2vw, 18px); }
 .ficha-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -150,30 +155,38 @@ body::after {
    se aplicaban a toda la app: en landscape la PWA (orientation: landscape)
    escondía las tabs y bloqueaba el scroll → el simulador era inalcanzable. */
 /* position !important: .simulator-wrapper > * fuerza position:relative */
-.console-exit { display: none; position: fixed !important; top: 6px; right: 8px; z-index: 80; }
+.console-exit { display: none; flex: 0 0 auto; }
 @media (orientation: landscape) and (max-height: 600px) {
   body.sim-console, body.sim-console #root {
     height: 100dvh !important; width: 100dvw !important;
     max-height: 100dvh; overflow: hidden !important;
   }
+  body.sim-console main { padding-top: 0 !important; padding-bottom: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
   body.sim-console .simulator-wrapper {
-    height: 100dvh !important; width: 100dvw !important;
+    height: 100dvh !important; width: 100% !important;
     display: flex !important; flex-direction: column; gap: 6px;
     min-height: 0 !important; overflow: hidden !important;
+    padding-top: 0 !important; padding-bottom: 0 !important;
   }
   body.sim-console .simulator-wrapper .sim-tabs,
   body.sim-console .simulator-wrapper .sim-mobile,
-  body.sim-console .simulator-wrapper .sim-chrome,
-  body.sim-console .simulator-wrapper .sim-top { display: none !important; }
+  body.sim-console .simulator-wrapper .sim-chrome { display: none !important; }
   body.sim-console .simulator-wrapper .sim-desktop {
     display: grid !important; grid-template-columns: 1.15fr 0.85fr 1.15fr;
     flex: 1 1 0; min-height: 0; width: 100% !important; gap: 8px; padding: 6px;
     overflow: hidden !important;
   }
-  body.sim-console .simulator-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; }
+  /* DOM: deck1, deck2, mixer → consola: DECK 1 | MIXER | DECK 2 */
+  body.sim-console .simulator-wrapper .sim-desktop > :nth-child(1) { order: 1; }
+  body.sim-console .simulator-wrapper .sim-desktop > :nth-child(2) { order: 3; }
+  body.sim-console .simulator-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; order: 2; }
   body.sim-console .simulator-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   body.sim-console .simulator-wrapper .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
-  body.sim-console .simulator-wrapper .waveform { height: clamp(40px, 12vh, 68px) !important; }
+  body.sim-console .simulator-wrapper .deck-wave { height: clamp(34px, 10vh, 54px) !important; }
+  body.sim-console .simulator-wrapper .sim-screen { padding-top: 3px !important; padding-bottom: 3px !important; gap: 4px !important; }
+  body.sim-console .simulator-wrapper .sim-screen .mono { font-size: 8px; }
+  body.sim-console .simulator-wrapper .sim-screen .lbl { font-size: 9px; }
+  body.sim-console .simulator-wrapper .sim-screen-mid { flex-direction: row !important; gap: 8px !important; }
   body.sim-console .app-header,
   body.sim-console .lab-title,
   body.sim-console .footer,
@@ -194,6 +207,22 @@ input[type=range]::-moz-range-progress { background: #FF5C00; height: 6px; borde
   background: linear-gradient(180deg, #1E2129 0%, #141418 100%);
   border: 1px solid rgba(255,92,0,0.35);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 18px rgba(255,92,0,0.12);
+}
+/* ===== Chasis del simulador: metal negro mate + filo neón (XDJ-RR) ===== */
+.hw-panel {
+  background: linear-gradient(180deg, #17191f 0%, #0f1115 55%, #0b0c10 100%);
+  border: 1px solid #2a2d36;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 -14px 26px rgba(0,0,0,.5), 0 12px 30px rgba(0,0,0,.55);
+}
+.hw-rail {
+  background: linear-gradient(180deg, #101216 0%, #08090c 100%);
+  border: 1px solid #2a2d36;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.8);
+}
+/* ===== Proporciones de la unidad real: jog grande y pantalla de onda más alta.
+   !important gana al style inline de DeckWave; solo en escritorio (lg). ===== */
+@media (min-width: 1024px) {
+  .sim-desktop .deck-wave { height: 84px !important; }
 }
 .simulator-wrapper { background: #070707; min-height: 400px; }
 .xdj-rr-container {

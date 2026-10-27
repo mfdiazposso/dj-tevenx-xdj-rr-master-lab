@@ -39,6 +39,7 @@ export default function App() {
   const [hover, setHover] = useState<Control | null>(null);
   const [tab, setTab] = useState<Tab>('dashboard');
   const [simFocus, setSimFocus] = useState<string | null>(null);
+  const [pickToken, setPickToken] = useState(0);
   const { done, rrMode, setRrMode } = useProgress();
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +67,15 @@ export default function App() {
     return () => document.body.classList.remove('sim-console');
   }, [tab]);
 
+  // Guard global: soltar un audio en cualquier otra parte no navega a ese archivo
+  useEffect(() => {
+    const over = (e: DragEvent) => { if (e.dataTransfer?.types?.includes('Files')) e.preventDefault(); };
+    const drop = (e: DragEvent) => { if (e.dataTransfer?.files?.length) e.preventDefault(); };
+    window.addEventListener('dragover', over);
+    window.addEventListener('drop', drop);
+    return () => { window.removeEventListener('dragover', over); window.removeEventListener('drop', drop); };
+  }, []);
+
   const go = (id: string) => {
     setSelected(id);
     setTab('mapa');
@@ -87,8 +97,8 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
           <h1 className="app-title lab-title kinetic font-black tracking-tight w-full sm:w-auto">DJ TEVENX <span className="text-[#FF5C00]">· XDJ-RR MASTER LAB</span></h1>
           <div className="ml-auto flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <div className="relative">
-              <input aria-label="Búsqueda global" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar: trim, echo, jog..." className="w-56 rounded-lg bg-[#0d0e12] border border-[#22222a] px-3 py-1.5 text-sm outline-none focus:border-[#FF5C00] focus:ring-1 focus:ring-[#FF5C00]" />
+            <div className="relative w-full sm:w-auto">
+              <input aria-label="Búsqueda global" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar: trim, echo, jog..." className="w-full sm:w-56 rounded-lg bg-[#0d0e12] border border-[#22222a] px-3 py-2 min-h-[44px] text-sm outline-none focus:border-[#FF5C00] focus:ring-1 focus:ring-[#FF5C00]" />
               {q && (
                 <div className="absolute top-10 left-0 w-72 rounded-xl border border-[#22222a] bg-[#0d0e12] p-2 shadow-2xl z-30">
                   {results.slice(0, 8).map((r) => (
@@ -99,8 +109,8 @@ export default function App() {
               )}
             </div>
             <button type="button" aria-label="Modo RR delante" onClick={() => setRrMode(!rrMode)} className={`px-3 min-h-[44px] rounded-lg text-xs font-bold border focus:ring-1 focus:ring-[#FF5C00] ${rrMode ? 'border-[#FF5C00] text-[#FF5C00]' : 'border-[#22222a] text-neutral-400'}`}>{rrMode ? '● RR DELANTE: ON' : '○ RR DELANTE'}</button>
-            <button type="button" onClick={() => setTab('simulador')} aria-label="Subir tracks"
-              className="btn-neon px-3 min-h-[44px] w-full sm:w-auto rounded-full bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
+            <button type="button" onClick={() => { setTab('simulador'); setPickToken((n) => n + 1); }} aria-label="Subir tracks"
+              className="btn-neon px-4 min-h-[44px] flex-1 sm:flex-none rounded-full bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR TRACKS</button>
             <StreakPill />
             <span className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-lg bg-[#0d0e12] border border-[#22222a] text-xs font-bold">{pct}% · {done.length}/{controls.length}</span>
           </div>
@@ -125,7 +135,7 @@ export default function App() {
                 <FichaControl id={selected} onSimulate={simulate} />
               </>
             )}
-            {tab === 'simulador' && <Simulator focusId={simFocus} onExit={() => setTab('dashboard')} />}
+            {tab === 'simulador' && <Simulator focusId={simFocus} pickToken={pickToken} onExit={() => setTab('dashboard')} />}
             <Suspense fallback={<SlowFallback />}>
               {tab === 'lecciones' && <LessonsView onGo={go} />}
               {tab === 'ejercicios' && <ExercisesView onGo={go} />}
