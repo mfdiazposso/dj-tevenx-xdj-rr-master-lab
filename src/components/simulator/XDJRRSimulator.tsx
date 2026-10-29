@@ -1,12 +1,11 @@
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { controls } from '../../data/controls';
 import { useProgress } from '../../store/progress';
 import { useTracks } from '../../store/tracks';
 import { useDaily } from '../../store/daily';
 import MobilePracticeMode from './MobilePracticeMode';
-
-const TrackUploader = lazy(() => import('../uploader/TrackUploader'));
+import TrackUploader from '../uploader/TrackUploader'; // EAGER: nada de lazy/Suspense en el simulador
 
 type Eng = ReturnType<typeof useAudioEngine>;
 
@@ -119,7 +118,7 @@ function Jog({ onNudge, spinning }: { onNudge: (dx: number) => void; spinning?: 
   }, [spinning]);
   return (
     <div role="slider" aria-label="Jog wheel" tabIndex={0}
-      className="jog jog-pro mx-auto h-24 w-24 sm:h-28 sm:w-28 lg:h-[248px] lg:w-[248px] rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center select-none focus:ring-1 focus:ring-[#FF5C00] touch-none"
+      className="jog jog-pro mx-auto h-28 w-28 sm:h-28 sm:w-28 lg:h-[180px] lg:w-[180px] rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center select-none focus:ring-1 focus:ring-[#FF5C00] touch-none"
       style={{ background: 'radial-gradient(circle at 38% 32%, #343A46 0%, #1B1E26 42%, #0c0d11 78%)', border: '7px solid #3A3F4A', outline: '2px solid rgba(255,92,0,.35)', boxShadow: '0 0 26px rgba(255,92,0,.22), inset 0 0 24px rgba(0,0,0,.7)' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}
       onPointerMove={(e) => { if (e.buttons === 1) { onNudge(e.clientX - lastX.current); lastX.current = e.clientX; } }}
@@ -194,7 +193,8 @@ function DeckWave({ eng, n, height = 54 }: { eng: Eng; n: 0 | 1; height?: number
   );
 }
 
-/* Pantalla central 7" estilo hardware: titulares + BPM + tiempo */
+/* Pantalla central 7" estilo XDJ-RR real: wave + BPM + KEY + tiempo + HOT CUE A-H + LOOP */
+const HC_COLORS = ['#FF5C00', '#FF8A00', '#FFD600', '#00FFD1', '#00D4FF', '#7C4DFF', '#FF3D00', '#ff1744'];
 function ScreenStrip({ eng, onUpload }: { eng: Eng; onUpload: () => void }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -204,12 +204,25 @@ function ScreenStrip({ eng, onUpload }: { eng: Eng; onUpload: () => void }) {
   const side = (n: 0 | 1) => {
     const st: any = (eng as any).deckState ? (eng as any).deckState(n) : {};
     const name = (eng as any).fileName ? (eng as any).fileName(n) : '';
+    const hot: (number | null)[] = (eng as any).deckHot ? (eng as any).deckHot(n) : [];
     return (
       <div className={`min-w-0 ${n === 1 ? 'text-right' : ''}`}>
         <p className="mono text-[10px] text-[#FF8A00] truncate">{name || (n === 0 ? 'DECK 1 · demo osc' : 'demo osc · DECK 2')}</p>
         <p className="mono font-black text-white leading-tight">
           {st.bpm || '---'} <span className="text-[10px] text-neutral-400 font-normal">{st.pitch}% · {st.time}</span>
         </p>
+        <p className="mono text-[9px] text-[#00D4FF]">KEY {st.key ?? '+0.0'}{st.mt ? ' · MT' : ''}{st.slip ? ' · SLIP' : ''}</p>
+        {/* HOT CUE A-H: punto relleno = guardado (como la pantalla real) */}
+        <div className={`flex gap-[3px] ${n === 1 ? 'justify-end' : ''} mt-0.5`}>
+          {'ABCDEFGH'.split('').map((L, i) => (
+            <span key={L} aria-label={`Hot cue ${L} ${hot[i] != null ? 'guardado' : 'vacío'}`}
+              className="mono text-[8px] px-[3px] rounded-sm"
+              style={hot[i] != null
+                ? { background: HC_COLORS[i], color: '#000', boxShadow: `0 0 6px ${HC_COLORS[i]}` }
+                : { color: '#3a3f4a', border: '1px solid #22222a' }}>{L}</span>
+          ))}
+        </div>
+        {st.loop ? <p className="mono text-[9px] text-[#00FFD1]">● LOOP {st.loop} BEATS</p> : null}
       </div>
     );
   };
@@ -295,6 +308,18 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
     console.log('XDJRR MOUNTED');
   }, []);
 
+  // REGLA #1: SOLO el simulador pide landscape. Falla silenciosa fuera de fullscreen
+  // (requisito del navegador); el fallback CSS de portrait ya lo cubre.
+  useEffect(() => {
+    try {
+      const orient = (screen as any)?.orientation;
+      orient?.lock?.('landscape')?.catch?.(() => { /* no soportado: ok */ });
+    } catch { /* noop */ }
+    return () => {
+      try { (screen as any)?.orientation?.unlock?.(); } catch { /* noop */ }
+    };
+  }, []);
+
   const showDebug = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug');
 
   const K = (d: 0 | 1, k: string, def: number) => knobs[`${d}${k}`] ?? def;
@@ -328,6 +353,7 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
 
   const tempoCol = (n: 0 | 1) => {
     const st: any = (eng as any).deckState ? (eng as any).deckState(n) : { range: 8, mt: false };
+    const RANGES: Array<[string, number]> = [['±6', 6], ['±10', 10], ['±16', 16], ['WIDE', 100]];
     return (
       <div className="flex flex-col items-center gap-1 select-none">
         <span className="lbl text-neutral-400 text-[9px]">Tempo</span>
@@ -337,14 +363,14 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
             onChange={(e) => SK(n, 'p', Number(e.target.value), (x) => eng.setTempo(n, x))}
             className="accent-[#FF5C00] touch-manipulation" style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 36, height: 130 }} />
         </div>
-        <div className="flex gap-1">
-          {[8, 16].map((r) => (
-            <button key={r} type="button" onClick={() => { (eng as any).setTempoRange(n, r); SK(n, 'p', 0, (x) => eng.setTempo(n, x)); buzz(); }}
-              className={`text-[9px] font-black rounded-full px-1.5 py-1 min-h-[26px] border touch-manipulation ${st.range === r ? 'bg-[#FF5C00] text-black border-[#FF5C00]' : 'border-[#22222a] text-neutral-500 hover:border-[#FF5C00]'}`}>±{r}</button>
+        <div className="grid grid-cols-2 gap-1">
+          {RANGES.map(([l, r]) => (
+            <button key={l} type="button" onClick={() => { (eng as any).setTempoRange(n, r); SK(n, 'p', 0, (x) => eng.setTempo(n, x)); buzz(); }}
+              className={`text-[9px] font-black rounded-full px-1.5 py-1 min-h-[26px] border touch-manipulation ${st.range === r ? 'bg-[#FF5C00] text-black border-[#FF5C00]' : 'border-[#22222a] text-neutral-500 hover:border-[#FF5C00]'}`}>{l}</button>
           ))}
-          <button type="button" onClick={() => { (eng as any).setMasterTempo(n, !st.mt); buzz(); }}
-            className={`text-[9px] font-black rounded-full px-1.5 py-1 min-h-[26px] border touch-manipulation ${st.mt ? 'bg-[#FF8A00] text-black border-[#FF8A00]' : 'border-[#22222a] text-neutral-500 hover:border-[#FF5C00]'}`}>MT</button>
         </div>
+        <button type="button" onClick={() => { (eng as any).setMasterTempo(n, !st.mt); buzz(); }}
+          className={`w-full text-[9px] font-black rounded-full px-1.5 py-1 min-h-[26px] border touch-manipulation ${st.mt ? 'bg-[#FF8A00] text-black border-[#FF8A00]' : 'border-[#22222a] text-neutral-500 hover:border-[#FF5C00]'}`}>MASTER TEMPO</button>
         <button type="button" onClick={() => SK(n, 'p', 0, (x) => eng.setTempo(n, x))} className="lbl text-neutral-500 border border-[#22222a] rounded-full px-2 py-1 min-h-[26px] touch-manipulation hover:border-[#FF5C00] hover:text-[#FF5C00]">reset</button>
       </div>
     );
@@ -353,7 +379,7 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
   const deckUI = (n: 0 | 1, cls = '') => {
     const isFile = eng.hasFile[n];
     const tname = (eng as any).fileName ? (eng as any).fileName(n) : '';
-    const hot: (number | null)[] = (eng as any).deckHot ? (eng as any).deckHot(n) : [null, null, null, null];
+    const hot: (number | null)[] = (eng as any).deckHot ? (eng as any).deckHot(n) : [];
     const st: any = (eng as any).deckState ? (eng as any).deckState(n) : { loop: 0 };
     const playing = eng.playing[n];
     const hotTap = (i: number) => {
@@ -361,17 +387,28 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
       if (hot[i] != null) (eng as any).triggerHotCue(n, i);
       else (eng as any).setHotCue(n, i);
     };
-    const pad = (i: number) => (
-      <button key={i} type="button" aria-label={`Hot cue ${i + 1} deck ${n + 1}`}
-        onClick={() => hotTap(i)} onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
-        style={hot[i] != null ? { borderColor: '#FF5C00', color: '#000', background: '#FF5C00', boxShadow: '0 0 16px rgba(255,92,0,.65)' } : undefined}
-        className={`${BTN} min-h-[44px] rounded-lg font-black text-sm border font-mono ${hot[i] != null ? '' : 'border-[#3A3F4A] text-[#FF9A3C] bg-[#171a21] hover:border-[#FF5C00] hover:text-[#FF5C00] hover:shadow-[0_0_14px_rgba(255,92,0,.35)]'}`}>{i + 1}</button>
-    );
+    // 8 pads A-H como la XDJ-RR real, cada uno con su color
+    const pad = (i: number) => {
+      const L = 'ABCDEFGH'[i];
+      const on = hot[i] != null;
+      return (
+        <button key={L} type="button" aria-label={`Hot cue ${L} deck ${n + 1}`}
+          onClick={() => hotTap(i)} onDoubleClick={() => { (eng as any).deleteHotCue(n, i); buzz(); }}
+          style={on ? { borderColor: HC_COLORS[i], color: '#000', background: HC_COLORS[i], boxShadow: `0 0 16px ${HC_COLORS[i]}aa` } : undefined}
+          className={`${BTN} min-h-[44px] rounded-lg font-black text-sm border font-mono ${on ? '' : 'border-[#3A3F4A] text-[#FF9A3C] bg-[#171a21] hover:border-[#FF5C00] hover:text-[#FF5C00] hover:shadow-[0_0_14px_rgba(255,92,0,.35)]'}`}>{L}</button>
+      );
+    };
     return (
       <div className={`hw-panel rounded-2xl p-2.5 lg:p-3 space-y-2 min-w-0 flex flex-col ${cls}`}>
         <div className="flex items-center justify-between gap-2">
           <p className="lbl font-black text-[#FF5C00] truncate">Deck {n + 1}{tname ? ` · ${tname}` : ''}</p>
           <span className={`shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full font-mono ${isFile ? 'bg-[#FF3D00] text-black' : 'bg-[#22222a] text-neutral-400'}`}>{isFile ? '● TRACK' : '○ DEMO'}</span>
+        </div>
+        {/* Display de carga estilo real: "CARGADO EN DECK 1: archivo" / "NO TRACK" */}
+        <div className="rounded-lg border border-[#22222a] bg-black px-2 py-1 min-h-[28px] flex items-center">
+          <p className={`mono text-[10px] truncate ${isFile ? 'text-[#00FFD1]' : 'text-neutral-600'}`}>
+            {isFile ? `CARGADO EN DECK ${n + 1}: ${tname}` : 'NO TRACK'}
+          </p>
         </div>
         <DeckWave eng={eng} n={n} height={54} />
         {!isFile && <p className="text-[11px] text-neutral-500">Sube tracks con 📁 USB para practicar TRIM/GAIN.</p>}
@@ -381,37 +418,49 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-2">
             <Jog spinning={playing} onNudge={(dx) => (eng as any).nudge?.(n, dx)} />
             <div className="flex gap-2 w-full">
+              {/* Colores reales Pioneer: PLAY verde #00E676, CUE rojo #FF1744 */}
               <button type="button" aria-label={`Play deck ${n + 1}`}
                 onClick={() => { buzz(); click(); if (isFile) { try { useDaily.getState().bumpMixes(); } catch { /* noop */ } } eng.play(n); }}
-                className={`${BTN} flex-[2] min-h-[48px] rounded-xl bg-[#FF3D00] text-black font-black text-base`} style={{ boxShadow: '0 0 18px rgba(255,61,0,.5), inset 0 2px 0 rgba(255,255,255,.35)' }}>▶</button>
+                className={`${BTN} flex-[2] min-h-[48px] rounded-xl text-black font-black text-base`} style={{ background: '#00E676', boxShadow: '0 0 18px rgba(0,230,118,.5), inset 0 2px 0 rgba(255,255,255,.35)' }}>▶</button>
               <button type="button" aria-label={`Cue deck ${n + 1}`} onClick={() => { cueBuzz(); click(); eng.cue(n); }}
-                className={`${BTN} flex-1 min-h-[48px] rounded-xl bg-[#1E2129] text-[#FF8A00] font-black text-sm border border-[#3A3F4A]`}>CUE</button>
+                className={`${BTN} flex-1 min-h-[48px] rounded-xl font-black text-sm`} style={{ background: '#1E2129', color: '#FF1744', border: '1px solid #FF1744', boxShadow: '0 0 12px rgba(255,23,68,.35)' }}>CUE</button>
               <button type="button" aria-label={`Pause deck ${n + 1}`} onClick={() => { buzz(); eng.pause(n); }}
                 className={`${BTN} flex-1 min-h-[48px] rounded-xl border border-[#3A3F4A] font-black text-sm text-neutral-300 hover:border-[#FF5C00]`}>❚❚</button>
             </div>
-            <div className="flex gap-1.5 justify-center w-full">
+            <div className="flex gap-1.5 justify-center w-full flex-wrap">
               {[['VINYL', `v${n}`], ['SYNC', `s${n}`], ['QUANT', `q${n}`]].map(([l, k]) => (
                 <button key={k} type="button" onClick={() => toggleLed(k)}
                   className={`flex-1 lbl font-black rounded-md px-1 py-1.5 min-h-[30px] border touch-manipulation active:scale-95 ${led(k) ? 'border-[#FF8A00] text-[#FF8A00] bg-[#FF8A00]/10' : 'border-[#22222a] text-neutral-600 hover:border-[#FF5C00]'}`}>{l}</button>
               ))}
+              {/* SLIP: la pista sigue avanzando en fantasma bajo loops/hot cues */}
+              <button type="button" aria-label={`Slip deck ${n + 1}`}
+                onClick={() => { (eng as any).setSlip?.(n, !st.slip); buzz(); }}
+                className={`flex-1 lbl font-black rounded-md px-1 py-1.5 min-h-[30px] border touch-manipulation active:scale-95 ${st.slip ? 'border-[#00D4FF] text-[#00D4FF] bg-[#00D4FF]/10' : 'border-[#22222a] text-neutral-600 hover:border-[#00D4FF]'}`}>SLIP</button>
+              {/* REV: momentáneo como el real (mantén pulsado = rebobina, suelta = para) */}
+              <button type="button" aria-label={`Reverse deck ${n + 1}`}
+                onPointerDown={() => { cueBuzz(); (eng as any).startRev?.(n); }}
+                onPointerUp={() => (eng as any).stopRev?.(n)}
+                onPointerLeave={() => (eng as any).stopRev?.(n)}
+                onPointerCancel={() => (eng as any).stopRev?.(n)}
+                className="flex-1 lbl font-black rounded-md px-1 py-1.5 min-h-[30px] border border-[#22222a] text-neutral-600 hover:border-[#ff1744] hover:text-[#ff1744] touch-manipulation active:scale-95">REV</button>
             </div>
           </div>
           {n === 1 && tempoCol(n)}
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <p className="lbl text-neutral-500 mb-1 text-[9px]">Hot cue · toca = dispara/grabra · doble-click = borra</p>
-          <div className="grid grid-cols-4 gap-1.5">{[0, 1, 2, 3].map(pad)}</div>
+          <p className="lbl text-neutral-500 mb-1 text-[9px]">Hot cue A-H · toca = dispara/grabra · doble-click = borra</p>
+          <div className="grid grid-cols-4 gap-1.5">{[0, 1, 2, 3, 4, 5, 6, 7].map(pad)}</div>
         </div>
         <div>
           <p className="lbl text-neutral-500 mb-1 text-[9px]">Beat loop {st.loop ? `· ${st.loop}B` : ''}</p>
           <div className="grid grid-cols-5 gap-1.5">
             {LOOPS.map((b) => (
               <button key={b} type="button" onClick={() => { (eng as any).setBeatLoop(n, b); buzz(); click(); }}
-                className={`${BTN} min-h-[44px] rounded-lg font-black text-xs border font-mono touch-manipulation ${st.loop === b ? 'bg-[#00B0FF] text-black border-[#00B0FF]' : 'border-[#24404d] text-[#8fd7f5] bg-[#11161c] hover:border-[#00B0FF]'}`}>{b}</button>
+                className={`${BTN} min-h-[44px] rounded-lg font-black text-xs border font-mono touch-manipulation ${st.loop === b ? 'bg-[#00FFD1] text-black border-[#00FFD1]' : 'border-[#1f4a44] text-[#7ff5e2] bg-[#11161c] hover:border-[#00FFD1]'}`}>{b}</button>
             ))}
             <button type="button" onClick={() => { (eng as any).reloopExit(n); buzz(); }}
-              className={`${BTN} min-h-[44px] rounded-lg font-black text-[10px] border border-[#24404d] text-[#8fd7f5] touch-manipulation hover:border-[#00B0FF] hover:bg-[#00B0FF]/10`}>EXIT</button>
+              className={`${BTN} min-h-[44px] rounded-lg font-black text-[10px] border border-[#1f4a44] text-[#7ff5e2] touch-manipulation hover:border-[#00FFD1] hover:bg-[#00FFD1]/10`}>EXIT</button>
           </div>
         </div>
       </div>
@@ -425,7 +474,7 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
       <Knob label="Hi" size="sm" min={0} max={1} value={K(n, 'h', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'h', v, (x) => eng.setEQ(n, 'high', x))} />
       <Knob label="Mid" size="sm" min={0} max={1} value={K(n, 'm', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'm', v, (x) => eng.setEQ(n, 'mid', x))} />
       <Knob label="Low" size="sm" min={0} max={1} value={K(n, 'l', 0.75)} reset={0.75} color="#FF8A00" onChange={(v: number) => SK(n, 'l', v, (x) => eng.setEQ(n, 'low', x))} />
-      <Knob label="Color" size="sm" min={-1} max={1} value={K(n, 'c', 0)} reset={0} color="#00B0FF" ring="#00B0FF" onChange={(v: number) => SK(n, 'c', v, (x) => eng.setColor(n, x))} />
+      <Knob label="Color" size="sm" min={-1} max={1} value={K(n, 'c', 0)} reset={0} color="#00D4FF" ring="#00D4FF" onChange={(v: number) => SK(n, 'c', v, (x) => eng.setColor(n, x))} />
     </div>
   );
 
@@ -464,7 +513,7 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
         <div className="grid grid-cols-4 gap-1 flex-1">
           {COLORS.map((ct) => (
             <button key={ct} type="button" onClick={() => { eng.setColorFX(0, ct); eng.setColorFX(1, ct); buzz(); }}
-              className={`lbl font-black rounded border px-0.5 min-h-[34px] touch-manipulation active:scale-95 ${color0 === ct.split(' ')[0] ? 'border-[#00B0FF] text-[#00B0FF] bg-[#00B0FF]/10 shadow-[0_0_12px_rgba(0,176,255,.35)]' : 'border-[#22222a] text-neutral-500 hover:border-[#00B0FF] hover:text-[#00B0FF]'}`}>{ct.split(' ')[0]}</button>
+              className={`lbl font-black rounded border px-0.5 min-h-[34px] touch-manipulation active:scale-95 ${color0 === ct.split(' ')[0] ? 'border-[#00D4FF] text-[#00D4FF] bg-[#00D4FF]/10 shadow-[0_0_12px_rgba(0,212,255,.35)]' : 'border-[#22222a] text-neutral-500 hover:border-[#00D4FF] hover:text-[#00D4FF]'}`}>{ct.split(' ')[0]}</button>
           ))}
         </div>
       </div>
@@ -516,7 +565,7 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
 
   return (
     <>
-      <div className="simulator-wrapper pb-24">
+      <div className="simulator-wrapper xdj-sim-wrapper pb-24">
         {showDebug && <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999, background: 'red', color: 'white', padding: 10 }}>DEBUG: SIMULADOR MONTADO</div>}
         <div><ScreenStrip eng={eng} onUpload={() => setTracksOpen(true)} /></div>
         <div className="mt-2">{browserRow}</div>
@@ -556,9 +605,7 @@ export default function Simulator({ focusId, pickToken, onExit }: { focusId?: st
               <button type="button" onClick={closeTracks}
                 className="min-h-[44px] px-4 rounded-full border border-[#22222a] text-neutral-300 text-xs font-black touch-manipulation hover:border-[#FF5C00] hover:text-[#FF5C00]">✕ CERRAR</button>
             </div>
-            <Suspense fallback={<p className="text-xs text-neutral-500 animate-pulse">Cargando uploader…</p>}>
-              <TrackUploader eng={eng} autoOpen={autoPick} />
-            </Suspense>
+            <TrackUploader eng={eng} autoOpen={autoPick} />
           </div>
         </div>
       )}

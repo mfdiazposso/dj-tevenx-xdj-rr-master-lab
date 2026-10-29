@@ -34,7 +34,7 @@ export function useAudioEngine() {
       osc.connect(srcGain);
       srcGain.connect(trim); trim.connect(low); low.connect(mid); mid.connect(high); high.connect(color); color.connect(ch); ch.connect(an); an.connect(xf); xf.connect(fxIn);
       osc.start();
-      decks.push({ osc, srcGain, trim, low, mid, high, color, ch, an, xf, buf: null as AudioBuffer | null, fileSrc: null as AudioBufferSourceNode | null, fileName: '', rate: 1, range: 8, masterTempo: false, hotcues: [null, null, null, null, null, null, null, null] as (number | null)[], loopBeats: 0, loopOn: true, startStamp: 0, offsetBase: 0, colorType: 'FILTER' });
+      decks.push({ osc, srcGain, trim, low, mid, high, color, ch, an, xf, buf: null as AudioBuffer | null, fileSrc: null as AudioBufferSourceNode | null, fileName: '', rate: 1, range: 8, masterTempo: false, hotcues: [null, null, null, null, null, null, null, null] as (number | null)[], loopBeats: 0, loopOn: true, startStamp: 0, offsetBase: 0, colorType: 'FILTER', slipOn: false, ghostBase: 0, ghostStamp: 0, slipMod: false, revTimer: 0 as ReturnType<typeof setInterval> | 0 });
     }
     nodes.current = { ctx, master, masterAn, fxIn, decks, fxType: 'ECHO', fxLevel: 0.5, fxTime: 0.375, fxOn: false, micGain: null as GainNode | null };
     return ctx;
@@ -110,7 +110,7 @@ export function useAudioEngine() {
       force((x) => x + 1);
     },
     resetTempo: (d: 0 | 1) => { (api as any).setTempo(d, 0); },
-    setTempoRange: (d: 0 | 1, r: number) => { ensure(); nodes.current.decks[d].range = r; force((x) => x + 1); },
+    setTempoRange: (d: 0 | 1, r: number) => { ensure(); nodes.current.decks[d].range = r; (api as any).setTempo(d, ((nodes.current.decks[d].rate || 1) - 1) * 100); force((x) => x + 1); },
     setMasterTempo: (d: 0 | 1, on: boolean) => { ensure(); const dk = nodes.current.decks[d]; dk.masterTempo = on; (api as any).setTempo(d, ((dk.rate || 1) - 1) * 100); },
     _pos: (d: 0 | 1) => {
       const dk = nodes.current.decks?.[d]; if (!dk?.buf || !ctxRef.current) return 0;
@@ -129,12 +129,47 @@ export function useAudioEngine() {
       dk.fileSrc = src; dk.startStamp = ctx.currentTime; dk.offsetBase = offset;
     },
     setHotCue: (d: 0 | 1, i: number) => { ensure(); nodes.current.decks[d].hotcues[i] = (api as any)._pos(d); force((x) => x + 1); },
-    triggerHotCue: (d: 0 | 1, i: number) => { const p = nodes.current.decks?.[d]?.hotcues?.[i]; if (p == null) return; (api as any)._seek(d, p || 0); (api as any).play(d); },
+    triggerHotCue: (d: 0 | 1, i: number) => {
+      const dk = nodes.current.decks?.[d];
+      const p = dk?.hotcues?.[i];
+      if (p == null || !dk) return;
+      // SLIP: guarda la posición fantasma antes de saltar
+      if (dk.slipOn) { dk.ghostBase = (api as any)._pos(d); dk.ghostStamp = ctxRef.current?.currentTime ?? 0; }
+      (api as any)._seek(d, p || 0);
+      (api as any).play(d);
+    },
     deleteHotCue: (d: 0 | 1, i: number) => { if (nodes.current.decks?.[d]) { nodes.current.decks[d].hotcues[i] = null; force((x) => x + 1); } },
+    // ---- v12.0 SLIP: la pista sigue avanzando en fantasma bajo loops/hot cues ----
+    setSlip: (d: 0 | 1, on: boolean) => {
+      const dk = nodes.current.decks?.[d]; if (!dk) return;
+      dk.slipOn = on;
+      if (on) { dk.ghostBase = (api as any)._pos(d); dk.ghostStamp = ctxRef.current?.currentTime ?? 0; }
+      else if (dk.slipMod) { // al salir de slip con loop/hot cue activo → vuelve a la fantasma
+        dk.slipMod = false;
+        const gh = ((dk.ghostBase || 0) + ((ctxRef.current?.currentTime ?? 0) - (dk.ghostStamp || 0)) + (dk.buf?.duration || 0)) % (dk.buf?.duration || 1);
+        (api as any)._seek(d, gh);
+      }
+      force((x) => x + 1);
+    },
+    // ---- v12.0 REV (momentáneo, estilo real: suelta y para) ----
+    startRev: (d: 0 | 1) => {
+      const dk = nodes.current.decks?.[d]; if (!dk || dk.revTimer) return;
+      (api as any).play(d);
+      dk.revTimer = setInterval(() => {
+        const cur = (api as any)._pos(d);
+        (api as any)._seek(d, Math.max(0, cur - 0.18));
+      }, 90);
+    },
+    stopRev: (d: 0 | 1) => {
+      const dk = nodes.current.decks?.[d]; if (!dk?.revTimer) return;
+      clearInterval(dk.revTimer); dk.revTimer = 0;
+      (api as any).pause(d);
+    },
     setBeatLoop: (d: 0 | 1, beats: number) => {
       const dk = nodes.current.decks?.[d]; if (!dk?.buf) return;
       const pos = (api as any)._pos(d);
       dk.loopBeats = beats; dk.loopOn = true;
+      if (dk.slipOn) { dk.ghostBase = pos; dk.ghostStamp = ctxRef.current?.currentTime ?? 0; dk.slipMod = true; }
       try { if (dk.fileSrc) { dk.fileSrc.loop = true; dk.fileSrc.loopStart = pos; dk.fileSrc.loopEnd = Math.min(dk.buf.duration, pos + beats * 0.5); } } catch { /* noop */ }
       force((x) => x + 1);
     },
@@ -146,8 +181,15 @@ export function useAudioEngine() {
       const dk = nodes.current.decks?.[d]; if (!dk) return;
       dk.loopOn = !dk.loopOn;
       try {
-        if (!dk.loopOn && dk.fileSrc) dk.fileSrc.loop = false;
-        else if (dk.loopBeats) (api as any).setBeatLoop(d, dk.loopBeats);
+        if (!dk.loopOn) {
+          if (dk.fileSrc) dk.fileSrc.loop = false;
+          // SLIP: al salir del loop vuelve a la posición fantasma
+          if (dk.slipOn && dk.slipMod) {
+            dk.slipMod = false;
+            const gh = ((dk.ghostBase || 0) + ((ctxRef.current?.currentTime ?? 0) - (dk.ghostStamp || 0)) + (dk.buf?.duration || 0)) % (dk.buf?.duration || 1);
+            (api as any)._seek(d, gh);
+          }
+        } else if (dk.loopBeats) (api as any).setBeatLoop(d, dk.loopBeats);
       } catch { /* noop */ }
       force((x) => x + 1);
     },
@@ -254,17 +296,21 @@ export function useAudioEngine() {
       } catch { /* noop */ }
     },
     deckState: (d: 0 | 1) => {      const dk = nodes.current.decks?.[d];
-      if (!dk) return { pitch: '+0.0', range: 8, mt: false, bpm: '---', time: '0:00', color: 'FILTER', loop: 0 };
+      if (!dk) return { pitch: '+0.0', range: 8, mt: false, bpm: '---', time: '0:00', color: 'FILTER', loop: 0, key: '0.0', slip: false };
       const rate = dk.rate || 1;
       const pos = (api as any)._pos ? (api as any)._pos(d) : 0;
       const dur = dk.buf?.duration || 0;
       const fmt = (s: number) => Math.floor(s / 60) + ':' + Math.floor(s % 60).toString().padStart(2, '0');
+      // KEY musical en semitonos respecto al original (Master Tempo ON lo congela en la real)
+      const semis = 12 * Math.log2(rate);
       return {
         pitch: (((rate - 1) * 100) >= 0 ? '+' : '') + ((rate - 1) * 100).toFixed(1),
         range: dk.range || 8, mt: !!dk.masterTempo,
         bpm: dk.buf ? (120 * rate).toFixed(1) : '---',
         time: fmt(pos), remain: dur ? '-' + fmt(Math.max(0, dur - pos)) : '-0:00',
         color: dk.colorType || 'FILTER', loop: dk.loopBeats || 0,
+        key: (semis >= 0 ? '+' : '') + semis.toFixed(1),
+        slip: !!dk.slipOn,
       };
     },
     getLevels(): { deck: [number, number]; master: number } {

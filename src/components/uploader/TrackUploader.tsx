@@ -12,6 +12,7 @@ export default function TrackUploader({ eng, autoOpen }: { eng?: Eng; autoOpen?:
   const [drag, setDrag] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
+  const [confirmDel, setConfirmDel] = useState<string | null>(null); // REGLA #5: borrar con confirmación
   const inputRef = useRef<HTMLInputElement>(null);
   const autoRef = useRef(false);
 
@@ -80,8 +81,20 @@ export default function TrackUploader({ eng, autoOpen }: { eng?: Eng; autoOpen?:
             <div className="flex items-center gap-2 text-sm">
               <span className="font-bold truncate flex-1">{t.name}</span>
               <span className="text-[11px] text-neutral-500 font-mono">{fmtTime(t.duration)} · {fmtMB(t.size)}</span>
-              <button type="button" aria-label={`Borrar ${t.name}`} onClick={() => removeTrack(t.id)}
-                className="text-neutral-500 hover:text-[#ff4d4d] px-2 py-1 min-h-[44px] touch-manipulation">✕</button>
+              {confirmDel === t.id ? (
+                <span className="flex items-center gap-1 shrink-0">
+                  <span className="text-[10px] text-[#ff4d4d] font-black">¿BORRAR?</span>
+                  <button type="button" aria-label={`Confirmar borrar ${t.name}`}
+                    onClick={() => { void removeTrack(t.id); setConfirmDel(null); if (navigator.vibrate) navigator.vibrate([30, 40, 30]); }}
+                    className="text-[#ff4d4d] hover:text-white text-xs font-black px-2 py-1 min-h-[44px] touch-manipulation rounded-lg border border-[#ff4d4d]/60">SÍ</button>
+                  <button type="button" aria-label={`Cancelar borrar ${t.name}`} onClick={() => setConfirmDel(null)}
+                    className="text-neutral-400 hover:text-white text-xs font-black px-2 py-1 min-h-[44px] touch-manipulation rounded-lg border border-[#22222a]">NO</button>
+                </span>
+              ) : (
+                <button type="button" aria-label={`Borrar ${t.name}`} title="Borrar de la USB"
+                  onClick={() => setConfirmDel(t.id)}
+                  className="text-neutral-500 hover:text-[#ff4d4d] px-2 py-1 min-h-[44px] touch-manipulation">🗑</button>
+              )}
             </div>
             <WavePeaks peaks={t.peaks} color="#FF8A00" height={72} />
             {eng ? (

@@ -21,7 +21,8 @@ export default defineConfig({
         display_override: ['standalone', 'window-controls-overlay'],
         scope: '/',
         start_url: '/',
-        orientation: 'landscape',
+        // v12.0: "any" — solo el SIMULADOR pide landscape (JS + fallback CSS)
+        orientation: 'any',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },

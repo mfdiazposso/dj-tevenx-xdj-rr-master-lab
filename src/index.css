@@ -23,6 +23,8 @@
   --color-neon-orange: #FF5C00;
   --color-neon-amber: #FF8A00;
   --color-neon-core: #FF3D00;
+  --color-neon-cyan: #00D4FF;
+  --color-neon-teal: #00FFD1;
   --color-pure-white: #ffffff;
   --color-fog: #d9dae5;
   --font-display: "Calsans", "Space Grotesk", Geist, Inter, system-ui, sans-serif;
@@ -192,6 +194,48 @@ body::after {
   body.sim-console .footer,
   body.sim-console .tabs-mobile { display: none !important; }
   body.sim-console .console-exit { display: inline-flex !important; }
+}
+/* ===== v12.0 PORTRAIT: fallback de rotación SOLO del simulador (REGLA #1) =====
+   screen.orientation.lock solo funciona en fullscreen; en el resto de contextos
+   el navegador lo rechaza, así que este CSS garantiza consola horizontal igual.
+   Fixed + origen top-left + 100dvh/100dvw = cubre toda la pantalla sin franjas. */
+@media (orientation: portrait) {
+  .xdj-sim-wrapper {
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100dvh !important;
+    max-width: none !important; /* .simulator-wrapper limita a 100dvw → rompía la rotación */
+    height: 100dvw !important;
+    min-height: 0 !important;
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+    /* Consola fija 1:1 como en landscape: la rejilla llena el resto y cada
+       columna scrollea dentro. Sin scroll del wrapper → nada sale de pantalla. */
+    display: flex !important; flex-direction: column;
+    overflow: hidden !important;
+    padding-bottom: 0 !important; /* pb-24 comía 96px y la consola quedaba a 114px */
+    z-index: 70;
+    background: #070707;
+  }
+  .xdj-sim-wrapper > * { position: relative !important; transform: none !important; flex: 0 0 auto !important; }
+  /* Dentro de la consola rotada no hacen falta las tabs táctiles: manda la rejilla 3 col */
+  .xdj-sim-wrapper .sim-tabs,
+  .xdj-sim-wrapper .sim-mobile,
+  .xdj-sim-wrapper .sim-chrome { display: none !important; }
+  .xdj-sim-wrapper > .sim-desktop {
+    display: grid !important;
+    grid-template-columns: 1.15fr 0.6fr 1.15fr;
+    gap: 8px; padding: 4px;
+    flex: 1 1 0 !important; min-height: 0;
+  }
+  /* DOM: deck1, deck2, mixer → consola: DECK 1 | MIXER | DECK 2 (lg:order-* no aplica aquí) */
+  .xdj-sim-wrapper .sim-desktop > :nth-child(1) { order: 1; }
+  .xdj-sim-wrapper .sim-desktop > :nth-child(2) { order: 3; }
+  .xdj-sim-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; order: 2; }
+  .xdj-sim-wrapper .jog { width: 82px !important; height: 82px !important; }
+  .xdj-sim-wrapper .console-exit { display: inline-flex !important; }
+  /* Cada columna scrollea dentro del alto rotado sin estirar la rejilla */
+  .xdj-sim-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 }
 @media (orientation: portrait) {
   .landscape-only { display: none !important; }
