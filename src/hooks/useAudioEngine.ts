@@ -34,7 +34,7 @@ export function useAudioEngine() {
       osc.connect(srcGain);
       srcGain.connect(trim); trim.connect(low); low.connect(mid); mid.connect(high); high.connect(color); color.connect(ch); ch.connect(an); an.connect(xf); xf.connect(fxIn);
       osc.start();
-      decks.push({ osc, srcGain, trim, low, mid, high, color, ch, an, xf, buf: null as AudioBuffer | null, fileSrc: null as AudioBufferSourceNode | null, fileName: '', rate: 1, range: 8, masterTempo: false, hotcues: [null, null, null, null, null, null, null, null] as (number | null)[], loopBeats: 0, loopOn: true, startStamp: 0, offsetBase: 0, colorType: 'FILTER', slipOn: false, ghostBase: 0, ghostStamp: 0, slipMod: false, revTimer: 0 as ReturnType<typeof setInterval> | 0 });
+      decks.push({ osc, srcGain, trim, low, mid, high, color, ch, an, xf, buf: null as AudioBuffer | null, fileSrc: null as AudioBufferSourceNode | null, fileName: '', rate: 1, range: 8, masterTempo: false, hotcues: [null, null, null, null, null, null, null, null] as (number | null)[], loopBeats: 0, loopOn: true, startStamp: 0, offsetBase: 0, colorType: 'FILTER', slipOn: false, cueMon: false, ghostBase: 0, ghostStamp: 0, slipMod: false, revTimer: 0 as ReturnType<typeof setInterval> | 0 });
     }
     nodes.current = { ctx, master, masterAn, fxIn, decks, fxType: 'ECHO', fxLevel: 0.5, fxTime: 0.375, fxOn: false, micGain: null as GainNode | null };
     return ctx;
@@ -149,6 +149,12 @@ export function useAudioEngine() {
         const gh = ((dk.ghostBase || 0) + ((ctxRef.current?.currentTime ?? 0) - (dk.ghostStamp || 0)) + (dk.buf?.duration || 0)) % (dk.buf?.duration || 1);
         (api as any)._seek(d, gh);
       }
+      force((x) => x + 1);
+    },
+    // ---- v13.1 CUE de monitor (preview de canal, como los auriculares de la real) ----
+    setCueMon: (d: 0 | 1, on: boolean) => {
+      const dk = nodes.current.decks?.[d]; if (!dk) return;
+      dk.cueMon = on;
       force((x) => x + 1);
     },
     // ---- v12.0 REV (momentáneo, estilo real: suelta y para) ----
@@ -296,7 +302,7 @@ export function useAudioEngine() {
       } catch { /* noop */ }
     },
     deckState: (d: 0 | 1) => {      const dk = nodes.current.decks?.[d];
-      if (!dk) return { pitch: '+0.0', range: 8, mt: false, bpm: '---', time: '0:00', color: 'FILTER', loop: 0, key: '0.0', slip: false };
+      if (!dk) return { pitch: '+0.0', range: 8, mt: false, bpm: '---', time: '0:00', color: 'FILTER', loop: 0, key: '0.0', slip: false, cueMon: false };
       const rate = dk.rate || 1;
       const pos = (api as any)._pos ? (api as any)._pos(d) : 0;
       const dur = dk.buf?.duration || 0;
@@ -311,6 +317,7 @@ export function useAudioEngine() {
         color: dk.colorType || 'FILTER', loop: dk.loopBeats || 0,
         key: (semis >= 0 ? '+' : '') + semis.toFixed(1),
         slip: !!dk.slipOn,
+        cueMon: !!dk.cueMon,
       };
     },
     getLevels(): { deck: [number, number]; master: number } {

@@ -5,7 +5,7 @@ const TrackUploader = lazy(() => import('../uploader/TrackUploader'));
 
 type Eng = ReturnType<typeof useAudioEngine>;
 
-const BTN = 'touch-manipulation select-none relative z-10 active:scale-90 transition-all';
+const BTN = 'touch-manipulation select-none relative z-10 active:brightness-125 transition-all';
 const buzz = (ms = 10) => { if (navigator.vibrate) navigator.vibrate(ms); };
 const FXS = ['DELAY', 'ECHO', 'SPIRAL', 'REVERB', 'TRANS', 'FLANGER', 'PITCH', 'ROLL'] as const;
 const COLORS = ['DUB ECHO', 'SWEEP', 'FILTER', 'NOISE'] as const;
@@ -329,7 +329,7 @@ export default function MobilePracticeMode({ eng, onExit }: { eng: Eng; onExit: 
               <p className="text-4xl">📱↻</p>
               <p className="font-black">GIRA TU CELULAR</p>
               <p className="text-sm text-neutral-400">Modo horizontal para usar todo el XDJ-RR sin scroll.</p>
-              <button type="button" onClick={goLandscape} className="w-full min-h-[52px] rounded-full bg-[#FF5C00] text-black font-black touch-manipulation active:scale-95">⛶ FULLSCREEN + HORIZONTAL</button>
+              <button type="button" onClick={goLandscape} className="w-full min-h-[52px] rounded-full bg-[#FF5C00] text-black font-black touch-manipulation">⛶ FULLSCREEN + HORIZONTAL</button>
               <button type="button" onClick={() => setShowRotate(false)} className="text-xs text-neutral-500">Seguir en vertical</button>
             </div>
           </div>

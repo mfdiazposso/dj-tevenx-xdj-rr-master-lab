@@ -183,7 +183,7 @@ body::after {
   body.sim-console .simulator-wrapper .sim-desktop > :nth-child(2) { order: 3; }
   body.sim-console .simulator-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; order: 2; }
   body.sim-console .simulator-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-  body.sim-console .simulator-wrapper .jog { width: clamp(68px, 14vh, 92px) !important; height: clamp(68px, 14vh, 92px) !important; }
+  /* v13.1: jog lo gobierna .jog (clamp 82/14vw/180) — sin override vh que rompía la spec */
   body.sim-console .simulator-wrapper .deck-wave { height: clamp(34px, 10vh, 54px) !important; }
   body.sim-console .simulator-wrapper .sim-screen { padding-top: 3px !important; padding-bottom: 3px !important; gap: 4px !important; }
   body.sim-console .simulator-wrapper .sim-screen .mono { font-size: 8px; }
@@ -232,7 +232,7 @@ body::after {
   .xdj-sim-wrapper .sim-desktop > :nth-child(1) { order: 1; }
   .xdj-sim-wrapper .sim-desktop > :nth-child(2) { order: 3; }
   .xdj-sim-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; order: 2; }
-  .xdj-sim-wrapper .jog { width: 82px !important; height: 82px !important; }
+  /* v13.1: sin override fijo — .jog usa clamp(82,14vw,180) y da 82px en 390 */
   .xdj-sim-wrapper .console-exit { display: inline-flex !important; }
   /* Cada columna scrollea dentro del alto rotado sin estirar la rejilla */
   .xdj-sim-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
@@ -269,25 +269,72 @@ input[type=range]::-moz-range-progress { background: #FF5C00; height: 6px; borde
   .sim-desktop .deck-wave { height: 84px !important; }
 }
 .simulator-wrapper { background: #070707; min-height: 400px; }
+/* ===== v13.1 FIX OVERLAP — sin scale/zoom/transform, columnas anti-sobreposición ===== */
 .xdj-rr-container {
-  width: min(100vw, 1200px);
-  min-height: 400px;
-  background: #070707;
-  opacity: 1;
+  width: min(100vw - 16px, 1200px) !important;
+  height: auto !important;
+  min-height: 420px;
   aspect-ratio: 2.4 / 1;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.6fr) minmax(0, 1.15fr) !important;
+  gap: 12px !important;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.15fr 0.6fr 1.15fr;
-  grid-template-rows: auto 1fr;
-  gap: clamp(4px, 0.8vw, 12px);
-  transform-origin: top left;
+  background: #070707;
+  transform: none !important;
+  overflow: visible !important;
 }
+
+/* Columnas (deck / mixer): flex vertical, min-width 0, sin desbordes laterales.
+   overflow-y auto (no hidden) para que en consola corta cada columna scrollee
+   en vez de recortar controles inalcanzables. */
+.deck, .mixer {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: relative !important;
+}
+.deck > *, .mixer > * { flex-shrink: 0; min-width: 0; }
+/* Hijos de la rejilla: anula min-width:auto de grid para que fr nunca desborde */
+.sim-desktop > * { min-width: 0; }
+
+/* Jog centrado en flex, tamaño por CSS (sin absolute, sin sizing en JSX) */
+.jog-wrapper { display: flex; justify-content: center; align-items: center; padding: 8px 0; flex-shrink: 0; }
+.jog {
+  width: clamp(82px, 14vw, 180px) !important;
+  height: clamp(82px, 14vw, 180px) !important;
+  flex-shrink: 0;
+}
+
+/* Filas de botones: flex wrap con targets mínimos, nunca se apilan.
+   En @layer utilities + :where() → especificidad 0 dentro de la capa: es un
+   SUELO. Tailwind (min-h-[48px], text-base) gana por especificidad 0,1,0 y
+   PLAY conserva 48px; los botones sin utility bajan a 36px/10px. */
+@layer utilities {
+  .controls-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+  :where(.controls-row) button {
+    min-width: 36px;
+    min-height: 36px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+  /* Pads: rejilla fija 4 col — 8 hot cues A-H en 2 filas, loops en fila propia */
+  .hotcue-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; min-width: 0; }
+  .pad-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; min-width: 0; }
+  :where(.hotcue-row, .pad-row) button { min-height: 44px; min-width: 0; }
+}
+.deck-main { min-width: 0; }
 .rotate-hint { display: none; }
 @media (orientation: portrait) and (max-width: 899px) {
   .rotate-hint.show { display: flex; }
 }
+/* v13.1: sin zoom (causaba recortes/overlap en 320px) */
 @media (max-width: 360px) {
-  main { zoom: 0.88; }
+  .lab-title { font-size: 1.35rem; }
 }
 @media (orientation: portrait) {
   .landscape-only { display: none !important; }
