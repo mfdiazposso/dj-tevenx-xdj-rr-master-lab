@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { controls } from '../data/controls';
 import { proTricks } from '../data/proTricks';
 import { useProgress } from '../store/progress';
@@ -6,9 +6,27 @@ import { useDaily } from '../store/daily';
 
 const ClipModal = lazy(() => import('./social/ContentFactory').then((m) => ({ default: m.ClipModal })));
 
-function copyTikTokScript(trick: { title: string; steps: string[]; hook: string }) {
+function copyTikTokScript(trick: { title: string; steps: string[]; hook: string }, onCopied?: () => void) {
   const s = `🎧 ${trick.hook}\n\n${trick.title}\n\n${trick.steps.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n\nSígueme @djtevenx · XDJ-RR MASTER LAB (20s)`;
-  navigator.clipboard?.writeText(s).catch(() => {});
+  const ok = () => { try { onCopied?.(); } catch { /* noop */ } };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(s).then(ok).catch(() => {
+      // fallback para contextos sin permiso (http, navegadores antiguos)
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); ta.remove(); ok();
+      } catch { /* noop */ }
+    });
+  } else {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove(); ok();
+    } catch { /* noop */ }
+  }
 }
 
 type FichaTab = 'basico' | 'pro' | 'truco';
@@ -19,6 +37,13 @@ export default function FichaControl({ id, onSimulate }: { id: string | null; on
   const c = controls.find((x) => x.id === id);
   const { learnedTricks, learnTrick } = useDaily();
   const [clip, setClip] = useState<string | null>(null);
+  // v14 FASE B: feedback al copiar (antes no se sabía si se copió o falló)
+  const [copiedT, setCopiedT] = useState<string | null>(null);
+  useEffect(() => {
+    if (!copiedT) return;
+    const id = setTimeout(() => setCopiedT(null), 1600);
+    return () => clearTimeout(id);
+  }, [copiedT]);
   if (!c) return <div className="card p-6 text-neutral-400 text-sm">Pasa el cursor sobre el mapa o haz clic en un control para ver su ficha completa + <b className="text-[#FF5C00]">vs FLX4</b>.</div>;
   const isDone = done.includes(c.id);
   const tricks = proTricks.filter((t) => t.controlIds.includes(c.id));
@@ -26,17 +51,19 @@ export default function FichaControl({ id, onSimulate }: { id: string | null; on
   return (
     <article className="card p-5 space-y-4">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span aria-label={isDone ? 'Completado' : 'Pendiente'} className={`h-3 w-3 rounded-full ${isDone ? 'bg-[#FF3D00] shadow-[0_0_12px_#FF3D00]' : 'bg-[#22222a] border border-[#22222a]'}`} />
-          <div>
-            <p className="text-[11px] tracking-widest text-[#FF5C00]">{c.zone.toUpperCase()} · NIVEL {c.level} · {c.kind}</p>
-            <h2 className="text-xl font-bold">{c.name}</h2>
+        <div className="flex items-center gap-2 min-w-0">
+          {/* v14 FASE B B1: role="img" — aria-label en un <span> sin rol está
+              PROHIBIDO (axe aria-prohibited-attr) y el estado se perdía. */}
+          <span role="img" aria-label={isDone ? 'Completado' : 'Pendiente'} className={`shrink-0 h-3 w-3 rounded-full ${isDone ? 'bg-[#FF3D00] shadow-[0_0_12px_#FF3D00]' : 'bg-[#22222a] border border-[#22222a]'}`} />
+          <div className="min-w-0">
+            <p className="text-[11px] tracking-widest text-[#FF5C00] truncate">{c.zone.toUpperCase()} · NIVEL {c.level} · {c.kind}</p>
+            <h2 className="text-xl font-bold break-words">{c.name}</h2>
           </div>
-          <span className="text-[10px] font-black px-2 py-1 rounded-full border border-[#FF5C00] text-[#FF5C00]">FLX4→RR</span>
+          <span className="hidden sm:inline shrink-0 text-[10px] font-black px-2 py-1 rounded-full border border-[#FF5C00] text-[#FF5C00]">FLX4→RR</span>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => toggleFav(c.id)} aria-label="Favorito" className="px-3 py-1.5 rounded-full border border-[#22222a] text-sm hover:border-[#FF5C00] touch-manipulation">{favs.includes(c.id) ? '★' : '☆'}</button>
-          <button onClick={() => toggleDone(c.id)} className={`px-3 py-1.5 rounded-full text-sm font-bold touch-manipulation active:scale-95 ${isDone ? 'bg-[#FF3D00] text-black' : 'bg-[#e10600] hover:bg-[#FF5C00] text-white'}`}>{isDone ? '✓ Hecho' : 'Marcar hecho'}</button>
+        <div className="flex gap-2 shrink-0">
+          <button onClick={() => toggleFav(c.id)} aria-label={favs.includes(c.id) ? 'Quitar de favoritos' : 'Marcar como favorito'} title={favs.includes(c.id) ? 'Quitar de favoritos' : 'Marcar como favorito'} className="px-3 py-1.5 rounded-full border border-[#22222a] text-sm hover:border-[#FF5C00] touch-manipulation">{favs.includes(c.id) ? '★' : '☆'}</button>
+          <button onClick={() => toggleDone(c.id)} className={`px-3 py-1.5 rounded-full text-sm font-bold touch-manipulation active:brightness-125 ${isDone ? 'bg-[#FF3D00] text-black' : 'bg-[#e10600] hover:bg-[#FF5C00] text-white'}`}>{isDone ? '✓ Hecho' : 'Marcar hecho'}</button>
         </div>
       </div>
 
@@ -76,10 +103,13 @@ export default function FichaControl({ id, onSimulate }: { id: string | null; on
                 <p className="text-xs text-neutral-300 mt-1">[PRO] {t.pro}</p>
                 <ol className="list-decimal ml-5 mt-1 text-xs space-y-0.5">{t.steps.map((s) => <li key={s}>{s}</li>)}</ol>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {onSimulate && <button type="button" onClick={() => onSimulate(t.simFocus)} className="text-xs font-black border border-[#FF5C00] text-[#FF5C00] rounded-full px-3 py-1.5 touch-manipulation active:scale-95">▶ Probar truco</button>}
+                  {onSimulate && <button type="button" onClick={() => onSimulate(t.simFocus)} className="text-xs font-black border border-[#FF5C00] text-[#FF5C00] rounded-full px-3 py-1.5 touch-manipulation active:brightness-125">▶ Probar truco</button>}
                   {!learned && <button type="button" onClick={() => learnTrick(t.id)} className="text-xs font-bold border border-[#FF3D00] text-[#FF3D00] rounded-full px-3 py-1.5">+50 XP Aprendido</button>}
                   <button type="button" onClick={() => setClip(t.id)} className="text-xs font-bold border border-[#22222a] rounded-full px-3 py-1.5">📱 Crear Clip 9:16</button>
-                  <button type="button" onClick={() => copyTikTokScript(t)} className="text-xs text-neutral-400 border border-[#22222a] rounded-full px-3 py-1.5">Copiar guión TikTok</button>
+                  <button type="button" onClick={() => copyTikTokScript(t, () => setCopiedT(t.id))}
+                    className="text-xs text-neutral-400 border border-[#22222a] rounded-full px-3 py-1.5 touch-manipulation active:brightness-125">
+                    {copiedT === t.id ? '✓ Copiado' : 'Copiar guión TikTok'}
+                  </button>
                 </div>
                 {clip === t.id && <Suspense fallback={<p className="text-xs text-neutral-500">Cargando editor...</p>}><ClipModal controlName={c.name} hook={t.hook} body={t.pro} onClose={() => setClip(null)} /></Suspense>}
               </div>
@@ -89,7 +119,7 @@ export default function FichaControl({ id, onSimulate }: { id: string | null; on
       )}
 
       <div className="flex flex-wrap gap-2">
-        {onSimulate && <button type="button" onClick={() => onSimulate(c.id)} className="px-5 py-2 rounded-full text-sm font-black bg-[#FF5C00] text-black glow-orange touch-manipulation active:scale-95">▶ Probar en Simulador</button>}
+        {onSimulate && <button type="button" onClick={() => onSimulate(c.id)} className="px-5 py-2 rounded-full text-sm font-black bg-[#FF5C00] text-black glow-orange touch-manipulation active:brightness-125">▶ Probar en Simulador</button>}
       </div>
       <p className="text-[11px] text-neutral-500">Fuente: manual XDJ-RR + rekordbox 6.8 + técnicos Pioneer · No oficial.</p>
     </article>

@@ -13,7 +13,7 @@ export function ExercisesView({ onGo }: { onGo: (id: string) => void }) {
   return (
     <div className="rounded-xl border border-[#22222a] bg-[#0d0e12] p-4 space-y-3">
       <div className="flex gap-2 flex-wrap">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrar ejercicios..." className="flex-1 min-w-40 rounded-lg bg-black border border-[#22222a] px-3 py-1.5 text-sm outline-none focus:border-[#FF5C00]" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrar ejercicios..." className="flex-1 min-w-0 rounded-lg bg-black border border-[#22222a] px-3 py-1.5 text-sm outline-none focus:border-[#FF5C00]" />
         {[['all', 'Todos'], ['0', 'N0'], ['1', 'N1'], ['2', 'N2']].map(([v, l]) => <button key={v} onClick={() => setLv(v)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${lv === v ? 'bg-[#FF5C00] text-black border-[#FF5C00]' : 'border-[#22222a] text-neutral-400'}`}>{l}</button>)}
       </div>
       <div className="grid md:grid-cols-2 gap-2">

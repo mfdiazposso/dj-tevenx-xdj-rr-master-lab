@@ -3,7 +3,7 @@ import { lessons } from '../../data/lessons';
 import { missions } from '../../data/missions';
 import { useProgress, levelLabel } from '../../store/progress';
 
-export default function WhatToPracticeToday({ onGo }: { onGo: (controlId: string) => void }) {
+export default function WhatToPracticeToday({ onGo, onFirstMix }: { onGo: (controlId: string) => void; onFirstMix?: () => void }) {
   const { quizErrors, completedLessons, completedMissions } = useProgress();
 
   let rec: { kind: string; title: string; why: string; target: string } | null = null;
@@ -24,12 +24,19 @@ export default function WhatToPracticeToday({ onGo }: { onGo: (controlId: string
 
   return (
     <div className="rounded-xl border border-[#FF5C00]/50 bg-[#FF5C00]/5 p-4 flex flex-wrap items-center gap-3">
-      <div className="flex-1 min-w-52">
+      <div className="flex-1 min-w-0">
         <p className="text-[11px] font-bold tracking-widest text-[#FF5C00]">¿QUÉ PRACTICO HOY? · {rec.kind.toUpperCase()}</p>
         <p className="font-bold">{rec.title}</p>
         <p className="text-sm text-neutral-300">{rec.why}</p>
       </div>
-      <button onClick={() => onGo(rec.target)} className="px-4 py-2 rounded-lg bg-[#FF5C00] hover:bg-[#e10600] font-bold text-sm">Practicar ahora</button>
+      <div className="flex flex-wrap gap-2">
+        {onFirstMix && (
+          <button onClick={onFirstMix} className="px-4 py-2 rounded-lg bg-[#00FFD1] text-black font-black text-sm touch-manipulation active:brightness-125">
+            ▶ Mi primera mezcla (5 min)
+          </button>
+        )}
+        <button onClick={() => onGo(rec.target)} className="px-4 py-2 rounded-lg bg-[#FF5C00] hover:bg-[#e10600] text-black font-bold text-sm">Practicar ahora</button>
+      </div>
     </div>
   );
 }

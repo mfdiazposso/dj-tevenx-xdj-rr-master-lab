@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 const MARKS = [
   { beat: 0, label: 'TRIM igualado', color: '#FF5C00' },
   { beat: 8, label: 'LOW swap 1/2', color: '#FF5C00' },
-  { beat: 16, label: 'HPF abre', color: '#e10600' },
+  { beat: 16, label: 'HPF abre', color: '#FF3D00' },
   { beat: 24, label: 'ECHO ON + LEVEL→75%', color: '#a855f7' },
   { beat: 31, label: 'OFF en el 1', color: '#22c55e' },
 ];

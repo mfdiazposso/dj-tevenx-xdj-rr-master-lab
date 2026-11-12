@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node tests/run-all.mjs",
+    "test:fast": "node tests/run-all.mjs a0 a1 a3-axe a3-contraste a2",
+    "fixture": "python tests/fixtures/gen-test-wav.py"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

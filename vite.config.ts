@@ -11,6 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
+      // v14 FASE B B3: el script del SW iba sin defer en <head> y bloqueaba 303 ms.
+      injectRegister: 'script-defer',
       manifest: {
         name: 'DJ TEVENX - XDJ-RR MASTER LAB',
         short_name: 'TEVENX RR',

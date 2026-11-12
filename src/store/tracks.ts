@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { del, get, set } from 'idb-keyval';
+import { detectBpm } from '../lib/bpm';
 
 export interface TrackMeta {
   id: string;
@@ -7,6 +8,7 @@ export interface TrackMeta {
   duration: number; // s
   size: number; // bytes
   peaks: number[]; // 120 buckets 0..1 (persistido en localStorage)
+  bpm?: number; // detección automática (70–180, como el modo AUTO de la RR)
 }
 
 const META_KEY = 'dj-tevenx-tracks';
@@ -65,8 +67,8 @@ export const useTracks = create<TracksState>()((setState, getState) => ({
   usedBytes: () => getState().tracks.reduce((a, t) => a + t.size, 0),
   getBlob: (id: string) => get(`${BLOB_PREFIX}${id}`) as Promise<Blob | undefined>,
   addFiles: async (files) => {
-    const list = Array.from(files).filter((f) => f.type.startsWith('audio/') || /\.(mp3|wav|flac|ogg|m4a)$/i.test(f.name));
-    if (!list.length) { setState({ error: 'Sin archivos de audio válidos (MP3/WAV/FLAC).' }); return; }
+    const list = Array.from(files).filter((f) => f.type.startsWith('audio/') || /\.(mp3|wav|flac|ogg|m4a|aac|opus|aiff?|webm)$/i.test(f.name));
+    if (!list.length) { setState({ error: 'Sin archivos de audio válidos (MP3/WAV/FLAC/AAC).' }); return; }
     for (const f of list) {
       const cur = getState().tracks;
       if (cur.length >= MAX_TRACKS) { setState({ error: `USB LLENO (${MAX_TRACKS}/${MAX_TRACKS}). Borra uno para seguir.` }); break; }
@@ -75,7 +77,8 @@ export const useTracks = create<TracksState>()((setState, getState) => ({
         const buf = await decode(f);
         const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         await set(`${BLOB_PREFIX}${id}`, f);
-        const meta: TrackMeta = { id, name: f.name, duration: buf.duration, size: f.size, peaks: peaksOf(buf) };
+        const bpm = detectBpm(buf);
+        const meta: TrackMeta = { id, name: f.name, duration: buf.duration, size: f.size, peaks: peaksOf(buf), ...(bpm > 0 ? { bpm } : {}) };
         const next = [...getState().tracks, meta];
         setState({ tracks: next, error: null });
         saveMeta(next);

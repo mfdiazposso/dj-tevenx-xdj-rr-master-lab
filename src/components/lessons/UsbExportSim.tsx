@@ -30,7 +30,7 @@ export default function UsbExportSim() {
           <div className="flex flex-wrap gap-1.5">
             {pool.map((t) => (
               <button key={t} type="button" onClick={() => toggleTrack(t)}
-                className={`text-xs px-2 py-1.5 rounded-lg border touch-manipulation active:scale-95 ${sel.includes(t) ? 'bg-[#FF5C00] text-black border-[#FF5C00] font-bold' : 'border-[#22222a] text-neutral-300'}`}>{sel.includes(t) ? '✓ ' : '+ '}{t}</button>
+                className={`text-xs px-2 py-1.5 rounded-lg border touch-manipulation active:brightness-125 ${sel.includes(t) ? 'bg-[#FF5C00] text-black border-[#FF5C00] font-bold' : 'border-[#22222a] text-neutral-300'}`}>{sel.includes(t) ? '✓ ' : '+ '}{t}</button>
             ))}
           </div>
           <p className="text-[11px] font-bold text-neutral-400 mt-3 mb-1">2 · CHECKLIST PRE-EVENTO</p>
@@ -41,12 +41,12 @@ export default function UsbExportSim() {
             ))}
           </div>
           <button type="button" disabled={!ready} onClick={() => setExported(true)}
-            className={`mt-3 px-4 py-2 rounded-lg text-sm font-black touch-manipulation ${ready ? 'bg-[#FF5C00] text-black active:scale-95' : 'bg-[#1a1a1a] text-neutral-600'}`}>
+            className={`mt-3 px-4 py-2 rounded-lg text-sm font-black touch-manipulation ${ready ? 'bg-[#FF5C00] text-black active:brightness-125' : 'bg-[#1a1a1a] text-neutral-500'}`}>
             ⬇ EXPORTAR A USB
           </button>
         </div>
         <div>
-          <p className="text-[11px] font-bold text-neutral-400 mb-1">USB:/ <span className="text-neutral-600">(virtual)</span></p>
+          <p className="text-[11px] font-bold text-neutral-400 mb-1">USB:/ <span className="text-neutral-500">(virtual)</span></p>
           <div className="rounded-lg bg-black border border-[#22222a] p-3 font-mono text-xs min-h-[220px]">
             {exported ? (
               <div className="space-y-0.5">

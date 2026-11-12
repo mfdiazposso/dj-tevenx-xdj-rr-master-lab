@@ -96,7 +96,7 @@ export function ClipModal({ controlName, hook, body, onClose }: { controlName: s
         <canvas ref={canvasRef} width={1080} height={1920} className="w-full rounded-lg border border-[#22222a]" />
         <div className="flex gap-2">
           <button type="button" onClick={draw} className="flex-1 px-3 py-2 rounded-lg border border-[#22222a] text-sm font-bold touch-manipulation">Vista previa</button>
-          <button type="button" onClick={exportPNG} className="flex-1 px-3 py-2 rounded-lg bg-[#FF5C00] text-black text-sm font-black touch-manipulation active:scale-95">⬇ Exportar PNG</button>
+          <button type="button" onClick={exportPNG} className="flex-1 px-3 py-2 rounded-lg bg-[#FF5C00] text-black text-sm font-black touch-manipulation active:brightness-125">⬇ Exportar PNG</button>
         </div>
         <button type="button" onClick={onClose} className="w-full text-xs text-neutral-500">Cerrar</button>
       </div>

@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* ===== TEVENX CYBERPUNK v11 — DESIGN.md structure, neon-orange theme =====
-   --color-void-canvas #070707 · carbon #0d0e12 · obsidian #141418
-   --color-neon-orange #FF5C00 · amber #FF8A00 · core #FF3D00
-   spacing base 8px · cards 20px · pills/badges 800px · Geist + Calsans */
+/* ===== TEVENX CYBERPUNK v14 — tokens :root (FASE 4) + @theme Tailwind =====
+   Dirección: instrument panel cyberpunk (hardware Pioneer sobre DESIGN.md).
+   --x-* tokens: color/LEDs · tipografía (Chakra Petch + Geist + JetBrains Mono)
+   · radios · sombras · glow · transiciones. Sin scale: press = brightness. */
 
 @theme {
   --color-base: #070707;
@@ -17,6 +17,12 @@
   --color-ok: #FF3D00;
   --color-fail: #ff1744;
   --color-muted: #8a8a8a;
+  /* v14 FASE B B2 · CONTRASTE AA: Tailwind v4 usa neutral-500=#737373 (4.07:1 sobre
+     #0d0e12) y neutral-600=#525252 (2.58:1 sobre #070707) → ambos fallan AA en
+     etiquetas de 10-12px. Se suben en el tema para arreglar ~70 casos de una vez
+     sin tocar 100 JSX: gris medio #878787 (5.5:1) y gris apagado #7e7e7e (4.7:1). */
+  --color-neutral-500: oklch(0.62 0 0);
+  --color-neutral-600: oklch(0.58 0 0);
   --color-void-canvas: #070707;
   --color-carbon-plate: #0d0e12;
   --color-obsidian: #141418;
@@ -27,10 +33,117 @@
   --color-neon-teal: #00FFD1;
   --color-pure-white: #ffffff;
   --color-fog: #d9dae5;
-  --font-display: "Calsans", "Space Grotesk", Geist, Inter, system-ui, sans-serif;
+  --font-display: "Chakra Petch", "Space Grotesk", Geist, Inter, system-ui, sans-serif;
   --font-geist: Geist, Inter, system-ui, sans-serif;
   --font-mono2: "JetBrains Mono", ui-monospace, monospace;
 }
+
+/* ===== v14 FASE 4 — TOKENS DEL SISTEMA (una sola dirección visual) =====
+   Dirección: "instrument panel cyberpunk" — la lógica cromática y de
+   tipografía del XDJ-RR real (metal negro mate, LEDs naranjas/verdes/rojos)
+   sobre el lienzo #070707 de DESIGN.md. Todo el estilo del sitio (web y
+   simulador) bebe de estas variables: color, tipografía, radios, sombras y
+   glow de LED. Nada de transform-scale en microinteracciones: feedback por
+   brillo (active:brightness-125) que no altera geometría → 0 overlaps. */
+:root {
+  /* — color: base — */
+  --x-void: #070707;          /* lienzo (html/body) */
+  --x-carbon: #0d0e12;        /* superficie de tarjeta */
+  --x-obsidian: #141418;      /* superficie elevada */
+  --x-line: #22222a;          /* hairline / borde sutil */
+  --x-metal: #2a2d36;         /* chasis del hardware */
+  --x-fog: #d9dae5;           /* texto secundario claro */
+  --x-muted: #8a8a8a;         /* texto atenuado */
+  /* — color: LEDs (semántica: mismos colores que el hardware Pioneer) — */
+  --x-neon: #FF5C00;          /* LED naranja: acento primario / FX */
+  --x-amber: #FF8A00;         /* LED ámbar: texto sobre naranja */
+  --x-core: #FF3D00;          /* LED rojo-naranja: acciones críticas */
+  --x-play: #00E676;          /* PLAY (verde hardware) */
+  --x-cue: #FF1744;           /* CUE (rojo hardware) */
+  --x-cyan: #00D4FF;          /* LED cian: beat/key/quantize */
+  --x-teal: #00FFD1;          /* LED teal: loops */
+  --x-violet: #7C4DFF;        /* LED violeta: slip */
+  --x-amber2: #FFD600;        /* LED amarillo: auriculares */
+  /* — tipografía — */
+  --x-font-display: "Chakra Petch", "Space Grotesk", Geist, system-ui, sans-serif;
+  --x-font-body: Geist, Inter, system-ui, sans-serif;
+  --x-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --x-track-wide: 0.056em;    /* tracking de display */
+  --x-track-label: 0.15em;    /* tracking de labels mono uppercase */
+  /* — radios (grilla 8px, tarjeta 20px, pill 800px — DESIGN.md) — */
+  --x-radius-card: 20px;
+  --x-radius-panel: 16px;
+  --x-radius-ctl: 10px;
+  --x-radius-pill: 800px;
+  /* — sombras — */
+  --x-shadow-card: 0 12px 30px rgba(0, 0, 0, 0.55);
+  --x-shadow-neon: 0 0 20px rgba(255, 92, 0, 0.25);
+  --x-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  /* — glow de LED (estados activos) — */
+  --x-glow-neon: 0 0 16px rgba(255, 92, 0, 0.55);
+  --x-glow-play: 0 0 18px rgba(0, 230, 118, 0.5);
+  --x-glow-cue: 0 0 12px rgba(255, 23, 68, 0.35);
+  /* — transición de microinteracción: brillo/tono, NUNCA geometría — */
+  --x-t-micro: 120ms ease;
+  --x-press: brightness(1.25);
+}
+
+/* ===== v14 FASE B B3 · TIPOGRAFÍA SELF-HOSTED =====
+   Las fuentes servidas por Google Fonts eran render-blocking (969 ms) y llegaban
+   tarde (LCP 3.6s). Ahora Chakra Petch + Geist se sirven desde /fonts (woff2,
+   subset latin) con font-display:swap y preload en el HTML: 0 saltos de red
+   externos y LCP inmediato. JetBrains Mono sigue en CDN (async, no bloquea). */
+@font-face {
+  font-family: "Chakra Petch";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/ChakraPetch-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* El título usa font-black (900): mapeamos 900 al mismo archivo 700 real en vez de
+   sintetizar el bold (se veía más ligero y gastaba 9.7 KB en un peso sin usar). */
+@font-face {
+  font-family: "Chakra Petch";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/fonts/ChakraPetch-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/Geist-var-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* v14 FASE B B4 · Los items de grid no deben imponer su min-content al track.
+   Con zoom de texto al 200% (root 32px) un min-w-52 en rem = 416px y el grid
+   crecía más que el viewport → scroll horizontal. */
+.grid > * { min-width: 0; }
+
+/* ===== v14 FASE B B6 · MODO APRENDER: explicación in-place =====
+   Con .learn-on, cada control con data-tip muestra su explicación al
+   enfocarse o al pasar el ratón. El tooltip es un overlay (pointer-events:none,
+   z-index) → no altera la geometría ni genera overlaps. */
+.learn-on [data-tip] { position: relative; }
+.learn-on [data-tip]::after {
+  content: attr(data-tip);
+  position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  z-index: 70; pointer-events: none;
+  background: #0d0e12; border: 1px solid #FF5C00; color: #FFB07A;
+  font: 500 10px/1.35 var(--x-font-mono);
+  padding: 5px 7px; border-radius: 8px;
+  width: max-content; max-width: 200px; white-space: normal; text-align: left;
+  box-shadow: 0 6px 20px rgba(0,0,0,.7);
+  opacity: 0; transition: opacity 140ms ease;
+}
+.learn-on [data-tip]:hover::after, .learn-on [data-tip]:focus-visible::after { opacity: 1; }
+/* arriba no cabe → se abre hacia abajo */
+.learn-on [data-tip].tip-up::after { top: auto; bottom: calc(100% + 6px); }
 
 /* min-height en vez de height: con height:100% el <body> se convertía en el
    scroller (html overflow-x hidden) → sticky header roto y window.scrollTo no-op */
@@ -45,28 +158,37 @@ button { touch-action: manipulation; }
 .tab-enter { animation: tabIn .18s ease-out; }
 @keyframes tabIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 body {
-  background: #070707; color: #f5f5f5;
-  font-family: Geist, Inter, system-ui, sans-serif;
+  background: var(--x-void); color: #f5f5f5;
+  font-family: var(--x-font-body);
   font-size: clamp(13px, 1.8vw, 15px);
   min-height: 100dvh;
-  padding-top: env(safe-area-inset-top);
+  /* v14 FASE B B4: el padding-top del body movía el contenido pero el header
+     sticky se pegaba a top:0 y quedaba BAJO el notch al hacer scroll.
+     Ahora el inset va en el header (que es el que se pega al borde). */
   padding-bottom: env(safe-area-inset-bottom);
 }
+/* El header sticky cubre desde 0 y su contenido respeta el notch */
+.app-header { padding-top: env(safe-area-inset-top); }
+@media (min-width: 640px) { .app-header { padding-top: 0; } }
+body.sim-console .app-header { padding-top: 0; }
 h1.app-title { font-size: clamp(17px, 4vw, 32px); }
 
 /* Navegación principal: una sola fila deslizable en pantallas estrechas */
 .tabs { flex-wrap: nowrap !important; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs > button { flex: 0 0 auto; white-space: nowrap; }
-.mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; }
+.mono { font-family: var(--x-font-mono); }
 .bpm { font-size: clamp(14px, 2vw, 18px); }
-.ficha-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+/* v14 FASE B · Bloque 1: minmax(min(280px,100%)) — con minmax(280px,1fr) la
+   columna no baja de 280px y desborda en viewports de 280px (foldable cerrado).
+   min() hace que la columna se adapte al ancho disponible. */
+.ficha-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
 .ficha-grid > * { width: 100%; max-width: 100%; box-sizing: border-box; }
 .map-label { font-size: clamp(10px, 1.5vw, 12px); }
 .card { background: #0d0e12; border: 1px solid #22222a; border-radius: 20px; padding: 24px; }
 .btn-pill { border-radius: 800px; }
-h1, h2 { font-family: "Calsans", "Space Grotesk", Geist, Inter, system-ui, sans-serif; letter-spacing: 0.056em; }
-body { font-family: Geist, Inter, system-ui, sans-serif; }
+h1, h2 { font-family: var(--x-font-display); letter-spacing: var(--x-track-wide); }
+body { font-family: var(--x-font-body); }
 
 /* Botón pill neón 800px + glow */
 .btn-neon {
@@ -76,7 +198,7 @@ body { font-family: Geist, Inter, system-ui, sans-serif; }
 /* Hairline neón + scanlines + aurora naranja */
 .hairline-neon { border: 1px solid rgba(255,92,0,0.3); }
 .neon-text {
-  font-family: "Calsans", "Space Grotesk", Geist, sans-serif; letter-spacing: 0.056em;
+  font-family: var(--x-font-display); letter-spacing: var(--x-track-wide);
   color: #FF5C00; text-shadow: 0 0 10px #FF5C00, 0 0 32px rgba(255,92,0,0.5);
 }
 .scanlines::before {
@@ -97,7 +219,57 @@ body { font-family: Geist, Inter, system-ui, sans-serif; }
   box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.22), inset 0 -3px 6px rgba(0, 0, 0, 0.4), 0 0 16px rgba(255, 92, 0, 0.4);
 }
 /* Label mono 11px uppercase tracking 15% */
-.lbl { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; }
+.lbl { font-family: var(--x-font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: var(--x-track-label); }
+
+/* ===== v14 FASE B B3: microinteracción global sin cambio de geometría =====
+   Transición por defecto en botones: solo brillo/color/borde/glow.
+   Prohibido scale/translate en press (TAREA 4 + anti-overlap v13.1):
+   el feedback es active:brightness-125 (define --x-press) que no mueve cajas.
+   NO se transiciona background-color: durante el degradado el texto sobre
+   fondo de marca (negro sobre #FF5C00) cae a 2:1 (contraste AA roto en trânsito). */
+button {
+  transition: filter var(--x-t-micro), color var(--x-t-micro),
+    border-color var(--x-t-micro), box-shadow var(--x-t-micro);
+}
+
+/* ===== v14 FASE B B5 · PREFERS-REDUCED-MOTION =====
+   Los parpadeos a 2 Hz (CUE, FX ON) están en la banda de riesgo de
+   fotosensibilidad. Con la preferencia activa:
+   - los LEDs quedan en estado FIJO (siguen leyéndose como activos por color/borde)
+   - el título kinetic no fluye
+   - la confetti no cae
+   - las transiciones se anulan
+   La inercia del jog se desactiva en JS (ver XDJRRSimulator). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cue-blink, .fx-on-blink { animation: none !important; }
+  .cue-blink { box-shadow: 0 0 16px rgba(255,23,68,.9); }
+  .fx-on-blink { box-shadow: 0 0 18px rgba(255,92,0,.85); }
+  .kinetic { animation: none !important; background-position: 0 center !important; }
+  .confetti-piece { display: none !important; }
+  .tab-enter { animation: none !important; }
+  .scanlines::before { opacity: 0.25 !important; }
+}
+button:active { filter: var(--x-press); }
+button:disabled { filter: none; opacity: 0.55; }
+
+/* ===== v14 FASE B · Bloque 1: foco visible para TODOS los controles =====
+   P1-2: 24 controles del simulador no tenían indicador de foco (solo el jog
+   y los knobs). outline + outline-offset NO alteran la geometría (a diferencia
+   de box-shadow), así que no reintroduce overlaps. */
+:where(button, [role="slider"], [role="tab"], input:not([type="hidden"]), select, textarea, a[href]):focus-visible {
+  outline: 2px solid var(--x-neon);
+  outline-offset: 2px;
+  z-index: 5;
+}
+/* Controles con ring propio (jog, knobs, mapa): su ring hace de indicador,
+   el outline global solo aporta el color de marca. */
+.lbl:focus-visible, .mono:focus-visible { outline-offset: 1px; }
 
 /* Aurora mesh + grain: identidad ZED */
 body::before {
@@ -107,15 +279,20 @@ body::before {
     radial-gradient(700px 500px at 88% 20%, rgba(255, 92, 0, 0.08), transparent 60%),
     radial-gradient(500px 500px at 50% 100%, rgba(255, 138, 0, 0.05), transparent 60%);
 }
+/* v14 FASE B B3 · El grano era un SVG con feTurbulence: se rasteriza en el hilo
+   principal (long task de 1.5s en el arranque). Ahora es un tile PNG de 64x64
+   (4.3 KB) repetido — mismo look, coste de paint ~0. */
 body::after {
-  content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.05;
+  background-image: url("data:image/png;base64,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");
+  background-repeat: repeat;
+  background-size: 64px 64px;
 }
 #root { position: relative; z-index: 1; }
 
 /* Kinetic title: neón naranja con glow */
 .kinetic {
-  font-family: "Calsans", "Space Grotesk", Geist, sans-serif; letter-spacing: 0.056em;
+  font-family: var(--x-font-display); letter-spacing: var(--x-track-wide);
   background: linear-gradient(135deg, #FF5C00 0%, #FF8A00 50%, #FF3D00 100%);
   background-size: 220% auto;
   -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -145,6 +322,9 @@ body::after {
   display: flex; flex-direction: column;
   gap: clamp(6px, 1.5vw, 12px);
   -webkit-user-select: none; user-select: none;
+  /* v14 FASE B · P2: iOS mostraría el menú contextual "Copiar" al mantener pulsado
+     el jog o un botón; lo desactivamos en el instrumento. */
+  -webkit-touch-callout: none;
   width: 100%; max-width: 100dvw;
 }
 .simulator-wrapper > * { position: relative; transform: none; }
@@ -157,7 +337,6 @@ body::after {
    se aplicaban a toda la app: en landscape la PWA (orientation: landscape)
    escondía las tabs y bloqueaba el scroll → el simulador era inalcanzable. */
 /* position !important: .simulator-wrapper > * fuerza position:relative */
-.console-exit { display: none; flex: 0 0 auto; }
 @media (orientation: landscape) and (max-height: 600px) {
   body.sim-console, body.sim-console #root {
     height: 100dvh !important; width: 100dvw !important;
@@ -195,51 +374,14 @@ body::after {
   body.sim-console .tabs-mobile { display: none !important; }
   body.sim-console .console-exit { display: inline-flex !important; }
 }
-/* ===== v12.0 PORTRAIT: fallback de rotación SOLO del simulador (REGLA #1) =====
-   screen.orientation.lock solo funciona en fullscreen; en el resto de contextos
-   el navegador lo rechaza, así que este CSS garantiza consola horizontal igual.
-   Fixed + origen top-left + 100dvh/100dvw = cubre toda la pantalla sin franjas. */
-@media (orientation: portrait) {
-  .xdj-sim-wrapper {
-    position: fixed !important;
-    top: 0; left: 0;
-    width: 100dvh !important;
-    max-width: none !important; /* .simulator-wrapper limita a 100dvw → rompía la rotación */
-    height: 100dvw !important;
-    min-height: 0 !important;
-    transform: rotate(90deg) translateY(-100%);
-    transform-origin: top left;
-    /* Consola fija 1:1 como en landscape: la rejilla llena el resto y cada
-       columna scrollea dentro. Sin scroll del wrapper → nada sale de pantalla. */
-    display: flex !important; flex-direction: column;
-    overflow: hidden !important;
-    padding-bottom: 0 !important; /* pb-24 comía 96px y la consola quedaba a 114px */
-    z-index: 70;
-    background: #070707;
-  }
-  .xdj-sim-wrapper > * { position: relative !important; transform: none !important; flex: 0 0 auto !important; }
-  /* Dentro de la consola rotada no hacen falta las tabs táctiles: manda la rejilla 3 col */
-  .xdj-sim-wrapper .sim-tabs,
-  .xdj-sim-wrapper .sim-mobile,
-  .xdj-sim-wrapper .sim-chrome { display: none !important; }
-  .xdj-sim-wrapper > .sim-desktop {
-    display: grid !important;
-    grid-template-columns: 1.15fr 0.6fr 1.15fr;
-    gap: 8px; padding: 4px;
-    flex: 1 1 0 !important; min-height: 0;
-  }
-  /* DOM: deck1, deck2, mixer → consola: DECK 1 | MIXER | DECK 2 (lg:order-* no aplica aquí) */
-  .xdj-sim-wrapper .sim-desktop > :nth-child(1) { order: 1; }
-  .xdj-sim-wrapper .sim-desktop > :nth-child(2) { order: 3; }
-  .xdj-sim-wrapper .sim-desktop > .mixer-cell { grid-column: auto !important; order: 2; }
-  /* v13.1: sin override fijo — .jog usa clamp(82,14vw,180) y da 82px en 390 */
-  .xdj-sim-wrapper .console-exit { display: inline-flex !important; }
-  /* Cada columna scrollea dentro del alto rotado sin estirar la rejilla */
-  .xdj-sim-wrapper .sim-desktop > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-}
-@media (orientation: portrait) {
-  .landscape-only { display: none !important; }
-}
+/* ===== v14.0 PORTRAIT SIN ROTACIÓN CSS (TAREA 1) =====
+   Antes: position:fixed + rotate(90deg) forzaba la consola horizontal en
+   TODAS las pantallas portrait. Ahora: NUNCA rotamos con transform.
+   El simulador en portrait usa su layout apilado natural (tabs DECK1/MIXER/
+   DECK2 + paneles stacked, clases sim-tabs/sim-mobile ya existentes).
+   screen.orientation.lock sigue siendo el único intento de landscape y vive
+   en XDJRRSimulator.tsx con try/catch + unlock al salir. */
+.console-exit { display: inline-flex; } /* ✕ SALIR accesible en cualquier orientación */
 
 /* ===== v11.3 LEGIBILIDAD: tracks y controles visibles sobre negro ===== */
 input[type=range] { background: transparent; }
@@ -295,6 +437,8 @@ input[type=range]::-moz-range-progress { background: #FF5C00; height: 6px; borde
   gap: 8px !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
+  /* v14 FASE B B4: sin esto, scrollear el mixer dispara el pull-to-refresh del móvil */
+  overscroll-behavior: contain;
   position: relative !important;
 }
 .deck > *, .mixer > * { flex-shrink: 0; min-width: 0; }
@@ -329,6 +473,8 @@ input[type=range]::-moz-range-progress { background: #FF5C00; height: 6px; borde
 }
 .deck-main { min-width: 0; }
 .rotate-hint { display: none; }
+/* Aviso "gira tu dispositivo" SOLO del simulador (MobilePracticeMode) — permitido
+   por TAREA 1: es un hint elegante, no una rotación forzada. */
 @media (orientation: portrait) and (max-width: 899px) {
   .rotate-hint.show { display: flex; }
 }
@@ -336,8 +482,12 @@ input[type=range]::-moz-range-progress { background: #FF5C00; height: 6px; borde
 @media (max-width: 360px) {
   .lab-title { font-size: 1.35rem; }
 }
-@media (orientation: portrait) {
-  .landscape-only { display: none !important; }
-}
+/* ===== v14 FASE 2: LEDs que parpadean como el hardware ===== */
+/* CUE: parpadea en pausa con punto CUE listo (XDJ-RR real) */
+@keyframes cueBlink { 0%, 49% { box-shadow: 0 0 16px rgba(255,23,68,.9); border-color: #FF1744; } 50%, 100% { box-shadow: none; border-color: rgba(255,23,68,.35); } }
+.cue-blink { animation: cueBlink .55s steps(1, end) infinite; }
+/* FX ON: el botón ON/OFF del Beat FX parpadea cuando el efecto está activo */
+@keyframes fxBlink { 0%, 49% { box-shadow: 0 0 18px rgba(255,92,0,.85); } 50%, 100% { box-shadow: 0 0 3px rgba(255,92,0,.3); } }
+.fx-on-blink { animation: fxBlink .5s steps(1, end) infinite; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #262626; border-radius: 8px; }

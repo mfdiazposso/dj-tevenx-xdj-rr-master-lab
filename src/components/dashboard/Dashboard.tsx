@@ -16,11 +16,11 @@ function TracksCard({ onSim }: { onSim: () => void }) {
   const pct = Math.round((tracks.length / MAX_TRACK_COUNT) * 100);
   return (
     <div className="rounded-xl border border-[#FF5C00]/40 bg-[#FF5C00]/5 p-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <p className="text-[11px] font-black tracking-widest text-[#FF5C00]">MIS TRACKS ({tracks.length}/{MAX_TRACK_COUNT})</p>
         <span className="text-[11px] text-neutral-500">{fmtMB(usedBytes())}</span>
-        <button type="button" onClick={() => setOpen((o) => !o)} className="ml-auto px-3 py-1.5 rounded-lg bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:scale-95">📁 SUBIR</button>
-        <button type="button" onClick={onSim} className="text-xs font-black border border-[#FF5C00] text-[#FF5C00] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">Ir a Simulador</button>
+        <button type="button" onClick={() => setOpen((o) => !o)} className="ml-auto shrink-0 px-3 py-1.5 rounded-lg bg-[#FF5C00] text-black text-xs font-black touch-manipulation active:brightness-125">📁 SUBIR</button>
+        <button type="button" onClick={onSim} className="shrink-0 text-xs font-black border border-[#FF5C00] text-[#FF5C00] rounded-lg px-3 py-1.5 touch-manipulation active:brightness-125">Ir a Simulador</button>
       </div>
       <div className="h-2 rounded bg-black border border-[#22222a] mt-2 overflow-hidden"><div className="h-full bg-[#FF5C00] transition-all" style={{ width: `${pct}%` }} /></div>
       {tracks.length > 0 && <p className="text-xs text-neutral-400 mt-1 truncate">Último: {tracks[tracks.length - 1].name}</p>}
@@ -135,9 +135,9 @@ export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) =
               <p className="font-bold">{next.title} <span className="text-xs text-neutral-500">N{next.level}</span></p>
               <p className="text-sm text-neutral-400">{next.vsFLX4_note}</p>
               <ul className="text-sm mt-2 space-y-1">{next.objectives.map((o) => <li key={o}>· {o}</li>)}</ul>
-              <div className="flex gap-2 mt-3">
-                <button onClick={() => onGo(next.controls[0])} className="px-3 py-1.5 rounded-lg border border-[#FF5C00] text-[#FF5C00] text-sm font-bold">Ver en Mapa</button>
-                <button onClick={() => completeLesson(next.id, next.controls)} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-sm font-bold">Completar lección (+controles)</button>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button onClick={() => onGo(next.controls[0])} className="px-3 py-1.5 rounded-lg border border-[#FF5C00] text-[#FF5C00] text-sm font-bold max-w-full break-words text-left">Ver en Mapa</button>
+                <button onClick={() => completeLesson(next.id, next.controls)} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-black text-sm font-bold max-w-full break-words text-left">Completar lección (+controles)</button>
               </div>
             </div>
           ) : <p className="text-sm text-emerald-400 font-bold">N0/N1 completado. Pasa a misiones.</p>}
@@ -150,10 +150,15 @@ export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) =
               const ok = completedMissions.includes(m.id);
               return (
                 <div key={m.id} className="flex items-center gap-2 rounded-lg bg-black/40 border border-[#22222a] px-2 py-1.5 text-sm">
-                  <span className={`text-[11px] font-black px-1.5 py-0.5 rounded ${ok ? 'bg-emerald-600' : 'bg-[#FF5C00]'}`}>{String(m.n).padStart(2, '0')}</span>
-                  <span className="flex-1">{ok ? '✓ ' : ''}{m.title} <span className="text-neutral-500 text-xs">· {m.difficulty}</span></span>
-                  <button onClick={() => onGo(m.controlIds[0])} className="text-xs text-[#FF5C00] font-bold">Ver</button>
-                  {!ok && <button onClick={() => completeMission(m.id)} className="text-xs font-bold text-emerald-400">Hecha</button>}
+                  <span className={`shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded ${ok ? 'bg-emerald-600 text-black' : 'bg-[#FF5C00] text-black'}`}>{String(m.n).padStart(2, '0')}</span>
+                  {/* v14 FASE B B1: min-w-0 (sin truncate). min-width:auto en flex
+                      dejaba que el título pintara encima de "Ver"/"Hecha" (12 overlaps
+                      a 320px). min-w-0 permite encoger el item. OJO: NO usar truncate
+                      aquí — su white-space:nowrap convierte el min-content en el ancho
+                      del texto completo (252px) y revienta el track del grid (overflow). */}
+                  <span className="flex-1 min-w-0 leading-snug">{ok ? '✓ ' : ''}{m.title} <span className="text-neutral-500 text-xs">· {m.difficulty}</span></span>
+                  <button onClick={() => onGo(m.controlIds[0])} className="shrink-0 text-xs text-[#FF5C00] font-bold">Ver</button>
+                  {!ok && <button onClick={() => completeMission(m.id)} className="shrink-0 text-xs font-bold text-emerald-400">Hecha</button>}
                 </div>
               );
             })}
@@ -165,7 +170,7 @@ export default function Dashboard({ onGo, onSim }: { onGo: (controlId: string) =
         <div className="flex flex-wrap gap-1.5 mt-2">
           {lessons.map((l) => {
             const ok = completedLessons.includes(l.id);
-            return <button key={l.id} onClick={() => onGo(l.controls[0])} title={l.vsFLX4_note} className={`text-xs px-2 py-1.5 rounded-lg border ${ok ? 'border-emerald-600 text-emerald-400' : 'border-[#22222a] text-neutral-300 hover:border-[#FF5C00]'}`}>{ok ? '✓ ' : ''}N{l.level} · {l.title}</button>;
+            return <button key={l.id} onClick={() => onGo(l.controls[0])} title={l.vsFLX4_note} className={`text-xs px-2 py-1.5 rounded-lg border max-w-full break-words text-left ${ok ? 'border-emerald-600 text-emerald-400' : 'border-[#22222a] text-neutral-300 hover:border-[#FF5C00]'}`}>{ok ? '✓ ' : ''}N{l.level} · {l.title}</button>;
           })}
         </div>
       </div>

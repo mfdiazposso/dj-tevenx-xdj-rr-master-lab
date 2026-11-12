@@ -17,7 +17,9 @@ const RANGES = [{ l: '±8', v: 8 }, { l: '±16', v: 16 }, { l: 'WIDE', v: 100 }]
 function Jog({ label, vinyl, onNudge }: { label: string; vinyl: boolean; onNudge: (dx: number) => void }) {
   const lastX = useRef(0);
   return (
-    <div role="slider" aria-label={`Jog ${label}`} tabIndex={0}
+    <div role="slider" aria-label={`Jog ${label}`} aria-orientation="horizontal"
+      aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} aria-valuetext="posición de reproducción"
+      tabIndex={0}
       className={`jog jog-pro rounded-full border-4 flex items-center justify-center select-none focus:ring-1 focus:ring-[#FF5C00] touch-none ${vinyl ? 'border-[#FF8A00]/70' : 'border-[#22222a]'}`}
       style={{ width: 140, height: 140, background: 'radial-gradient(circle,#262626 18%,#0d0e12 45%,#070707 75%)' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); lastX.current = e.clientX; e.preventDefault(); }}

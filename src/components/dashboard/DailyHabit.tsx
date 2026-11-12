@@ -42,7 +42,7 @@ export default function DailyHabit({ onGo, onSim }: { onGo: (id: string) => void
         <span className="text-xs text-neutral-400" title="Mezclas con track real">🎚 {mixes}</span>
         {hacker && <span className="text-xs font-black bg-[#FF5C00] text-black px-2 py-0.5 rounded-full">🏆 RR HACKER</span>}
         {mixes >= 20 && <span className="text-xs font-black bg-[#FF3D00] text-black px-2 py-0.5 rounded-full">🎚 TRIM MASTER</span>}
-        <button type="button" onClick={surprise} className="ml-auto text-xs font-black border border-[#22222a] rounded-lg px-3 py-1.5 touch-manipulation active:scale-95">🎲 Sorpréndeme</button>
+        <button type="button" onClick={surprise} className="ml-auto text-xs font-black border border-[#22222a] rounded-lg px-3 py-1.5 touch-manipulation active:brightness-125">🎲 Sorpréndeme</button>
       </div>
 
       <div className="grid md:grid-cols-3 gap-2">
@@ -61,7 +61,7 @@ export default function DailyHabit({ onGo, onSim }: { onGo: (id: string) => void
           <p className="font-mono text-lg mt-1">{Math.floor(timer.left / 60)}:{String(timer.left % 60).padStart(2, '0')}</p>
           <div className="flex gap-1.5 mt-1">
             {!timer.run
-              ? <button type="button" onClick={() => timer.setRun(true)} className="text-xs font-black bg-emerald-600 rounded-lg px-3 py-1.5">▶ Empezar</button>
+              ? <button type="button" onClick={() => timer.setRun(true)} className="text-xs font-black bg-emerald-600 text-black rounded-lg px-3 py-1.5">▶ Empezar</button>
               : <button type="button" onClick={() => timer.setRun(false)} className="text-xs font-bold border border-[#22222a] rounded-lg px-3 py-1.5">⏸ Pausa</button>}
             <button type="button" onClick={timer.reset} className="text-xs text-neutral-500">Reset</button>
           </div>

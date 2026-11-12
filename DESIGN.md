@@ -5,6 +5,68 @@
 
 Source measurements are normalized; roles and recommendations are interpreted. Font summary lists are independent, not paired by position. HTML examples are reconstructions, not source components.
 
+---
+
+## v14 · Tokens de la app (sistema `--x-*`)
+
+> Dirección elegida para XDJ-RR MASTER LAB: **instrument panel cyberpunk** — la
+> lógica cromática y tipográfica del hardware Pioneer DJ (metal negro mate,
+> LEDs con glow) sobre el lienzo near-black de esta referencia. Un solo
+> lenguaje visual para **web y simulador**, definido en `src/index.css` (`:root`).
+> Documentado aquí; el resto del documento sigue siendo la referencia de estilo.
+
+### Color (base + LEDs semánticos)
+
+| Token | Valor | Rol |
+| --- | --- | --- |
+| `--x-void` | `#070707` | lienzo (html/body) |
+| `--x-carbon` | `#0d0e12` | superficie de tarjeta |
+| `--x-obsidian` | `#141418` | superficie elevada |
+| `--x-line` | `#22222a` | hairline / borde sutil |
+| `--x-metal` | `#2a2d36` | chasis del hardware (`.hw-panel`) |
+| `--x-neon` | `#FF5C00` | **LED naranja: acento primario / FX** |
+| `--x-amber` | `#FF8A00` | texto sobre naranja |
+| `--x-core` | `#FF3D00` | acciones críticas |
+| `--x-play` | `#00E676` | PLAY (verde hardware) |
+| `--x-cue` | `#FF1744` | CUE (rojo hardware) |
+| `--x-cyan` | `#00D4FF` | beat / key / quantize |
+| `--x-teal` | `#00FFD1` | loops |
+| `--x-violet` | `#7C4DFF` | slip |
+| `--x-amber2` | `#FFD600` | auriculares (CUE MIX) |
+
+### Tipografía (cargadas en `index.html` vía Google Fonts)
+
+| Rol | Familia | Token | Uso |
+| --- | --- | --- | --- |
+| Display | **Chakra Petch** 500–700 | `--x-font-display` | títulos, `h1/h2`, `.neon-text`, `.kinetic` — panel de instrumento |
+| Cuerpo | **Geist** 400–900 | `--x-font-body` | body, UI, navegación |
+| Datos | **JetBrains Mono** 400–800 | `--x-font-mono` | `.mono`, `.lbl` (uppercase, tracking `--x-track-label` 0.15em) |
+
+### Forma, sombra y LED
+
+| Token | Valor | Rol |
+| --- | --- | --- |
+| `--x-radius-card` | `20px` | tarjetas (`.card`) |
+| `--x-radius-panel` | `16px` | paneles de hardware |
+| `--x-radius-ctl` | `10px` | controles |
+| `--x-radius-pill` | `800px` | pills/badges (`.btn-pill`, `.btn-neon`) |
+| `--x-shadow-card` | `0 12px 30px rgba(0,0,0,.55)` | elevación de tarjeta |
+| `--x-shadow-neon` | `0 0 20px rgba(255,92,0,.25)` | glow de acento |
+| `--x-glow-neon/play/cue` | `0 0 16/18/12px …` | LED encendido por estado |
+
+### Microinteracción (regla fija: **sin cambio de geometría**)
+
+| Token | Valor | Rol |
+| --- | --- | --- |
+| `--x-t-micro` | `120ms ease` | transición por defecto de `button` (brillo/borde/color/glow) |
+| `--x-press` | `brightness(1.25)` | feedback de press — `button:active` y `active:brightness-125` |
+
+> ⛔ Prohibido `scale`/`translate` en press: altera geometría → causaba overlaps
+> visuales (regla v13.1). El jog usa **inercia** (rAF con damping) y los LEDs
+> **parpadean** (`.cue-blink`, `.fx-on-blink`) en lugar de escalar.
+
+---
+
 Harness's Gitness surface reads as a nocturnal command deck: near-black canvas (#070707) with stacked card surfaces in marginally lighter shades, oversized display headlines in a condensed Calsans face with positive tracking, and a teal/mint accent (#70dcd3) that surfaces on highlight cards like a phosphor monitor glow. The page stays quiet and high-contrast — white text at AAA contrast on deep neutrals, hairline borders in light gray (not dark) to define edges against the dark canvas, and pill-shaped controls (800px radius) that feel like physical hardware buttons. Color is rationed: one bright blue (#0092e4) for active link borders and one mint (#70dcd3) for accent cards, nothing else. Spacing breathes — generous card padding, comfortable section gaps, and large display sizes that let the type carry the hierarchy rather than color or weight.
 
 ## Tokens — Colors
